@@ -1,0 +1,205 @@
+//sidebar
+// $menuText:#ffffff;
+// $menuActiveText:#ffffff;
+// $subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
+// $menuBg:#1B65B9;
+// $menuHover:#263445;
+// $subMenuBg:#1B65B9;
+// $subMenuHover:#014A9E;
+$sideBarWidth: 258px;
+
+
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+// :export {
+  // menuText: $menuText;
+  // menuActiveText: $menuActiveText;
+  // subMenuActiveText: $subMenuActiveText;
+  // menuBg: $menuBg;
+  // menuHover: $menuHover;
+  // subMenuBg: $subMenuBg;
+  // subMenuHover: $subMenuHover;
+  // sideBarWidth: $sideBarWidth;
+// }
+
+
+// 重定义element-UI变量
+$--color-primary:                                #49A1F9;   //主题色
+$--color-success:                                #67c23a;   //成功
+$--color-warning:                                #e6a23c;   //警告
+$--color-danger:                                 #F56C6C;   //危险
+$color-assist:                                   #3CA0F6;   //辅肋色
+$gradual:                                        #3B71E8;   //渐变色
+
+// 字体颜色
+$text-color-title:                               #303133;     //标题
+$text-color-text:                                #606266;     //正文
+$text-color-mark:                                #909399;     //标注
+$text-color-minor:                               #C0C4CC;     //辅助说明
+
+// 边框颜色
+$border-color1:                                  #b6b7b9;
+$border-color2:                                  #cecece;
+$border-color3:                                  #ebeef5;
+$border-color4:                                  #F2F6FC;
+
+
+
+// 背景
+$bg:                                             #eeeff0;
+$bg1:                                            #F0F2F5;
+$bg2:                                            #F5F7FA;
+
+// 字体
+$font-family:                                    "Microsoft YaHei","微软雅黑",Arial,sans-serif,"Helvetica Neue","Helvetica","PingFang SC","Hiragino Sans GB";
+
+
+// 基础值
+$white:                                          #fff;
+$radius:                                         3px;
+$error-bg:                                       #FFE1D8;
+$error-text-color:                               #BB809C;
+
+
+
+
+$const:                                          14px;
+$title-height:                                   0;
+$navbar:                                         58px;
+$tags:                                           40px;
+$border:                                         rgba(206,206,206, 1);
+$title:                                          #101010;
+$text:                                           #636363;
+$input:                                          #c7c7c7;
+$title:                                          #101010;
+
+
+
+
+
+
+
+
+
+$color1:                                         $white;
+$color2:                                         #bb829e;
+$color3:                                         $white;
+
+
+// 头部
+$navbar-height:                                  74px;
+$navbar-theme1:                                  $white;
+$navbar-theme2:                                  $white;
+$navbar-theme3:                                  $white;
+$navbar-text-color1:                             $text;
+$navbar-text-color2:                             #bb829e;
+$navbar-text-color3:                             #55b046;
+
+
+// 标签
+$tag-height:                                     48px;
+$tag-theme1:                                     $--color-primary !important;
+$tag-theme2:                                     #f0a0be !important;
+$tag-theme3:                                     #159c77 !important;
+$tags-view-item-bg:                              $color-assist;
+
+
+// 侧边框导航
+$sidebar-theme1:                                 #002140;
+$sidebar-theme2:                                 #f6cadb;
+$sidebar-theme3:                                 #55b046;
+$sidebar-height:                                 50px;
+$sidebar-color:                                  $white;
+$hideSidebar-width:                              54px;
+
+
+// 表单
+$input-focus-color:                              #5C91CD;
+$form-label-right:                               8px;
+$input-height:                                   26px;
+$input-height-mini:                              24px;
+$form-size:                                      12px;
+
+
+// 按钮
+$btn-padding:                                    12px 16px;
+$btn-small-padding:                              8px 16px;
+$btn-mini-padding:                               5px 16px;
+
+$btn-default-bg:                                 $white;
+$btn-default-border-color:                       #CECECE;
+$btn-default-hover-bg:                           #F6F6F7;
+$btn-default-border-disabled:                    #E6E6E6;
+
+$btn-primary-bg:                                 $--color-primary;
+$btn-primary-hover-bg:                           #3174C0;
+$btn-primary-disabled:                           #ACC7E6;
+
+$btn-success-bg:                                 $--color-success;
+$btn-success-hover-bg:                           #99CC66;
+$btn-success-disabled:                           #CCFFCC;
+
+$btn-warning-bg:                                 $--color-warning;
+$btn-warning-hover-bg:                           #F1B356;
+$btn-warning-disabled:                           #F9DFB9;
+
+$btn-danger-bg:                                 $--color-danger;
+$btn-danger-hover-bg:                           #FA7C7C;
+$btn-danger-disabled:                           #FCC0C0;
+
+$btn-ghost-bg:                                  transparent;
+$btn-ghost-hover-bg:                            #E1EBF6;
+$btn-ghost-hover-border:                        #4581C6;
+$btn-ghost-disabled:                            #ACC7E6;
+
+
+$btn-size:                                       14px;
+$btn-small-size:                                 12px;
+
+
+// 表格
+$table-th-padding:                               9px 0;
+$table-td-padding:                               8px 0;
+$table-td-bg:                                    #f9fafe;
+$table-td-hover-bg:                              #DEE9F5;
+$table-td-height:                                40px;
+//table- th - color
+$table-th-color:                                 #101010;
+
+// tabs选项卡
+$tabs-height:                                    30px;
+$tabs-padding:                                   0 24px;
+$tabs-bg:                                        #fcfcf5;
+$tabs-hover-bg:                                  #ffffd9;
+$tabs-size:                                      12px;
+$tabs-color:                                     $title;
+$tabs-hover-color:                               $--color-primary;
+
+
+// 单选
+$radio-label-padding-left:                        8px;
+$radio-radio-margin-left:                         70px;
+$radio-group:                                     20px;
+$radio-default-color:                             #303133;
+$radio-hover-color:                               $--color-primary;
+$radio-disabled:                                  #C0C4CC;
+
+
+// 多选
+$checked-label-padding-left:                      $radio-label-padding-left;
+$checked-checked-margin-left:                     $radio-radio-margin-left;
+$checked-group:                                   $radio-group;
+$checked-default-color:                           $radio-default-color;
+$checked-hover-color:                             $radio-hover-color;
+$checked-disabled:                                $radio-disabled;
+
+
+// 下拉
+$dropdown-selected:                               #1B65B9;
+$dropdown-hover-color:                            #5C91CD;
+$dropdown-hover-bg:                               #DEE9F5;
+
+
+// 底部
+$footer-height:                                    58px;

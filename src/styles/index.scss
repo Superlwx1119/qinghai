@@ -1,0 +1,496 @@
+@import './variables.scss';
+@import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './sidebar.scss';
+@import './skin.scss';
+
+body {
+  height: 100%;
+  background-color: $bg;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: $font-family;
+}
+
+label {
+  font-weight: 700;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  outline: none;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+
+.right {
+  float: right;
+}
+
+.text-right {
+  text-align: right;
+}
+
+//main-container全局样式
+.app-main {
+  height: 100%;
+  padding: $const - 4px;
+
+  & > div {
+    height: 100%;
+
+    .third-index{
+      height: 100%;
+    }
+  }
+
+  .layer-query {
+
+    .el-col:last-child {
+      font-size: 0;
+
+      button {
+        margin-bottom: 16px;
+      }
+    }
+  }
+
+  .layer-result {
+
+    .box{
+
+      .box-header + .box-body {
+        padding-top: 0;
+      }
+    }
+  }
+}
+
+section.layer + section.layer {
+  margin-top: $const - 4px;
+}
+
+.box {
+  position: relative;
+  height: 100%;
+  background-color: $white;
+  border-radius: 4px;
+  font-size: $const;
+
+  &.height-auto {
+    height: auto;
+  }
+
+  .box-header {
+    position: relative;
+    padding: 10px;
+
+    span.box-title {
+      position: relative;
+      display: inline-block;
+      padding-left: 14px;
+      font-weight: bold;
+      color: $title;
+      font-size: $const;
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 14px;
+        left: 0;
+        top: 1px;
+      }
+    }
+
+    .box-tools {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      height: 32px;
+      line-height: 32px;
+      font-size: 0;
+
+      .el-button--text {
+        color: $text;
+      }
+    }
+
+    &.handle {
+      height: 52px;
+      line-height: 52px;
+      padding: 0 10px;
+
+      span.box-title::after {
+        top: 9px;
+      }
+
+      .box-title {
+        height: 32px;
+        line-height: 32px;
+      }
+
+      .el-form--inline {
+        height: 32px;
+
+        .el-form-item--small {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .box-body {
+    padding: 10px;
+    height: calc(100% - 37px);
+  }
+
+  .tbLine{
+    padding-bottom: 11px !important;
+    padding-top: 11px !important;
+    border-bottom: 1px solid #E3E3E5;
+    border-top:1px solid #E3E3E5;
+  }
+
+  .handle + .box-body {
+    height: calc(100% - 52px);
+
+  }
+
+  .handle.small + .box-body {
+    height: calc(100% - 49px);
+  }
+
+  // .box-body .el-form .el-row .el-col button {
+  //   margin-bottom: 6px;
+  // }
+
+  .el-input-group__prepend button ,
+  .el-input-group__append button{
+    margin: 0 -10px !important;
+    height: 30px;
+  }
+
+  & + .box {
+    margin-top: 10px;
+  }
+
+  .layer-query & {
+
+    .box-body {
+      padding: 16px 10px 0;
+    }
+  }
+}
+
+.flexbox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $white;
+  border-radius: 4px;
+  font-size: $const;
+
+  &.height-auto {
+    height: auto;
+  }
+
+  .flexbox-header {
+
+  }
+
+  .flexbox-body {
+    flex: 1;
+  }
+
+  .flexbox-footer {
+    padding: 10px;
+  }
+}
+
+.span-ellipsis{
+  width: 100%;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+//修改表格中表单校验错误提示样式
+.table-form-validate {
+  .el-form-item__error{
+    padding: 5px;
+    background-color: #f56c6c;
+    color: #fff;
+    white-space: nowrap;
+    line-height: 24px;
+    left: 50%;
+    bottom: auto;
+    border-radius: 5px;
+    transform: translateX(-50%);
+  }
+  .el-form-item__error--inline{
+    position: absolute;
+    top: 100%;
+    margin-left:0px;
+  }
+  .el-form-item__content{
+    position: static;
+  }
+  &.el-form .el-form-item{
+    margin-bottom: 0px;
+  }
+}
+
+/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px
+}
+/*定义滚动条轨道*/
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px
+}
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+  background-color: #cecece;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #b6b7b9;
+  }
+}
+// 调整elementui中弹出框中确定和取消按钮的位置
+.btn-custom-cancel {
+  float: right;
+  margin-left: 10px;
+}
+
+.layer-query .el-col:last-child {
+  float: right;
+  text-align: right;
+}
+
+.item1 {
+
+  .layer-query .el-col:last-child {
+    float: left;
+    text-align: left;
+  }
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 74px});
+  }
+}
+
+.item2 {
+
+  .layer-query .el-col:last-child {
+    @media only screen and (min-width: 1200px) {
+      float: left;
+      text-align: left;
+    }
+  }
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 74px});
+    @media only screen and (max-width: 1199px) {
+      height: calc(100% - #{$title-height + 122px});
+    }
+  }
+}
+
+.item3 {
+
+  .layer-query .el-col:last-child {
+    @media only screen and (min-width: 1920px) {
+      float: left;
+      text-align: left;
+    }
+  }
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 74px});
+    @media only screen and (max-width: 1919px) {
+      height: calc(100% - #{$title-height + 122px});
+    }
+  }
+}
+
+.item4,
+.item5 {
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 122px});
+    @media only screen and (max-width: 1199px) {
+      height: calc(100% - #{$title-height + 170px});
+    }
+  }
+}
+
+.item6,
+.item7 {
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 122px});
+    @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+      height: calc(100% - #{$title-height + 170px});
+    }
+    @media only screen and (max-width: 1199px) {
+      height: calc(100% - #{$title-height + 218px});
+    }
+  }
+
+  & > section:nth-child(2) .el-row .el-col:last-child .person-form .inpatientList{
+    border-right: 0;
+  }
+}
+
+.item8 {
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 170px});
+    @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+        height: calc(100% - #{$title-height + 170px});
+    }
+    @media only screen and (max-width: 1199px) {
+        height: calc(100% - #{$title-height + 266px});
+    }
+  }
+
+  & > section:nth-child(2) .el-row .el-col:last-child .person-form .inpatientList{
+      border-right: 0;
+  }
+}
+
+.item9 {
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 170px});
+    @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+        height: calc(100% - #{$title-height + 218px});
+    }
+    @media only screen and (max-width: 1199px) {
+        height: calc(100% - #{$title-height + 266px});
+    }
+  }
+
+  & > section:nth-child(2) .el-row .el-col:last-child .person-form .inpatientList{
+    border-right: 0;
+  }
+}
+
+.item10 {
+
+  .layer-result {
+    height: calc(100% - #{$title-height + 170px});
+    @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+        height: calc(100% - #{$title-height + 218px});
+    }
+    @media only screen and (max-width: 1199px) {
+        height: calc(100% - #{$title-height + 314px});
+    }
+  }
+}
+
+.table-data {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+
+  tr > td {
+    height: 40px;
+    line-height: 39px;
+    padding: 0;
+    border: 1px solid #CECECE;
+
+    &:nth-child(2n-1) {
+      width: 105px;
+      padding-right: 12px;
+      background-color: #F5F7FA;
+      text-align: right;
+      line-height: 1;
+    }
+
+    &:nth-child(2n) {
+      padding-left: 12px;
+    }
+  }
+
+  // .el-dialog__body & tr > td:nth-child(2n) {
+  //   width: 218px;
+  // }
+}
+
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.no-padding-top {
+  padding-top: 0 !important;
+}
+
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.no-padding-top {
+  padding-top: 0 !important;
+}
+
+
+
+@import './new.scss';
