@@ -1,42 +1,19 @@
 <!-- 医药机构 选择多选 -->
 <template>
   <div class="user-account-wrapper">
-    <el-input></el-input>
-    <!-- <el-popover
-      v-model="visible"
-      v-clickoutside="clickOutSide"
-      placement="bottom"
-      width="600"
-      trigger="manual"
-      :append-to-body="false"
-      :popper-options="{
-        forceAbsolute: true
-      }"
-      :disabled="disabled"
-    >
-      <Table ref="tableElm" :fix-flag="fixFlag" :que-cont="queCont" :search-val="inputVal" @currentChange="tableSelChange" />
-
-      <div slot="reference" class="address-multiple-select-box">
-        <el-input v-model="inputVal" :disabled="disabled" placeholder="请输入机构编码/机构名称/拼音助记码/五笔助记码" clearable @input="inputChangeEvent">
-          <el-button slot="append" :disabled="inputVal.length > 0" icon="el-icon-search" @click="searchClick" />
-        </el-input>
-      </div>
-    </el-popover>
-
-    <search-dialog v-model="searchDialogVisible" :fix-flag="fixFlag" :que-cont="queCont" @selFinish="tableSelChange" /> -->
+    <el-input />
   </div>
 </template>
 
 <script>
-import SearchDialog from './searchDialog'
+// import SearchDialog from './searchDialog'
 import Clickoutside from 'element-ui/src/utils/clickoutside'
-import Table from './table'
-import { listMedinsComt } from './request'
+// import Table from './table'
 export default {
   directives: { Clickoutside },
   components: {
-    SearchDialog,
-    Table
+    // SearchDialog,
+    // Table
   },
   model: {
     prop: 'value',
@@ -104,16 +81,11 @@ export default {
   },
   methods: {
     getNameToCode(code) {
-      const params = {
-        fixFlag: this.fixFlag,
-        queCont: this.queCont,
-        queCond: code
-      }
-      listMedinsComt(params).then(res => {
-        if (res.data) {
-          this.inputVal = res.data.data[0].medinsName
-        }
-      }).catch()
+      // const params = {
+      //   fixFlag: this.fixFlag,
+      //   queCont: this.queCont,
+      //   queCond: code
+      // }
     },
     reset() {
       this.inputVal = ''

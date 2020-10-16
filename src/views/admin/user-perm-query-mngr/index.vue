@@ -28,9 +28,9 @@
     </template>
     <el-row :gutter="12" style="margin-right:0!important;margin-left:0!important;" class="height100b">
       <el-col :span="12" class="height100b">
-        <section class="layer height100b" style="border:1px solid #666666">
-          <div class="box height100b" style="border:1px solid #455445">
-            <div class="box-header handle height100b">
+        <section class="layer height100b">
+          <div class="box height100b">
+            <div class="box-header handle">
               <span class="box-title">角色信息</span>
               <div class="box-tools">
                 <el-form :inline="true">
@@ -87,9 +87,8 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
 import RoleMaintenance from './role-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
-// import Columns from './listCloumns'
+
 import moment from 'moment'
-// import EditDialog from './edit-dialog'
 export default {
   components: {
     RoleMaintenance,
@@ -101,6 +100,10 @@ export default {
   mixins: [PageHandle],
   data() {
     return {
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
       filterText: '',
       data: [{
         label: '一级 1',
@@ -192,6 +195,7 @@ export default {
     }
   },
   methods: {
+    // 查询方法
     filterNode(value, data) {
       if (!value) return true
       return data.label.indexOf(value) !== -1

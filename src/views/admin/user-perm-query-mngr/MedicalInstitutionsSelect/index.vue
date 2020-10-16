@@ -34,7 +34,6 @@ import SearchDialog from './searchDialog'
 import { on, off } from 'element-ui/lib/utils/dom'
 import emitter from 'element-ui/lib/mixins/emitter'
 import Table from './table'
-import { listMedinsComt } from './request'
 export default {
   components: {
     SearchDialog,
@@ -162,19 +161,13 @@ export default {
       }
     },
     getNameToCode(code) {
-      const params = {
-        fixFlag: this.fixFlag,
-        queCont: this.queCont,
-        queCond: code,
-        pageSize: 10,
-        pageNum: 1
-      }
-      listMedinsComt(params).then(res => {
-        if (res.data) {
-          this.inputVal = res.data.data[0].medinsName
-          this.tableSelChange(res.data.data[0])
-        }
-      }).catch()
+      // const params = {
+      //   fixFlag: this.fixFlag,
+      //   queCont: this.queCont,
+      //   queCond: code,
+      //   pageSize: 10,
+      //   pageNum: 1
+      // }
     },
     reset() {
       this.inputVal = ''

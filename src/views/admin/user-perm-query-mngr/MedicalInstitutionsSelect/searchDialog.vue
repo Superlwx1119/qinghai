@@ -41,7 +41,9 @@
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
 import Table from './table'
-// import { getCodeTableDetailConvergence } from '@/api/Common/CodeTableRequest'
+// 获取列表
+// eslint-disable-next-line no-unused-vars
+import { page } from '@/api/Admin/user-management'
 export default {
   components: {
     FormItems,
@@ -111,15 +113,6 @@ export default {
     // this.getInstisLvDatas()
   },
   methods: {
-    // getInstisLvDatas() {
-    //   const params = {
-    //     codeType: 'MEDINSLV,OUT_TYPE'
-    //   }
-    //   getCodeTableDetailConvergence(params).then(res => {
-    //     this.$set(this.formItemsDatas[2], 'options', res.data['MEDINSLV'])
-    //     this.$set(this.formItemsDatas[3], 'options', res.data['OUT_TYPE'])
-    //   })
-    // },
     reset() {
       this.dataForm = {
         medinsCodg: '',
@@ -133,8 +126,10 @@ export default {
       })
     },
     resetForm() {
-      this.reset()
-      this.$refs.tableRef.reset()
+      this.$nextTick(() => {
+        this.reset()
+        this.$refs.tableRef.reset()
+      })
     },
     closeDialog() {
       this.$emit('closeAll', false)
@@ -159,9 +154,5 @@ export default {
 .header-box{
   width: 100%;
   margin-bottom: 10px;
-  // display: flex;
-  // .ruleFrom{
-  //   flex: 1
-  // }
 }
 </style>

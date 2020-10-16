@@ -1,9 +1,8 @@
 <template>
-  <div class="busirole-maintenance height100b">
-    <!-- 业务角色维护 -->
-    <section class="layer ">
-      <div class="box ">
-        <div class="box-body ">
+  <div class="busirole-maintenance">
+    <section class="layer">
+      <div class="box">
+        <div class="box-body height100b" style="padding:0;height:100%;">
           <el-table
             v-loading="roleUserTableLoading"
             :data="roleUserTableData"
@@ -21,10 +20,10 @@
               width="55"
               align="center"
             />
-            <el-table-column label="序号" type="index" align="center" width="50" />
-            <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />
-            <el-table-column prop="userName" show-overflow-tooltip label="姓名" align="center" />
-            <el-table-column prop="uactStas" show-overflow-tooltip label="账号状态" align="center">
+            <el-table-column label="序号" type="index" align="center" width="55" />
+            <el-table-column prop="uact" show-overflow-tooltip label="角色名称" align="center" />
+            <el-table-column prop="userName" show-overflow-tooltip label="角色类别" align="center" />
+            <el-table-column prop="uactStas" show-overflow-tooltip label="描述信息" align="center">
               <template slot-scope="scope">
                 <el-switch
                   v-model="scope.row.uactStas"
@@ -59,7 +58,6 @@
 </template>
 
 <script>
-import { busiRoleUser, busiRole } from '@/api/Admin/user-management'
 export default {
   name: 'BusiroleManage',
   components: {
@@ -114,74 +112,19 @@ export default {
 
   },
   methods: {
-    // 选择关联用户
     handleSelectionChange(val) {
-      this.selectedList = val
-      this.selectedListArr = this.selectedList.map(item => {
-        return {
-          ...item,
-          roleId: this.roleId,
-          roleName: this.searchForm.roleName,
-          roleType: '2'
-        }
-      })
-    },
-    // 新增关联用户
-    addNewUser() {
-      if (!this.roleId) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请选择一个业务角色</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'error'
-        })
-        return
-      }
-      this.dataObj.isShow = true
-      this.dataObj.searchForm = this.searchForm
-    },
-    // 获取业务角色详情
-    getBusiroleInfo(id) {
-      this.$nextTick(() => {
-        this.roleId = id
-        this.dataObj.roleId = id
-        busiRole(id).then(res => {
-          if (res.code === 0) {
-            this.searchForm = res.data
-          }
-        })
-      })
-    },
-    // 获取关联账户列表
-    getRelationUser(id) {
-      this.roleUserTableLoading = true
-      const data = {
-        pageSize: this.pageSize,
-        total: this.total,
-        pageNumber: this.currentPage
-      }
-      busiRoleUser(id, data).then(res => {
-        if (res.code === 0) {
-          this.roleUserTableData = res.data.result
-          this.total = res.data.recordCount
-          const num1 = this.pageSize * (this.currentPage - 1) + 1
-          const num2 = this.pageSize * this.currentPage > this.total ? this.total : this.pageSize * this.currentPage
-          this.startRow = num1
-          this.endRow = num2
-          this.roleUserTableLoading = false
-        }
-      })
+      this.$emit('update:multipleSelection', val)
     },
     changeIcon(icon) {
       this.searchForm.resuIcon = icon
     },
     // 查询
     search() {
-      this.getTableData(this.kpiFcode)
+      // this.getTableData(this.kpiFcode)
     },
     // 重置
     restSearch() {
-      this.searchForm.kpiName = ''
-      this.searchForm.inptTime = ''
+
     },
     // 切换每页的数量
     handleSizeChange(val) {
