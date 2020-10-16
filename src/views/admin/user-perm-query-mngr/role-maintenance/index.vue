@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { delBusiroleUsers, busiroleUpdate, busiRoleUser, busiRole } from '@/api/Admin/user-management'
+import { busiRoleUser, busiRole } from '@/api/Admin/user-management'
 export default {
   name: 'BusiroleManage',
   components: {
@@ -126,46 +126,6 @@ export default {
         }
       })
     },
-    // 删除用户
-    delUser() {
-      if (this.selectedListArr.length === 0) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请至少选择一条用户</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'warning'
-        })
-        return
-      }
-      this.$confirm(`此操作将永久删除角色【${this.searchForm.roleName}】下的${this.selectedList[0].uact}等账号, 是否继续?`, {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const params = this.selectedListArr
-        delBusiroleUsers(params).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              type: 'success',
-              dangerouslyUseHTMLString: true,
-              message: `<strong>操作成功</strong><p>${res.message}</p>`,
-              duration: 1000
-            })
-            this.getRelationUser(this.roleId)
-          } else {
-            this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">${res.message}</div>`, {
-              dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-              type: 'error'
-            })
-          }
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-    },
     // 新增关联用户
     addNewUser() {
       if (!this.roleId) {
@@ -178,37 +138,6 @@ export default {
       }
       this.dataObj.isShow = true
       this.dataObj.searchForm = this.searchForm
-    },
-    // 保存业务角色信息
-    saveBusiroleInfo() {
-      if (!this.searchForm.bizRoleId) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请选择一个业务角色</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'error'
-        })
-        return
-      }
-      const params = {
-        ...this.searchForm
-      }
-      busiroleUpdate(params).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            type: 'success',
-            dangerouslyUseHTMLString: true,
-            message: `<strong>操作成功</strong><p>${res.message}</p>`,
-            duration: 1000
-          })
-          this.searchForm = res.data
-        } else {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">${res.message}</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'error'
-          })
-        }
-      })
     },
     // 获取业务角色详情
     getBusiroleInfo(id) {

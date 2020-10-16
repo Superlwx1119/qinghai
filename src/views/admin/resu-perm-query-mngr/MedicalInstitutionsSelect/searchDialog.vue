@@ -8,71 +8,19 @@
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
-    <div class="demo-input-size">
-      <el-input
-        v-model="input1"
-        placeholder="请输入内容"
-        suffix-icon="el-icon-search"
-      />
-    </div>
-    <el-row class="tac">
-      <el-col :span="24">
-        <el-menu
-          default-active="1-1-1"
-          class="el-menu-vertical-demo"
-          background-color="#fff"
-          active-text-color="red"
-          text-color="#000"
-
-          @open="handleOpen"
-          @close="handleClose"
-        >
-          <el-submenu index="1">
-            <template slot="title">
-              <span
-                class="el-tree-node__expand-icon
-                  el-icon-caret-bottom"
-              />
-              <i
-                class="el-icon-folder-opened"
-              />
-              <span>菜单列表</span>
-            </template>
-            <el-submenu index="1-1">
-              <template slot="title">
-                <span
-                  class="el-tree-node__expand-icon
-                  el-icon-caret-right"
-                />
-                <i
-                  class="el-icon-folder-opened"
-                />
-                统一门户内部系统</template>
-              <el-menu-item index="1-1-1">
-                <i
-                  class="el-icon-folder"
-                />
-                系统管理</el-menu-item>
-              <el-menu-item index="1-1-2">
-                <i
-                  class="el-icon-folder"
-                />
-                系统管理</el-menu-item>
-              <el-menu-item index="1-1-3">
-                <i
-                  class="el-icon-folder"
-                />
-                系统管理</el-menu-item>
-              <el-menu-item index="1-1-4">
-                <i
-                  class="el-icon-folder"
-                />
-                系统管理</el-menu-item>
-            </el-submenu>
-          </el-submenu>
-        </el-menu>
-      </el-col>
-    </el-row>
+    <el-input
+      v-model="filterText"
+      placeholder="输入关键字进行过滤"
+    />
+    <el-tree
+      ref="tree"
+      :data="data"
+      :props="defaultProps"
+      accordion
+      class="filter-tree"
+      :filter-node-method="filterNode"
+      @node-click="handleNodeClick"
+    />
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
     </span>
@@ -81,7 +29,8 @@
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
 import Table from './table'
-// import { getCodeTableDetailConvergence } from '@/api/Common/CodeTableRequest'
+// eslint-disable-next-line no-unused-vars
+import { resource } from '@/api/Admin/user-management'
 export default {
   components: {
     // eslint-disable-next-line vue/no-unused-components
@@ -113,6 +62,46 @@ export default {
   },
   data() {
     return {
+      filterText: '',
+      data: [{
+        label: '一级 1',
+        children: [{
+          label: '二级 1-1',
+          children: [{
+            label: '三级 1-1-1'
+          }]
+        }]
+      }, {
+        label: '一级 2',
+        children: [{
+          label: '二级 2-1',
+          children: [{
+            label: '三级 2-1-1'
+          }]
+        }, {
+          label: '二级 2-2',
+          children: [{
+            label: '三级 2-2-1'
+          }]
+        }]
+      }, {
+        label: '一级 3',
+        children: [{
+          label: '二级 3-1',
+          children: [{
+            label: '三级 3-1-1'
+          }]
+        }, {
+          label: '二级 3-2',
+          children: [{
+            label: '三级 3-2-1'
+          }]
+        }]
+      }],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
       input1: '',
       titleShow: '选择资源',
       sureLoading: false,
@@ -134,14 +123,39 @@ export default {
   computed: {
   },
   watch: {
+    filterText(val) {
+      this.$refs.tree.filter(val)
+    },
     isDialogVisible(newVal) {
       if (newVal) {
         this.search()
       }
     }
   },
-  created() {},
+  created() {
+    this.resourcebtn()
+  },
   methods: {
+    resourcebtn() {
+      // eslint-disable-next-line no-unused-vars
+      const param = {
+        roleId: 'adminRoleId',
+        authType: 1,
+        resuType: 1
+      }
+      resource(param).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleNodeClick(data) {
+      console.log(data)
+    },
     handleOpen(key, keyPath) {
       console.log(key, keyPath)
     },
@@ -157,12 +171,14 @@ export default {
     },
     search() {
       this.$nextTick(() => {
-        this.$refs.tableRef.iniSearch()
+        // this.$refs.tableRef.iniSearch()
       })
     },
     resetForm() {
-      this.reset()
-      this.$refs.tableRef.reset()
+      this.$nextTick(function() {
+        this.reset()
+        this.$refs.tableRef.reset()
+      })
     },
     closeDialog() {
       this.$emit('closeAll', false)

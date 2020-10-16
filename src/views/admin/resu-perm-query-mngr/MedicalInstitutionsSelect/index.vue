@@ -58,7 +58,7 @@ export default {
       type: [String, Object],
       default: ''
     },
-    bindType: { // v-model绑定的类型，code:绑定编码， name: 绑定名称，object: 绑定对象，对象内为keyobj的key值
+    bindType: {
       type: String,
       default: 'code'
     },
@@ -66,11 +66,11 @@ export default {
       type: Boolean,
       default: false
     },
-    fixFlag: { // 定点标志（0：非定点，1：定点）必填项
+    fixFlag: {
       type: String,
       default: '1'
     },
-    queCont: { // 查询内容（1：机构，2：药店）必填项
+    queCont: {
       type: String,
       default: '1'
     },
@@ -78,7 +78,7 @@ export default {
       type: Boolean,
       default: true
     },
-    keyObj: { // 当bindType为ojbect时才生效
+    keyObj: {
       type: Object,
       default: () => {
         return {

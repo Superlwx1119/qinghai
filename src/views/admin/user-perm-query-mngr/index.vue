@@ -63,6 +63,17 @@
               />
             </el-select>
           </template>
+          <template>
+            <el-tree
+              ref="tree"
+              :data="data"
+              :props="defaultProps"
+              accordion
+              class="filter-tree"
+              :filter-node-method="filterNode"
+              @node-click="handleNodeClick"
+            />
+          </template>
         </div>
       </el-col>
     </el-row>
@@ -90,6 +101,42 @@ export default {
   mixins: [PageHandle],
   data() {
     return {
+      filterText: '',
+      data: [{
+        label: '一级 1',
+        children: [{
+          label: '二级 1-1',
+          children: [{
+            label: '三级 1-1-1'
+          }]
+        }]
+      }, {
+        label: '一级 2',
+        children: [{
+          label: '二级 2-1',
+          children: [{
+            label: '三级 2-1-1'
+          }]
+        }, {
+          label: '二级 2-2',
+          children: [{
+            label: '三级 2-2-1'
+          }]
+        }]
+      }, {
+        label: '一级 3',
+        children: [{
+          label: '二级 3-1',
+          children: [{
+            label: '三级 3-1-1'
+          }]
+        }, {
+          label: '二级 3-2',
+          children: [{
+            label: '三级 3-2-1'
+          }]
+        }]
+      }],
       dataForm: {
         fixmedinsCode: '',
         fixmedinsName: '',
@@ -145,6 +192,13 @@ export default {
     }
   },
   methods: {
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleNodeClick(data) {
+      console.log(data)
+    },
     registrationClick() {
       this.$msgSuccess('')
     },
@@ -160,7 +214,6 @@ export default {
 <style scoped lang="scss">
 .height100b{
       height: 100%;
-      border: 1px solid red;
   }
 </style>
 
