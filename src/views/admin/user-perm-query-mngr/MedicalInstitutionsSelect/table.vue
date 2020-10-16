@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import { listMedinsComt } from './request'
 export default {
   props: {
     searchVal: {
@@ -101,18 +100,6 @@ export default {
         }
       }
       this.loading = true
-      listMedinsComt(params).then(res => {
-        this.loading = false
-        if (res.data) {
-          this.tableData = res.data.data
-        } else {
-          this.tableData = []
-        }
-        this.setPaginationQuery(res.data)
-      }).catch(() => {
-        this.loading = false
-        this.tableData = []
-      })
     },
     isSearching() {
       if (this.loading) {

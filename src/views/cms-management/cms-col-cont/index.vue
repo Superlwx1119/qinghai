@@ -17,7 +17,8 @@
               :default-expanded-keys="['1']"
               node-key="servitemType"
               accordion
-              @node-click="handleNodeClick">
+              @node-click="handleNodeClick"
+            >
               <span slot-scope="{ node }" class="span-ellipsis">
                 <span :title="node.label">{{ node.label }}</span>
               </span>
@@ -45,12 +46,14 @@
                         v-model="searchForm.declareStatus"
                         placeholder="请选择"
                         style="width:100%;"
-                        clearable>
+                        clearable
+                      >
                         <el-option
                           v-for="item in selectList.stateList"
                           :key="item.dictValueCode"
                           :label="item.dictValueName"
-                          :value="item.dictValueCode"/>
+                          :value="item.dictValueCode"
+                        />
                       </el-select>
                     </el-form-item>
                   </el-col>
@@ -82,46 +85,54 @@
                 border
                 fit
                 element-loading-spinner="el-loading1"
-                style="width: 100%;">
-                <el-table-column :reserve-selection="true" type="selection" width="55" align="center"/>
+                style="width: 100%;"
+              >
+                <el-table-column :reserve-selection="true" type="selection" width="55" align="center" />
                 <el-table-column label="序号" type="index" align="center" width="50" />
                 <el-table-column
                   min-width="100"
                   prop="stdName"
                   label="栏目标题"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column prop="admdvsName" label="栏目内容" align="center" show-overflow-tooltip />
                 <el-table-column
                   prop="appyDateStr"
                   label="审批人"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column
                   prop="crtNodeName"
                   label="审批时间"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column
                   prop="crtNodeName"
                   label="审批意见"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column
                   prop="crtNodeName"
                   label="审批结果"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column
                   prop="crtNodeName"
                   label="审批状态"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column
                   prop="crtNodeName"
                   label="提交状态"
                   align="center"
-                  show-overflow-tooltip/>
+                  show-overflow-tooltip
+                />
                 <el-table-column width="180" label="操作" align="center" fixed="right">
                   <template slot-scope="scope">
                     <el-button type="text" class="modify" @click.stop="isExamine(scope.row,'query')">详情</el-button>
@@ -135,7 +146,8 @@
                 :total="table.total"
                 layout="total, prev, pager, next, sizes, jumper"
                 @size-change="handleSizeChange"
-                @current-change="handleCurrentChange" />
+                @current-change="handleCurrentChange"
+              />
             </div>
           </div>
         </section>
@@ -199,13 +211,13 @@ export default {
     // 查询
     search() {
       this.table.loading = true
-      let params = this.searchForm
+      const params = this.searchForm
       this.searchInfo = Object.assign({}, params)
       this.table.pageNum = 1
       this.pageChange()
     },
     pageChange() {
-      let params = this.searchInfo
+      const params = this.searchInfo
       params.pageNum = this.table.pageNum
       params.pageSize = this.table.pageSize
       this.table.loading = false
