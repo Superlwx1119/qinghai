@@ -12,15 +12,16 @@
             style="width: 100%;"
             border
             fit
+            @selection-change="handleSelectionChange"
           >
             <!-- @selection-change="handleSelectionChange" -->
             <el-table-column type="selection" align="center" width="50" />
             <el-table-column label="序号" type="index" align="center" width="50" />
             <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />
             <el-table-column prop="userName" show-overflow-tooltip label="姓名" align="center" />
-            <el-table-column prop="idcard" show-overflow-tooltip label="证件号码" align="center" />
-            <el-table-column prop="phone" show-overflow-tooltip label="办公号码" align="center" />
-            <el-table-column prop="num" show-overflow-tooltip label="手机号码" align="center" />
+            <el-table-column prop="certNO" show-overflow-tooltip label="证件号码" align="center" />
+            <el-table-column prop="tel" show-overflow-tooltip label="办公号码" align="center" />
+            <el-table-column prop="mob" show-overflow-tooltip label="手机号码" align="center" />
             <el-table-column prop="uactStas" show-overflow-tooltip label="账号状态" align="center">
               <template slot-scope="scope">
                 <el-switch
@@ -32,7 +33,7 @@
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="tim" label="组织结构" align="center" />
+            <el-table-column prop="orgName" label="组织结构" align="center" />
             <el-table-column prop="dscr" label="描述信息" align="center" />
           </el-table>
         </div>
@@ -102,6 +103,9 @@ export default {
   },
   methods: {
     // // 选择关联用户
+    handleSelectionChange(val) {
+      this.$emit('handleSelectionChange', val)
+    }
     // handleSelectionChange(val) {
     //   if (this.securityRoleId) {
     //     this.selectedList = val

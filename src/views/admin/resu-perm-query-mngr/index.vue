@@ -7,9 +7,9 @@
   >
     <template slot="search-header">
       <form-items :items-datas="itemsDatas" :form-datas="queryForm">
-        <template slot="fixmedinsCode">
+        <template slot="resuName">
           <medical-institutions-select
-            v-model="dataForm.fixmedinsCode"
+            v-model="dataForm.resuName"
             dialog-title="xxx"
             :fix-flag="fixFlag"
             :que-cont="queCont"
@@ -22,7 +22,7 @@
     </template>
 
     <template slot="title-btns">
-      <el-dropdown>
+      <el-dropdown @command="exportLocalData">
         <el-button type="primary">
           导出
           <i
@@ -30,24 +30,27 @@
           />
         </el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>导出选中</el-dropdown-item>
-          <el-dropdown-item>导出当页</el-dropdown-item>
-          <el-dropdown-item>导出全部</el-dropdown-item>
+          <el-dropdown-item command="select">导出选中</el-dropdown-item>
+          <el-dropdown-item command="current">导出当页</el-dropdown-item>
+          <el-dropdown-item command="all">导出全部</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </template>
-    <resu-maintenance ref="roleMaintenance" :table-data="tableData" class="height100b" />
-    <Pagination />
+    <resu-maintenance ref="roleMaintenance" :table-data="tableData" class="height100b" @handleSelectionChange="handleSelectionChange" />
+    <Pagination :data="pageInfo" @refresh="pageChange" />
   </normal-layer>
 </template>
 <script>
+import { deepClone } from '@/utils/index'
+// import { momentDate } from '@/filters'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
 import userAccount from '@/views/components/PageSelects/Common/UserAccount'
 import ResuMaintenance from './resu-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
-import moment from 'moment'
+// import moment from 'moment'
+import { page } from '@/api/Admin/user-management'
 export default {
   components: {
     NormalLayer,
@@ -67,8 +70,8 @@ export default {
         fundPayType: '',
         poolareaFundPayType: '',
         audtDetAmt: '',
-        audtDetDscr: '',
-        audtDetSouc: ''
+        resuCodg: '',
+        resuId: ''
       },
       fixFlag: '1',
       queCont: '1',
@@ -76,37 +79,121 @@ export default {
       loading: false,
       multipleSelection: [],
       itemsDatas: [
-        { label: '用户账号', prop: 'fixmedinsCode', type: 'custom', slotName: 'fixmedinsCode' },
-        { label: '姓名', prop: 'xxx', type: 'input', disabled: true },
-        { label: '证件号码', prop: 'xxx', type: 'input', disabled: true }
+        { label: '菜单名称', prop: 'resuName', type: 'custom', slotName: 'fixmedinsCode' },
+        { label: '用户帐号', prop: 'uact', type: 'input' },
+        { label: '姓名', prop: 'userName', type: 'input' }
       ],
       queryForm: {
-        xxx: '',
-        xxx1: '',
-        dateRange: [
-          moment().startOf('month').format('YYYY-MM-DD'),
-          moment().endOf('month').format('YYYY-MM-DD')
-        ]
+        userName: '',
+        uact: '',
+        resuName: ''
       },
-      columns: [],
-      tableData: [
-        { uact: '123', userName: 'xxx', nameCode: 'xxx', uactStas: '1' },
-        { uact: 'sdfs', userName: 'xxx', nameCode: 'xxx', uactStas: '3' },
-        { uact: '345', userName: 'xxx', nameCode: 'xxx', uactStas: '1' }
-      ],
+      pageInfo: {
+        pageNumber: 1,
+        pageSize: 15,
+        startRow: 0,
+        endRow: 0,
+        total: 0
+      },
+      columns: ['用户账号', '姓名', '证件号码', '办公电话', '手机号码', '账号状态', '组织机构', '描述信息'],
+      columnsValue: ['uact', 'userName', 'certNO', 'tel', 'mob', 'uactStas', 'orgName', 'dscr'],
+      tableData: [],
       showDetailDialog: false,
       dialogTitle: '新增',
       showEditDialog: false
     }
   },
   methods: {
+    handleSelectionChange(v) {
+      this.multipleSelection = v
+    },
     registrationClick() {
       this.$msgSuccess('')
     },
+    pageChange(data) {
+      this.pageInfo.pageSize = data.pagination.pageSize
+      this.pageInfo.pageNumber = data.pagination.pageNum
+      this.search()
+    },
+    exportLocalData(type) {
+      if (this.tableData.length === 0) {
+        this.$msgInfo('暂无数据导出')
+        return
+      }
+      let arr = []
+      if (type === 'all') {
+        // 接口
+        return
+      } else if (type === 'current') {
+        arr = this.tableData
+      } else {
+        if (this.multipleSelection.length === 0) {
+          this.$msgInfo('未选择数据')
+          return
+        }
+        arr = this.multipleSelection
+      }
+      console.log(arr)
+      require.ensure([], () => {
+        const { export_json_to_excel } = require('@/vendor/ExportExcel')
+        // 头
+        const tHeader = this.columns.map((item) => item)
+        // 对应的属性
+        const filterVal = this.columnsValue.map((item) => item)
+        const data = this.formatJson(filterVal, deepClone(this.tableData))
+        export_json_to_excel(tHeader, data, '账号信息')
+      })
+    },
+    // 格式化数据
+    formatJson(filterVal, jsonData) {
+      for (const i in jsonData) {
+        if (jsonData[i] === '1') {
+          jsonData[i] = '启用'
+        } else {
+          jsonData[i] = '禁用'
+        }
+      }
+      return jsonData.map((v) => filterVal.map((j) => v[j]))
+    },
+    handleHeadData() {
+      const newColums = []
+      this.columns.map((item) => {
+        if (this.exportForm.field.includes(item.prop)) {
+          newColums.push(item)
+        }
+      })
+      return newColums
+    },
+    search() {
+      const form = {
+        resuName: this.dataForm.fixmedinsName,
+        admrolId: 'adminRoleId',
+        resuCodg: this.dataForm.resuCodg,
+        resuId: this.dataForm.resuId
+      }
+      for (const i in this.queryForm) {
+        if (this.queryForm[i] === '') {
+          delete this.queryForm[i]
+        }
+      }
+      page(Object.assign(this.pageInfo, form, this.queryForm)).then(res => {
+        this.tableData = res.data.result
+        const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+        const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
+        this.pageInfo = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.recordCount,
+          startRow: num1,
+          endRow: num2
+        }
+      })
+    },
     getFixmedins(val) {
-      this.dataForm.fixmedinsCode = val.medinsCodg
+      this.dataForm.resuId = val.resuId
       this.dataForm.fixmedinsName = val.medinsName
-      this.dataForm.fixmedinsType = val.medinsName
+      this.dataForm.resuCodg = val.resuCodg
+      this.search()
     }
   }
 }

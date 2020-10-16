@@ -19,7 +19,19 @@
       <Table ref="tableElm" style="margin-top: 10px" :fix-flag="fixFlag" :que-cont="queCont" :search-val="inputVal" @currentChange="tableSelChange" />
 
       <div slot="reference" class="address-multiple-select-box">
-        <el-input ref="reference" v-model="inputVal" :disabled="disabled" placeholder="点击选择菜单后查询" clearable @input="inputChangeEvent" @clear="clearClick" @blur="blurChange" @focus="focusInput">
+        <el-input
+          ref="reference"
+          v-model="inputVal"
+          readonly
+          :disabled="disabled"
+          placeholder="点击选择菜单后查询"
+          clearable
+          @dblclick="searchClick"
+          @input="inputChangeEvent"
+          @clear="clearClick"
+          @blur="blurChange"
+          @focus="focusInput"
+        >
           <el-button slot="append" :disabled="disabled || inputVal.length > 0" icon="el-icon-search" @click="searchClick" />
         </el-input>
       </div>

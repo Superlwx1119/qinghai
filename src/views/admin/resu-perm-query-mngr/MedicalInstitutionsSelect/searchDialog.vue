@@ -20,7 +20,11 @@
       class="filter-tree"
       :filter-node-method="filterNode"
       @node-click="handleNodeClick"
-    />
+    >
+      <template slot-scope="{data}">
+        <span>{{ data.name }}</span>
+      </template>
+    </el-tree>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
     </span>
@@ -63,41 +67,7 @@ export default {
   data() {
     return {
       filterText: '',
-      data: [{
-        label: '一级 1',
-        children: [{
-          label: '二级 1-1',
-          children: [{
-            label: '三级 1-1-1'
-          }]
-        }]
-      }, {
-        label: '一级 2',
-        children: [{
-          label: '二级 2-1',
-          children: [{
-            label: '三级 2-1-1'
-          }]
-        }, {
-          label: '二级 2-2',
-          children: [{
-            label: '三级 2-2-1'
-          }]
-        }]
-      }, {
-        label: '一级 3',
-        children: [{
-          label: '二级 3-1',
-          children: [{
-            label: '三级 3-1-1'
-          }]
-        }, {
-          label: '二级 3-2',
-          children: [{
-            label: '三级 3-2-1'
-          }]
-        }]
-      }],
+      data: [],
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -145,16 +115,19 @@ export default {
       }
       resource(param).then(res => {
         console.log(res)
+        this.data = res.data
       }).catch(err => {
         console.log(err)
       })
     },
     filterNode(value, data) {
       if (!value) return true
-      return data.label.indexOf(value) !== -1
+      return data.name.indexOf(value) !== -1
     },
     handleNodeClick(data) {
       console.log(data)
+      this.$emit('selFinish', { medinsName: data.name, resuCodg: data.data.resuCodg, resuId: data.data.resuId })
+      // this.closeDialog()
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath)
@@ -175,9 +148,9 @@ export default {
       })
     },
     resetForm() {
-      this.$nextTick(function() {
+      this.$nextTick(() => {
         this.reset()
-        this.$refs.tableRef.reset()
+        // this.$refs.tableRef.reset()
       })
     },
     closeDialog() {
