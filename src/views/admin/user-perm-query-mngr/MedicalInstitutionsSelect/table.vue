@@ -13,9 +13,6 @@
       <template slot="select" slot-scope="scope">
         <el-radio v-model="selMedinsCodg" :label="scope.row.medinsCodg">{{ '' }}</el-radio>
       </template>
-      <template v-if="queryParams" slot="outFlag">
-        {{ queryParams.outFlag === '1' ? '省内异地' : queryParams.outFlag === '2' ? '跨省异地' : '本地' }}
-      </template>
     </my-table-view>
     <Pagination :data="paginationQuery" @refresh="pageChange" />
   </div>
@@ -63,20 +60,16 @@ export default {
     columns() {
       const baseArr = [
         { type: 'index', label: '序号' },
-        { prop: 'medinsCodg', label: '医疗机构编码' },
-        { prop: 'medinsName', label: '医疗机构名称' }
+        { prop: 'medinsCodg', label: '用户账户' },
+        { prop: 'medinsName', label: '姓名' },
+        { prop: 'medinsCodg', label: '证件号码' },
+        { prop: 'medinsName', label: '电话号码' },
+        { prop: 'medinsName', label: '选择' }
       ]
-      if (this.queCont !== '2') {
-        baseArr.push({ prop: 'instisLvName', label: '医院级别' })
-      }
       if (this.isInputSearch) {
         return baseArr
       } else {
-        return [
-          { type: 'custom', prop: 'select', slotName: 'select', label: '选择', width: '50px' },
-          ...baseArr,
-          { prop: 'outFlag', label: '异地标志', type: 'custom', slotName: 'outFlag' }
-        ]
+        return baseArr
       }
     }
   },

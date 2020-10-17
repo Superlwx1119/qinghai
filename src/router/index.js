@@ -119,5 +119,4 @@ router.beforeEach((to, from, next) => {
 //   const newRouter = createRouter()
 //   router.matcher = newRouter.matcher // reset router
 // }
-
 export default router

@@ -111,16 +111,6 @@ export default {
       showTooltip: false,
       orgUntId: ''
     }
-  // admDvs: "100000"
-  // opterNo: "1"
-  // orgCodg: "GJ100000"
-  // orgName: "国家医疗保障局"
-  // orgUntId: "10006763"
-  // poolAreaCodg: null
-  // prntOrgId: "-1"
-  // userAcct: "admin"
-  // userAcctId: "1"
-  // userName: "超级管理员"
   },
   watch: {
     value: {

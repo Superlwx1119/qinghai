@@ -111,9 +111,13 @@ export default {
       }
     },
     search() {
-      this.$nextTick(() => {
-        this.$refs.tableRef.iniSearch()
+      page().then(res => {
+        console.log(res)
       })
+      // this.$nextTick(() => {
+      //   page.th
+      //   // this.$refs.tableRef.iniSearch()
+      // })
     },
     resetForm() {
       this.$nextTick(() => {
