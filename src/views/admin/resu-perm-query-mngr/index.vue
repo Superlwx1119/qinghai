@@ -20,7 +20,6 @@
         <el-button type="primary" @click="search">查询</el-button>
       </form-items>
     </template>
-
     <template slot="title-btns">
       <el-dropdown @command="exportLocalData">
         <el-button type="primary">
@@ -42,15 +41,14 @@
 </template>
 <script>
 import { deepClone } from '@/utils/index'
-// import { momentDate } from '@/filters'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
 import userAccount from '@/views/components/PageSelects/Common/UserAccount'
 import ResuMaintenance from './resu-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
-// import moment from 'moment'
 import { page } from '@/api/Admin/user-management'
+
 export default {
   components: {
     NormalLayer,

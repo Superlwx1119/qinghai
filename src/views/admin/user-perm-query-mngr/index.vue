@@ -64,15 +64,7 @@
             </el-select>
           </template>
           <template>
-            <el-tree
-              ref="tree"
-              :data="data"
-              :props="defaultProps"
-              accordion
-              class="filter-tree"
-              :filter-node-method="filterNode"
-              @node-click="handleNodeClick"
-            />
+            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" />
           </template>
         </div>
       </el-col>
@@ -87,7 +79,8 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
 import RoleMaintenance from './role-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
-
+// 获取用户账户
+import { getCurrentUser } from '@/api/Common/Request'
 import moment from 'moment'
 export default {
   components: {
@@ -100,10 +93,6 @@ export default {
   mixins: [PageHandle],
   data() {
     return {
-      defaultProps: {
-        children: 'children',
-        label: 'name'
-      },
       filterText: '',
       data: [{
         label: '一级 1',
@@ -140,6 +129,10 @@ export default {
           }]
         }]
       }],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
       dataForm: {
         fixmedinsCode: '',
         fixmedinsName: '',
@@ -194,7 +187,15 @@ export default {
       value: ''
     }
   },
+  created() {
+    this.getCurrentUsers()
+  },
   methods: {
+    getCurrentUsers() {
+      getCurrentUser().then(res => {
+        sessionStorage.setItem('orgUntId', res.data.this.orgUntId)
+      }).catch(err => console.log(err))
+    },
     // 查询方法
     filterNode(value, data) {
       if (!value) return true

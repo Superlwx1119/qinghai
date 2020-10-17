@@ -17,7 +17,6 @@
       :disabled="disabled"
     >
       <Table ref="tableElm" style="margin-top: 10px" :fix-flag="fixFlag" :que-cont="queCont" :search-val="inputVal" @currentChange="tableSelChange" />
-
       <div slot="reference" class="address-multiple-select-box">
         <el-input
           ref="reference"
@@ -36,7 +35,6 @@
         </el-input>
       </div>
     </el-popover>
-
     <search-dialog v-model="searchDialogVisible" :dialog-title="dialogTitle" :fix-flag="fixFlag" :que-cont="queCont" @selFinish="tableSelChange" />
   </div>
 </template>
@@ -252,11 +250,6 @@ export default {
   width: 100%;
   height: 32px;
   line-height: 32px;
-  // height: 32px;
-  // line-height: 1;
-  // border: 1px solid #ccc;
-  // border-radius: 4px;
-  // padding: 5px 10px;
 }
 .body-wrapper{
   height: 440px;

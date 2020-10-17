@@ -14,7 +14,6 @@
             fit
             @selection-change="handleSelectionChange"
           >
-            <!-- @selection-change="handleSelectionChange" -->
             <el-table-column type="selection" align="center" width="50" />
             <el-table-column label="序号" type="index" align="center" width="50" />
             <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />

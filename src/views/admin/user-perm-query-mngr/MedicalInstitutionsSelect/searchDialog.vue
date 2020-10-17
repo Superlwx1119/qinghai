@@ -76,19 +76,10 @@ export default {
       titleShow: '选择用户',
       sureLoading: false,
       formItemsDatas: [
-        // { label: '机构编码', prop: 'medinsCodg', type: 'input' },
-        // { label: '机构名称', prop: 'medinsName', type: 'input' },
-        // { label: '机构级别', prop: 'instisLv', type: 'codeTable', codeKey: 'MEDINSLV', options: [], clearable: true, hidden: this.queCont === '2' },
-        // { label: '异地标志', prop: 'outFlag', type: 'codeTable', codeKey: 'OUT_TYPE', options: [], clearable: true
-        //   // filterFn: (data) => {
-        //   //   data.unshift({ dispVal: '本地', dataVal: '0' })
-        //   //   return data
-        //   // }
-        // }
         { label: '用户账户', prop: 'uact', type: 'input' },
         { label: '姓名', prop: 'userName', type: 'input' },
         { label: '证件号码', prop: 'certNO', type: 'input' },
-        { label: '账户状态', prop: 'uactStas', type: 'select', options: [{ label: '冻结', value: '0' }, { label: '正常', value: '2' }, { label: '已停用', value: '3' }] },
+        { label: '账户状态', prop: 'uactStas', type: 'select', options: [{ label: '0', value: '冻结' }, { label: '2', value: '正常' }, { label: '3', value: '已停用' }] },
         { label: '组织机构', prop: 'orguntid', type: 'codeTable', codeKey: 'OUT_TYPE' }
       ],
       dataForm: {
@@ -105,12 +96,11 @@ export default {
   watch: {
     isDialogVisible(newVal) {
       if (newVal) {
-        this.search()
+        // this.search()
       }
     }
   },
   created() {
-    // this.getInstisLvDatas()
   },
   methods: {
     reset() {

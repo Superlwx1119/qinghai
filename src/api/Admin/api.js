@@ -100,5 +100,9 @@ export default {
     pwdChgPage: ips + '/admin/web/securityLog/sysLginLog/pwdChgPage', // 密码变更日志
     loginPage: ips + '/admin/web/securityLog/sysLginLog/page', // 账号登录日志
     uactChgPage: ips + '/admin/web/securityLog/sysLginLog/uactChgPage' // 账号变更日志
+  },
+  // 用户权限管理
+  userPrivilege: {
+    // http://172.18.50.100:20001/ips/admin/web/secRole/units/10006763/sub
   }
 }

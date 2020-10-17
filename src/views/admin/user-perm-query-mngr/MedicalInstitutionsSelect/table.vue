@@ -36,11 +36,11 @@ export default {
       type: Boolean,
       default: true
     },
-    fixFlag: { // 定点标志（0：非定点，1：定点）
+    fixFlag: {
       type: String,
       default: ''
     },
-    queCont: { // 查询内容（1：机构，2：药店）
+    queCont: {
       type: String,
       default: ''
     }

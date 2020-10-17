@@ -33,13 +33,18 @@
 import SearchDialog from './searchDialog'
 import { on, off } from 'element-ui/lib/utils/dom'
 import emitter from 'element-ui/lib/mixins/emitter'
+import PageHandle from '@/mixins/pageHandle'
 import Table from './table'
+// import { adminRoleId } from '@/api/Admin/user-management'
+import { unit } from '@/api/Common/Request'
+// 获取用户账户
 export default {
   components: {
     SearchDialog,
     Table
   },
-  mixins: [emitter],
+  // eslint-disable-next-line no-undef
+  mixins: [emitter, PageHandle],
   inject: {
     elForm: {
       default: ''
@@ -103,8 +108,19 @@ export default {
       searchDialogVisible: false,
       timerObj: null,
       isSelFinish: false,
-      showTooltip: false
+      showTooltip: false,
+      orgUntId: ''
     }
+  // admDvs: "100000"
+  // opterNo: "1"
+  // orgCodg: "GJ100000"
+  // orgName: "国家医疗保障局"
+  // orgUntId: "10006763"
+  // poolAreaCodg: null
+  // prntOrgId: "-1"
+  // userAcct: "admin"
+  // userAcctId: "1"
+  // userName: "超级管理员"
   },
   watch: {
     value: {
@@ -138,6 +154,9 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.adminRoleIdl()
+  },
   mounted() {
     on(document, 'click', this.handleDocumentClick)
   },
@@ -145,6 +164,16 @@ export default {
     off(document, 'click', this.handleDocumentClick)
   },
   methods: {
+    // 用户查询  --yt
+    adminRoleIdl() {
+      this.orgUntId = sessionStorage.getItem('orgUntId')
+      this.unitSelect(this.orgUntId)
+    },
+    unitSelect(parames) {
+      unit(parames).then(res => {
+        console.log(res)
+      }).catch(err => console.log(err))
+    },
     blurChange() {
       if (this.visible) return
       this.inputVal = this.currentSelName
@@ -161,13 +190,6 @@ export default {
       }
     },
     getNameToCode(code) {
-      // const params = {
-      //   fixFlag: this.fixFlag,
-      //   queCont: this.queCont,
-      //   queCond: code,
-      //   pageSize: 10,
-      //   pageNum: 1
-      // }
     },
     reset() {
       this.inputVal = ''
@@ -247,11 +269,6 @@ export default {
   width: 100%;
   height: 32px;
   line-height: 32px;
-  // height: 32px;
-  // line-height: 1;
-  // border: 1px solid #ccc;
-  // border-radius: 4px;
-  // padding: 5px 10px;
 }
 .body-wrapper{
   height: 440px;
