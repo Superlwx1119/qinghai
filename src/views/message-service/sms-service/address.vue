@@ -9,24 +9,19 @@
       </FormItems>
     </template>
     <template>
-      <my-table-view v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-        <template slot="operation" slot-scope="scope">
-          <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
-          <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
-          <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
-          <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
-        </template>
-      </my-table-view>
+      <my-table-view ref="myTable" v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="rowClick" />
       <Pagination :data="paginationQuery" @refresh="pageChange" />
     </template>
   </normal-layer>
 
 </template>
 <script>
+import { getAddrBookByPage } from '@/api/MessageServer/index'
 import FormItems from '@/views/components/PageLayers/form-items'
-import upload from '@/api/DocumentServices/Api'
+import pageHandle from '@/mixins/pageHandle'
 export default {
   components: { FormItems },
+  mixins: [pageHandle],
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -40,9 +35,9 @@ export default {
       type: String,
       default: '短信接收人信息表'
     },
-    fixFlag: { // 定点标志（0：非定点，1：定点）
-      type: String,
-      default: ''
+    selection: {
+      type: Array,
+      default: () => []
     },
     queCont: { // 查询内容（1：机构，2：药店）
       type: String,
@@ -53,25 +48,27 @@ export default {
     return {
       loading: false,
       itemsDatas: [
-        { label: '搜索', prop: 'title', type: 'input', message: '请输入', span: 12 }
+        { label: '搜索', prop: 'userName', type: 'input', message: '请输入', span: 12 }
       ],
       queryForm: {
-        title: '',
+        userName: '',
         content: ''
       },
       multipleSelection: [],
       fileList: [],
       columns: [
+        { type: 'selection' },
         { type: 'index', label: '序号' },
-        { label: '姓名', prop: '姓名', width: '120px' },
-        { label: '所属部门', prop: '所属部门', width: '120px' },
-        { label: '手机号码', prop: '手机号码' },
-        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
+        { label: '姓名', prop: 'userName' },
+        { label: '所属部门', prop: 'orgName' },
+        { label: '手机号码', prop: 'mob' }
       ],
       paginationQuery: {
         pageSize: 10,
         pageNumber: 1,
-        total: 0
+        total: 0,
+        startRow: 0,
+        endRow: 0
       },
       tableData: []
     }
@@ -79,15 +76,53 @@ export default {
   computed: {
   },
   watch: {
-    isDialogVisible(newVal) {
-      console.log(newVal)
+    multipleSelection(val) {
+      this.$emit('changeSelection', val)
+    },
+    selection(val) {
+      this.$refs.myTable.$refs['pf-table'].clearSelection()
+      val.forEach(item => {
+        this.$refs.myTable.$refs['pf-table'].toggleRowSelection(item)
+      })
+      this.multipleSelection = val
     }
   },
   created() {
-    this.url = upload.upload
+    this.search()
   },
 
   methods: {
+    rowClick(row) {
+      this.$refs.myTable.$refs['pf-table'].toggleRowSelection(row.row)
+    },
+    search() {
+      const form = {
+        ...this.paginationQuery,
+        userName: this.queryForm.userName
+      }
+      this.loading = true
+      getAddrBookByPage(form).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data.result
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
+          this.paginationQuery = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount,
+            startRow: num1,
+            endRow: num2
+          }
+          this.selectionRow()
+        }
+      }).finally(() => { this.loading = false })
+    },
+    selectionRow() {
+      this.selection.forEach(item => {
+        console.log(item)
+        this.$refs.myTable.$refs['pf-table'].toggleRowSelection(item, true)
+      })
+    },
     handleAvatarSuccess() {
       this.closeDialog()
       this.$emit('search')
@@ -110,9 +145,6 @@ export default {
         this.reset()
         // this.$refs.tableRef.reset()
       })
-    },
-    search() {
-
     }
   }
 }

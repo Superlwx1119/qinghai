@@ -4,28 +4,27 @@
     class="audit-dialog-wrapper"
     :title="dialogTitle"
     :is-show="isDialogVisible"
-    size="middle"
+    size="big"
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
-    <el-tabs type="border-card">
-      <el-tab-pane label="通讯录">
-        <Address />
+    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+      <el-tab-pane name="通讯录" label="通讯录">
+        <Address ref="Address" :selection="multipleSelection" @changeSelection="changeSelection" />
       </el-tab-pane>
-      <el-tab-pane label="通讯录组">
-        <AddressList />
+      <el-tab-pane name="通讯录组" label="通讯录组">
+        <AddressList ref="AddressList" :selection="multipleSelection" @changeSelection="changeSelection" />
       </el-tab-pane>
     </el-tabs>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
-      <el-button type="primary">暂存</el-button>
+      <el-button type="primary" @click="saveCurrent">暂存</el-button>
     </span>
   </form-dialog>
 </template>
 <script>
 import Address from './address'
 import AddressList from './addressList'
-import upload from '@/api/DocumentServices/Api'
 export default {
   components: { Address, AddressList },
   model: {
@@ -40,6 +39,10 @@ export default {
     dialogTitle: {
       type: String,
       default: '短信接收人信息表'
+    },
+    currentData: {
+      type: Array,
+      default: () => []
     },
     fixFlag: { // 定点标志（0：非定点，1：定点）
       type: String,
@@ -73,8 +76,11 @@ export default {
       paginationQuery: {
         pageSize: 10,
         pageNumber: 1,
-        total: 0
+        total: 0,
+        startRow: 0,
+        endRow: 0
       },
+      selection: [],
       rules: {
         title: [
           { required: true, message: '请输入短信标题', trigger: 'blur' }
@@ -83,21 +89,57 @@ export default {
           { required: true, message: '请输入短信内容', trigger: 'blur' }
         ]
       },
-      tableData: []
+      tableData: [],
+      activeName: '通讯录'
     }
   },
   computed: {
   },
   watch: {
-    isDialogVisible(newVal) {
-      console.log(newVal)
+    currentData: {
+      handler(val) {
+        if (val.length !== 0) {
+          this.multipleSelection = val
+        }
+      },
+      deep: true,
+      immediate: true
     }
   },
-  created() {
-    this.url = upload.upload
+  mounted() {
+    // this.$nextTick(() => {
+    //   this.$refs.Address.search()
+    // })
   },
 
   methods: {
+    saveCurrent() {
+      this.$emit('changeSelection', this.selection)
+      this.closeDialog()
+      // if (this.activeName === '通讯录') {
+      //   this.$nextTick(() => {
+      //     this.$refs.Address.multipleSelection = []
+      //   })
+      // } else {
+      //   this.$nextTick(() => {
+      //     this.$refs.AddressList.multipleSelection = []
+      //   })
+      // }
+    },
+    changeSelection(val) {
+      this.selection = val
+    },
+    handleClick() {
+      if (this.activeName === '通讯录') {
+        this.$nextTick(() => {
+          this.$refs.Address.search()
+        })
+      } else {
+        this.$nextTick(() => {
+          this.$refs.AddressList.search()
+        })
+      }
+    },
     handleAvatarSuccess() {
       this.closeDialog()
       this.$emit('search')
@@ -113,6 +155,7 @@ export default {
       this.search()
     },
     isShow(v) {
+      this.activeName = '通讯录'
       this.$emit('closeAll', false)
     },
     resetForm() {

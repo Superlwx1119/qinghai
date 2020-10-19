@@ -2,12 +2,34 @@
 import request from '@/utils/request'
 import api from './Api.js'
 /**
- * 被分享文件管理？
+ * 通讯录
  * @param query
  */
-export function offFileShrPage(params) {
+export function getAddrBookByPage(params) {
   return request({
-    url: api.offFileShrPage,
+    url: api.getAddrBookByPage,
+    method: 'get',
+    params: params
+  })
+}
+/**
+ * 通讯录组
+ * @param query
+ */
+export function getGrpByPage(params) {
+  return request({
+    url: api.getGrpByPage,
+    method: 'get',
+    params: params
+  })
+}
+/**
+ * 通讯录组详情
+ * @param query
+ */
+export function getGrpMsgPage(params) {
+  return request({
+    url: api.getGrpMsgPage + '/' + params.addrbookGrpNo,
     method: 'get',
     params: params
   })

@@ -1,32 +1,30 @@
 <!-- 搜索弹框 -->
 <template>
-  <normal-layer :search-number="1">
-    <template slot="search-header">
-      <FormItems :items-datas="itemsDatas" :is-grid="false" :form-datas="queryForm">
-        <div>
-          <el-button type="primary" @click="iniSearch('queryForm')">查询</el-button>
-        </div>
-      </FormItems>
-    </template>
-    <template>
-      <my-table-view v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-        <template slot="operation" slot-scope="scope">
-          <my-button icon="detail" title="查看" @click="showDetail(scope.row)" />
-        </template>
-      </my-table-view>
-      <Pagination :data="paginationQuery" @refresh="pageChange" />
-    </template>
-    <AddressListDetail v-model="isShowDetail" :addrbook-grp-no="addrbookGrpNo" :dialog-title="detailTitle" />
-  </normal-layer>
+  <form-dialog
+    class="audit-dialog-wrapper"
+    :title="dialogTitle"
+    :is-show="isDialogVisible"
+    size="middle"
+    @update:isShow="isShow"
+    @resetForm="resetForm"
+  >
+    <normal-layer :search-number="2">
+      <div slot="table-title" class="box-header handle">
+        <span class="box-title">组内成员</span>
+      </div>
+      <template>
+        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" />
+        <Pagination :data="paginationQuery" @refresh="pageChange" />
+      </template>
+    </normal-layer>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="closeDialog">关闭</el-button>
+    </span>
+  </form-dialog>
 </template>
 <script>
-import { getGrpByPage } from '@/api/MessageServer/index'
-import AddressListDetail from './addressListDetail'
-import FormItems from '@/views/components/PageLayers/form-items'
-import pageHandle from '@/mixins/pageHandle'
+import { getGrpMsgPage } from '@/api/MessageServer/index'
 export default {
-  components: { FormItems, AddressListDetail },
-  mixins: [pageHandle],
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -38,38 +36,34 @@ export default {
     },
     dialogTitle: {
       type: String,
-      default: '短信接收人信息表'
+      default: '个人通讯录组'
     },
-    selection: {
-      type: Array,
-      default: () => []
-    },
-    queCont: { // 查询内容（1：机构，2：药店）
+    addrbookGrpNo: {
       type: String,
       default: ''
     }
   },
   data() {
     return {
+      showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '搜索', prop: 'addrbookGrpName', type: 'input', message: '请输入', span: 12 }
+        { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
+        { label: '短信内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
       ],
-      addrbookGrpNo: '',
       queryForm: {
-        addrbookGrpName: '',
+        title: '',
         content: ''
       },
       multipleSelection: [],
       fileList: [],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '个人通讯录组名称', prop: 'addrbookGrpName', width: '120px' },
-        { label: '组内成员', prop: 'userNameList' },
-        { label: '操作', type: 'operation', fixed: 'right', width: '100px' }
+        { label: '姓名', prop: 'userName', width: '120px' },
+        { label: '所属部门', prop: 'orgName', width: '120px' },
+        { label: '手机号码', prop: 'mob' },
+        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
       ],
-      detailTitle: '',
-      isShowDetail: false,
       paginationQuery: {
         pageSize: 10,
         pageNumber: 1,
@@ -91,26 +85,16 @@ export default {
   computed: {
   },
   watch: {
-    multipleSelection(val) {
-      this.$emit('changeSelection', val)
-    },
-    selection(val) {
-      this.multipleSelection = val
+    isDialogVisible(newVal) {
+      if (newVal) {
+        this.search()
+      }
     }
   },
   created() {
   },
 
   methods: {
-    showDetail(row) {
-      this.addrbookGrpNo = row.addrbookGrpNo
-      this.detailTitle = row.addrbookGrpName + ' 个人通讯录组'
-      this.isShowDetail = true
-    },
-    handleAvatarSuccess() {
-      this.closeDialog()
-      this.$emit('search')
-    },
     reset() {
     },
     closeDialog() {
@@ -133,10 +117,10 @@ export default {
     search() {
       const form = {
         ...this.paginationQuery,
-        addrbookGrpName: this.queryForm.addrbookGrpName
+        addrbookGrpNo: this.addrbookGrpNo
       }
       this.loading = true
-      getGrpByPage(form).then(res => {
+      getGrpMsgPage(form).then(res => {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
