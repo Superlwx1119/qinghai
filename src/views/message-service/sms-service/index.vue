@@ -24,7 +24,6 @@
         <span class="box-title">短信消息列表</span>
         <div slot="title-btns" class="box-tools">
           <el-button type="success" @click="isShowAdd = true">新增</el-button>
-          <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
       <template>
@@ -39,7 +38,7 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <Add v-model="isShowAdd" />
+    <Add v-model="isShowAdd" :daterow="daterow" />
   </div>
 </template>
 
@@ -48,12 +47,17 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import Add from './add'
+import { page } from '@/api/MessageServer'
 export default {
   name: 'SmsService',
   components: { FormItems, NormalLayer, Add },
   mixins: [pageHandle],
   data() {
     return {
+      daterow: {
+        state: true,
+        row: []
+      },
       options: [{
         value: '1',
         label: '通过'
@@ -99,13 +103,28 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    showDialog(value, row) {
+      this.isShowAdd = true
+      this.daterow.row = row
+      if (value === 'edit') {
+        this.daterow.state = true
+      } else {
+        this.daterow.state = false
+      }
+    },
     pageChange(data) {
       this.paginationQuery.pageSize = data.pagination.pageSize
       this.paginationQuery.pageNumber = data.pagination.pageNum
       this.search()
     },
     search() {
-
+      // const that = this
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        ttl: '' }
+      page(param).then(res => console.log(res))
     }
   }
 }

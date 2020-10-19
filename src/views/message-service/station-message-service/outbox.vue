@@ -4,47 +4,49 @@
     class="audit-dialog-wrapper"
     :title="dialogTitle"
     :is-show="isDialogVisible"
-    size="big"
+    size="middle"
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
     <normal-layer :search-number="2">
       <template slot="search-header">
-        <div slot="table-title" class="box-header handle">
-          <span class="box-title">短信信息表</span>
-        </div>
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
+        <FormItems ref="ruleFrom" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm">
+          <template>
+            <my-button type="reset" title="关闭" @click="closeDialog" />
+            <my-button type="search" @click="iniSearch" />
+          </template>
+        </FormItems>
       </template>
-      <div slot="table-title" class="box-header handle">
-        <span class="box-title">收信人列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button v-show="daterow.state" type="success" @click="showAdditem(1)">新增</el-button>
-        </div>
-      </div>
       <template>
         <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
           <template slot="operation" slot-scope="scope">
-            <my-button icon="delete" title="删除" @click="deleteRow(scope)" />
+            <MyButton
+              v-model="scope.row"
+              icon="detail"
+              title="详情"
+              @click="viewDetail(scope.row)"
+            />
           </template>
         </my-table-view>
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">关闭</el-button>
-      <el-button v-show="daterow.state" type="primary">保存</el-button>
-    </span>
-    <AddPerson v-model="showAdd" :current-data="tableData" @changeSelection="changeSelection" />
+    <select-btn v-model="isShowAdd" />
   </form-dialog>
 </template>
 <script>
-import AddPerson from './addPerson'
 import FormItems from '@/views/components/PageLayers/form-items'
 // eslint-disable-next-line no-unused-vars
 import object from 'element-resize-detector/src/detection-strategy/object'
 import { array } from 'jszip/lib/support'
+import { offMsgD } from '@/api/MessageServer'
+import selectBtn from './select'
+import { page } from '@/api/MessageServer'
+import pageHandle from '@/mixins/pageHandle'
 export default {
-  components: { FormItems, AddPerson },
+  // eslint-disable-next-line vue/no-unused-components
+  components: { FormItems, selectBtn },
+  mixins: [pageHandle],
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -60,7 +62,7 @@ export default {
     },
     dialogTitle: {
       type: String,
-      default: '新增'
+      default: '发件箱'
     },
     fixFlag: {
       type: String,
@@ -73,23 +75,19 @@ export default {
   },
   data() {
     return {
+      isShowAdd: false,
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
-        { label: '短信内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
+        { label: '标题', prop: 'ttl', type: 'input', message: '请输入', span: 15 }
       ],
-      queryForm: {
-        title: '',
-        content: ''
-      },
+      queryForm: {},
       multipleSelection: [],
       fileList: [],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '姓名', prop: 'userName', width: '120px' },
-        { label: '所属部门', prop: 'orgName', width: '120px' },
-        { label: '手机号码', prop: 'mob' },
+        { label: '标题', prop: 'smsTtl' },
+        { label: '发送时间', prop: 'sbmtTime' },
         { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
       ],
       paginationQuery: {
@@ -102,9 +100,6 @@ export default {
       rules: {
         title: [
           { required: true, message: '请输入短信标题', trigger: 'blur' }
-        ],
-        content: [
-          { required: true, message: '请输入短信内容', trigger: 'blur' }
         ]
       },
       tableData: []
@@ -121,20 +116,24 @@ export default {
   },
 
   methods: {
+    send() {
+      this.$refs.ruleFrom.validate((valid) => {
+        if (valid) {
+          const params = {
+            ...this.queryForm
+          }
+          offMsgD(params).then(res => console.log(res))
+        }
+      })
+    },
     showAdditem(value) {
-      if (value === 1) {
-        this.showAdd = true
-      }
+      this.isShowAdd = true
     },
     deleteRow(row) {
       this.tableData.splice(row.rowIndex, 1)
     },
     changeSelection(val) {
       this.tableData = val
-    },
-    handleAvatarSuccess() {
-      this.closeDialog()
-      this.$emit('search')
     },
     reset() {
     },
@@ -156,7 +155,29 @@ export default {
       })
     },
     search() {
-
+      const that = this
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        ttl: that.queryForm.ttl
+      }
+      // eslint-disable-next-line no-undef
+      page(param).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data.result
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
+          this.paginationQuery = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount,
+            startRow: num1,
+            endRow: num2
+          }
+        }
+      }
+      )
     }
   }
 }

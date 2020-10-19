@@ -4,69 +4,38 @@
     class="audit-dialog-wrapper"
     :title="dialogTitle"
     :is-show="isDialogVisible"
-    size="big"
+    size="middle"
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
     <normal-layer :search-number="2">
-      <template slot="search-header">
-        <div slot="table-title" class="box-header handle">
-          <span class="box-title">短信信息表</span>
-        </div>
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
-      </template>
       <div slot="table-title" class="box-header handle">
-        <span class="box-title">收信人列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button v-show="daterow.state" type="success" @click="showAdditem(1)">新增</el-button>
-        </div>
+        <span class="box-title">组内成员</span>
       </div>
       <template>
-        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-          <template slot="operation" slot-scope="scope">
-            <my-button icon="delete" title="删除" @click="deleteRow(scope)" />
-          </template>
-        </my-table-view>
+        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" />
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">关闭</el-button>
-      <el-button v-show="daterow.state" type="primary">保存</el-button>
-    </span>
-    <AddPerson v-model="showAdd" :current-data="tableData" @changeSelection="changeSelection" />
   </form-dialog>
 </template>
 <script>
-import AddPerson from './addPerson'
-import FormItems from '@/views/components/PageLayers/form-items'
-// eslint-disable-next-line no-unused-vars
-import object from 'element-resize-detector/src/detection-strategy/object'
-import { array } from 'jszip/lib/support'
+import { getGrpByPage } from '@/api/MessageServer/index'
 export default {
-  components: { FormItems, AddPerson },
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
   },
   props: {
-    daterow: {
-      type: array,
-      default: () => []
-    },
     isDialogVisible: {
       type: Boolean,
       default: false
     },
     dialogTitle: {
       type: String,
-      default: '新增'
+      default: '个人通讯录组'
     },
-    fixFlag: {
-      type: String,
-      default: ''
-    },
-    queCont: {
+    addrbookGrpNo: {
       type: String,
       default: ''
     }
@@ -114,28 +83,15 @@ export default {
   },
   watch: {
     isDialogVisible(newVal) {
-      console.log(newVal)
+      if (newVal) {
+        this.search()
+      }
     }
   },
   created() {
   },
 
   methods: {
-    showAdditem(value) {
-      if (value === 1) {
-        this.showAdd = true
-      }
-    },
-    deleteRow(row) {
-      this.tableData.splice(row.rowIndex, 1)
-    },
-    changeSelection(val) {
-      this.tableData = val
-    },
-    handleAvatarSuccess() {
-      this.closeDialog()
-      this.$emit('search')
-    },
     reset() {
     },
     closeDialog() {
@@ -156,7 +112,25 @@ export default {
       })
     },
     search() {
-
+      const form = {
+        ...this.paginationQuery
+        // addrbookGrpNo: this.addrbookGrpNo
+      }
+      this.loading = true
+      getGrpByPage(form).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data.result
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
+          this.paginationQuery = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount,
+            startRow: num1,
+            endRow: num2
+          }
+        }
+      }).finally(() => { this.loading = false })
     }
   }
 }

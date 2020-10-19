@@ -11,40 +11,30 @@
     <normal-layer :search-number="2">
       <template slot="search-header">
         <div slot="table-title" class="box-header handle">
-          <span class="box-title">短信信息表</span>
+          <span class="box-title">收件人信息表</span>
         </div>
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
-      </template>
-      <div slot="table-title" class="box-header handle">
-        <span class="box-title">收信人列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button v-show="daterow.state" type="success" @click="showAdditem(1)">新增</el-button>
-        </div>
-      </div>
-      <template>
-        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-          <template slot="operation" slot-scope="scope">
-            <my-button icon="delete" title="删除" @click="deleteRow(scope)" />
-          </template>
-        </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+          <el-tab-pane name="通讯录" label="通讯录">
+            <AddressList ref="AddressList" :selection="multipleSelection" @changeSelection="changeSelection" />
+          </el-tab-pane>
+          <el-tab-pane name="通讯录组" label="通讯录组">
+            <Address ref="Address" :selection="multipleSelection" @changeSelection="changeSelection" />
+          </el-tab-pane>
+        </el-tabs>
       </template>
     </normal-layer>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">关闭</el-button>
-      <el-button v-show="daterow.state" type="primary">保存</el-button>
+      <el-button v-show="activeName == '通讯录'?true:false" @click="closeDialog">关闭</el-button>
+      <el-button type="primary" @click="send">确定</el-button>
     </span>
-    <AddPerson v-model="showAdd" :current-data="tableData" @changeSelection="changeSelection" />
   </form-dialog>
 </template>
 <script>
-import AddPerson from './addPerson'
-import FormItems from '@/views/components/PageLayers/form-items'
-// eslint-disable-next-line no-unused-vars
-import object from 'element-resize-detector/src/detection-strategy/object'
 import { array } from 'jszip/lib/support'
+import Address from './address'
+import AddressList from './addressList'
 export default {
-  components: { FormItems, AddPerson },
+  components: { AddressList, Address },
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -73,15 +63,19 @@ export default {
   },
   data() {
     return {
+      activeName: '通讯录',
+      userlist: [],
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
-        { label: '短信内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
+        { label: '标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
+        { label: '接收人', prop: 'perpo', type: 'custom', span: 24 },
+        { label: '内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
       ],
       queryForm: {
         title: '',
-        content: ''
+        content: '',
+        perpo: ''
       },
       multipleSelection: [],
       fileList: [],
@@ -103,6 +97,9 @@ export default {
         title: [
           { required: true, message: '请输入短信标题', trigger: 'blur' }
         ],
+        perpo: [
+          { required: true, message: '请选择联系人', trigger: 'blur' }
+        ],
         content: [
           { required: true, message: '请输入短信内容', trigger: 'blur' }
         ]
@@ -121,9 +118,19 @@ export default {
   },
 
   methods: {
-    showAdditem(value) {
-      if (value === 1) {
-        this.showAdd = true
+    send() {
+      this.closeDialog()
+      this.$emit('changeSelection', this.tableData)
+    },
+    handleClick() {
+      if (this.activeName === '通讯录') {
+        this.$nextTick(() => {
+          this.$refs.Address.search()
+        })
+      } else {
+        this.$nextTick(() => {
+          this.$refs.AddressList.search()
+        })
       }
     },
     deleteRow(row) {

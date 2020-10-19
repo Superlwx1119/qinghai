@@ -34,3 +34,38 @@ export function getGrpMsgPage(params) {
     params: params
   })
 }
+/**
+ *
+ * @param query
+ */
+export function page(params) {
+  return request({
+    url: api.page,
+    method: 'get',
+    params: params
+  })
+}
+
+/**
+ *
+ * @param query
+ */
+export function offMsgD(params) {
+  return request({
+    url: api.offMsgD,
+    method: 'get',
+    params: params
+  })
+}
+
+/**
+ * 发件箱
+ * @param query
+ */
+export function outBox(params) {
+  return request({
+    url: api.outBox,
+    method: 'get',
+    params: params
+  })
+}

@@ -13,38 +13,33 @@
         <div slot="table-title" class="box-header handle">
           <span class="box-title">短信信息表</span>
         </div>
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
-      </template>
-      <div slot="table-title" class="box-header handle">
-        <span class="box-title">收信人列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button v-show="daterow.state" type="success" @click="showAdditem(1)">新增</el-button>
-        </div>
-      </div>
-      <template>
-        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-          <template slot="operation" slot-scope="scope">
-            <my-button icon="delete" title="删除" @click="deleteRow(scope)" />
+        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
+          <template slot="userIdList">
+            <el-input v-model="queryForm.userIdListname" placeholder="请选择联系人" class="input-with-select" disabled>
+              <el-button slot="append" icon="el-icon-search" @click="showAdditem()" />
+            </el-input>
           </template>
-        </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        </FormItems>
       </template>
     </normal-layer>
+    <select-btn v-model="isShowAdd" @changeSelection="changeSelection" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
-      <el-button v-show="daterow.state" type="primary">保存</el-button>
+      <el-button type="reset" title="重置" @click="reset">重置</el-button>
+      <el-button type="primary" @click="send()">发送</el-button>
     </span>
-    <AddPerson v-model="showAdd" :current-data="tableData" @changeSelection="changeSelection" />
   </form-dialog>
 </template>
 <script>
-import AddPerson from './addPerson'
 import FormItems from '@/views/components/PageLayers/form-items'
 // eslint-disable-next-line no-unused-vars
 import object from 'element-resize-detector/src/detection-strategy/object'
 import { array } from 'jszip/lib/support'
+import { offMsgD } from '@/api/MessageServer'
+import selectBtn from './select'
 export default {
-  components: { FormItems, AddPerson },
+  // eslint-disable-next-line vue/no-unused-components
+  components: { FormItems, selectBtn },
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -73,25 +68,22 @@ export default {
   },
   data() {
     return {
+      isShowAdd: false,
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
-        { label: '短信内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
+        { label: '标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
+        { label: '接收人', prop: 'userIdList', type: 'custom', span: 24 },
+        { label: '内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
       ],
       queryForm: {
         title: '',
-        content: ''
+        content: '',
+        userIdList: [],
+        userIdListname: ''
       },
       multipleSelection: [],
       fileList: [],
-      columns: [
-        { type: 'index', label: '序号' },
-        { label: '姓名', prop: 'userName', width: '120px' },
-        { label: '所属部门', prop: 'orgName', width: '120px' },
-        { label: '手机号码', prop: 'mob' },
-        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
-      ],
       paginationQuery: {
         pageSize: 10,
         pageNumber: 1,
@@ -102,6 +94,9 @@ export default {
       rules: {
         title: [
           { required: true, message: '请输入短信标题', trigger: 'blur' }
+        ],
+        userIdList: [
+          { required: true, message: '请选择联系人', trigger: 'blur' }
         ],
         content: [
           { required: true, message: '请输入短信内容', trigger: 'blur' }
@@ -121,21 +116,42 @@ export default {
   },
 
   methods: {
+    send() {
+      console.log(this.queryForm)
+      this.$refs.ruleForm.elForm.validate((valid) => {
+        if (valid) {
+          const params = {
+            ...this.queryForm
+          }
+          for (let i = 0; i < this.queryForm.userIdList.length; i++) {
+            if (this.queryForm.userIdList[i].length > 0) {
+              params.userIdList[i] = this.queryForm.userIdList[i].split(',')[0]
+            }
+          }
+          console.log(params.userIdList)
+          offMsgD(params).then(res => console.log(res))
+        }
+      })
+    },
     showAdditem(value) {
-      if (value === 1) {
-        this.showAdd = true
-      }
+      this.isShowAdd = true
     },
     deleteRow(row) {
       this.tableData.splice(row.rowIndex, 1)
     },
     changeSelection(val) {
       this.tableData = val
+      console.log(val)
+      for (let i = 0; i < this.tableData.length; i++) {
+        this.queryForm.userIdList[i] = this.tableData[i].userAcctIdList
+        this.queryForm.userIdListname += this.tableData[i].userNameList
+      }
+      this.queryForm.userIdList
     },
-    handleAvatarSuccess() {
-      this.closeDialog()
-      this.$emit('search')
-    },
+    // handleAvatarSuccess() {
+    //   this.closeDialog()
+    //   this.$emit('search')
+    // },
     reset() {
     },
     closeDialog() {

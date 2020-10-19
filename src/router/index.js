@@ -111,7 +111,7 @@ const createRouter = () => new Router({
 
 const router = createRouter()
 router.beforeEach((to, from, next) => {
-  document.cookie = 'SESSION=MmI5MTM1MWUtYzJjYS00MjNmLWI4ZTUtYTE3MWE3YzdmZmFh'
+  document.cookie = 'SESSION=NGQwOGJmN2ItNzkzNS00OTI1LWIxN2ItNzJkM2IwYTExZmRi'
   next()
 })
 // // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465

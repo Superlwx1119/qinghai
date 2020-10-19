@@ -13,10 +13,10 @@
       <div slot="table-title" class="box-header handle">
         <span class="box-title">短信消息列表</span>
         <div slot="title-btns" class="box-tools">
-          <el-button type="primary">写信</el-button>
-          <el-button type="primary">回复</el-button>
-          <el-button type="primary">标记已读</el-button>
-          <el-button type="primary">发件箱</el-button>
+          <el-button type="primary" @click="Editbutton('Edit')">写信</el-button>
+          <el-button type="primary" @click="Editbutton('reply')">回复</el-button>
+          <el-button type="primary" @click="Editbutton('read')">标记已读</el-button>
+          <el-button type="primary" @click="Editbutton('send')">发件箱</el-button>
           <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
@@ -32,6 +32,8 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
+    <Add v-model="isShowAdd" :daterow="daterow" />
+    <OutBox v-model="isShowOutBox" :daterow="daterow" />
   </div>
 </template>
 
@@ -39,12 +41,22 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
+import Add from './add'
+import OutBox from './outbox'
+import { page, outBox } from '@/api/MessageServer'
 export default {
   name: 'StationMessageService',
-  components: { FormItems, NormalLayer },
+  components: { FormItems, NormalLayer, Add, OutBox },
   mixins: [pageHandle],
   data() {
     return {
+      daterow: {
+        state: false,
+        row: []
+      },
+      queryForm: {},
+      isShowAdd: false,
+      isShowOutBox: false,
       itemsDatas: [
         { label: '标题', prop: '标题', type: 'input', message: '请输入' }
       ],
@@ -66,10 +78,52 @@ export default {
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
+  methods: {
+    showDialog(value) {
+      console.log(value)
+    },
+    Editbutton(value) {
+      switch (value) {
+        case 'Edit':
+          this.isShowAdd = true
+          break
+        case 'reply':
+          this.$message({
+            message: '回复',
+            type: 'warning'
+          })
+          break
+        case 'send':
+          // eslint-disable-next-line no-case-declarations
+          const param = {
+            pageSize: 10,
+            pageNumber: 1,
+            total: 0
+          }
+          outBox(param).then(res => { console.log(res) }).catch(err => { console.log(err) })
+          this.isShowOutBox = true
+          break
+        case 'read':
+          this.$message({
+            message: '请选择需要标记的站内信',
+            type: 'warning'
+          })
+          break
+        default:
+          break
+      }
+    },
+    search() {
+      const that = this
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        ttl: that.queryForm
+      }
+      // eslint-disable-next-line no-undef
+      page(param).then(res => console.log(res))
+    }
+  }
 }
 </script>
-
-<style lang = "sass" scoped>
-
-</style>
