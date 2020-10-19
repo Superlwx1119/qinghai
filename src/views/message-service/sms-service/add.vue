@@ -18,7 +18,7 @@
       <div slot="table-title" class="box-header handle">
         <span class="box-title">收信人列表</span>
         <div slot="title-btns" class="box-tools">
-          <el-button type="success">新增</el-button>
+          <el-button type="success" @click="showAdd = true">新增</el-button>
         </div>
       </div>
       <template>
@@ -37,13 +37,15 @@
       <el-button @click="closeDialog">关闭</el-button>
       <el-button type="primary">保存</el-button>
     </span>
+    <AddPerson v-model="showAdd" />
   </form-dialog>
 </template>
 <script>
+import AddPerson from './addPerson'
 import FormItems from '@/views/components/PageLayers/form-items'
 import upload from '@/api/DocumentServices/Api'
 export default {
-  components: { FormItems },
+  components: { FormItems, AddPerson },
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -68,6 +70,7 @@ export default {
   },
   data() {
     return {
+      showAdd: false,
       loading: false,
       itemsDatas: [
         { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },

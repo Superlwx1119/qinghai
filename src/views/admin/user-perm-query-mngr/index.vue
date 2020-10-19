@@ -34,11 +34,16 @@
               <span class="box-title">角色信息</span>
               <div class="box-tools">
                 <el-form :inline="true">
-                  <el-button type="primary">导出
-                    <i
-                      class="el-icon-arrow-down"
-                    />
-                  </el-button>
+                  <el-dropdown>
+                    <el-button type="primary">
+                      导出<i class="el-icon-arrow-down el-icon--right" />
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item @click="handleClick()">导出当页</el-dropdown-item>
+                      <el-dropdown-item @click="handleClick()">导出选中</el-dropdown-item>
+                      <el-dropdown-item @click="handleClick()">导出全部</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </el-form>
               </div>
             </div>
@@ -53,7 +58,7 @@
           <div class="box-header handle">
             <span class="box-title">角色权限信息</span>
           </div>
-          <template>
+          <!-- <template>
             <el-select v-model="value" style="width:100%" filterable placeholder="请选择">
               <el-option
                 v-for="item in options"
@@ -65,7 +70,19 @@
           </template>
           <template>
             <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" />
-          </template>
+          </template> -->
+          <el-input
+            v-model="filterText"
+            placeholder="输入关键字进行过滤"
+          />
+          <el-tree
+            ref="tree"
+            class="filter-tree"
+            :data="data"
+            :props="defaultProps"
+            default-expand-all
+            :filter-node-method="filterNode"
+          />
         </div>
       </el-col>
     </el-row>
@@ -95,38 +112,38 @@ export default {
     return {
       filterText: '',
       data: [{
+        id: 1,
         label: '一级 1',
         children: [{
+          id: 4,
           label: '二级 1-1',
           children: [{
+            id: 9,
             label: '三级 1-1-1'
+          }, {
+            id: 10,
+            label: '三级 1-1-2'
           }]
         }]
       }, {
+        id: 2,
         label: '一级 2',
         children: [{
-          label: '二级 2-1',
-          children: [{
-            label: '三级 2-1-1'
-          }]
+          id: 5,
+          label: '二级 2-1'
         }, {
-          label: '二级 2-2',
-          children: [{
-            label: '三级 2-2-1'
-          }]
+          id: 6,
+          label: '二级 2-2'
         }]
       }, {
+        id: 3,
         label: '一级 3',
         children: [{
-          label: '二级 3-1',
-          children: [{
-            label: '三级 3-1-1'
-          }]
+          id: 7,
+          label: '二级 3-1'
         }, {
-          label: '二级 3-2',
-          children: [{
-            label: '三级 3-2-1'
-          }]
+          id: 8,
+          label: '二级 3-2'
         }]
       }],
       defaultProps: {
@@ -161,44 +178,37 @@ export default {
         ]
       },
       columns: [],
-      tableData: [
-        { name: '白兰花', code: 'xxx', nameCode: 'xxx' },
-        { name: '白兰花', code: 'xxx', nameCode: 'xxx' }
-      ],
       showDetailDialog: false,
       dialogTitle: '新增',
       showEditDialog: false,
-      options: [{
-        value: '选项1',
-        label: '黄金糕'
-      }, {
-        value: '选项2',
-        label: '双皮奶'
-      }, {
-        value: '选项3',
-        label: '蚵仔煎'
-      }, {
-        value: '选项4',
-        label: '龙须面'
-      }, {
-        value: '选项5',
-        label: '北京烤鸭'
-      }],
       value: ''
+    }
+  },
+  watch: {
+    filterText(val) {
+      this.$refs.tree.filter(val)
     }
   },
   created() {
     this.getCurrentUsers()
   },
   methods: {
+    handleClick() {
+      console.log('1231')
+    },
     getCurrentUsers() {
+      const that = this
       getCurrentUser().then(res => {
+        this.$nextTick(() => {
+          that.data = res.data
+        })
         sessionStorage.setItem('orgUntId', res.data.this.orgUntId)
       }).catch(err => console.log(err))
     },
     // 查询方法
     filterNode(value, data) {
       if (!value) return true
+      // eslint-disable-next-line no-undef
       return data.label.indexOf(value) !== -1
     },
     handleNodeClick(data) {
@@ -219,6 +229,15 @@ export default {
 <style scoped lang="scss">
 .height100b{
       height: 100%;
+  }
+  .el-dropdown {
+    vertical-align: top;
+  }
+  .el-dropdown + .el-dropdown {
+    margin-left: 15px;
+  }
+  .el-icon-arrow-down {
+    font-size: 12px;
   }
 </style>
 

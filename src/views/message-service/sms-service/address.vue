@@ -1,38 +1,26 @@
 <!-- 搜索弹框 -->
 <template>
-  <form-dialog
-    class="audit-dialog-wrapper"
-    :title="dialogTitle"
-    :is-show="isDialogVisible"
-    size="middle"
-    @update:isShow="isShow"
-    @resetForm="resetForm"
-  >
-    <normal-layer :search-number="1">
-      <template slot="search-header">
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm">
-          <div>
-            <el-button type="primary" @click="iniSearch('queryForm')">查询</el-button>
-          </div>
-        </FormItems>
-      </template>
-      <template>
-        <my-table-view v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
-          <template slot="operation" slot-scope="scope">
-            <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
-            <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
-            <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
-            <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
-          </template>
-        </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
-      </template>
-    </normal-layer>
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">关闭</el-button>
-      <el-button type="primary">保存</el-button>
-    </span>
-  </form-dialog>
+  <normal-layer :search-number="1">
+    <template slot="search-header">
+      <FormItems :items-datas="itemsDatas" :is-grid="false" :form-datas="queryForm">
+        <div>
+          <el-button type="primary" @click="iniSearch('queryForm')">查询</el-button>
+        </div>
+      </FormItems>
+    </template>
+    <template>
+      <my-table-view v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+        <template slot="operation" slot-scope="scope">
+          <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
+          <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
+          <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
+          <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
+        </template>
+      </my-table-view>
+      <Pagination :data="paginationQuery" @refresh="pageChange" />
+    </template>
+  </normal-layer>
+
 </template>
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
@@ -65,7 +53,7 @@ export default {
     return {
       loading: false,
       itemsDatas: [
-        { label: '搜索', prop: 'title', type: 'input', message: '请输入', span: 8 }
+        { label: '搜索', prop: 'title', type: 'input', message: '请输入', span: 12 }
       ],
       queryForm: {
         title: '',
@@ -84,14 +72,6 @@ export default {
         pageSize: 10,
         pageNumber: 1,
         total: 0
-      },
-      rules: {
-        title: [
-          { required: true, message: '请输入短信标题', trigger: 'blur' }
-        ],
-        content: [
-          { required: true, message: '请输入短信内容', trigger: 'blur' }
-        ]
       },
       tableData: []
     }
