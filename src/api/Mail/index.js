@@ -14,3 +14,11 @@ export function queryMail(params) {
     params: params
   })
 }
+
+export function getUnReadCount() {
+  return request({
+    url: api.getUnReadCount,
+    method: 'get'
+  })
+}
+

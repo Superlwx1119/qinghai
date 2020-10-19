@@ -4,26 +4,22 @@
     <section class="layer" style="height:calc(100% - 100px);">
       <div class="box">
         <div class="box-body">
-          <el-table
-            v-loading="tableLoading"
+          <MyTableView
+            v-loading="loading"
+            :columns="columns"
+            :is-configheader="true"
             :data="tableData"
-            height="string"
-            element-loading-spinner="el-loading1"
-            highlight-current-row
-            style="width: 100%;"
-            border
-            fit
-            @selection-change="handleSelectionChange"
+            :multiple-selection.sync="multipleSelection"
           >
-            <el-table-column type="selection" align="center" width="50" />
-            <el-table-column label="序号" type="index" align="center" width="50" />
-            <el-table-column prop="uact" show-overflow-tooltip label="星标" align="center" />
-            <el-table-column prop="uact" show-overflow-tooltip label="已读标志" align="center" />
-            <el-table-column prop="uact" show-overflow-tooltip label="邮件主题" align="center" />
-            <el-table-column prop="uact" show-overflow-tooltip label="发件人" align="center" />
-            <el-table-column prop="uact" show-overflow-tooltip label="发送时间" align="center" />
-            <el-table-column prop="userName" show-overflow-tooltip label="操作" align="center" />
-          </el-table>
+            <template slot="operation" slot-scope="scope">
+              <MyButton
+                v-model="scope.row"
+                icon="detail"
+                title="详情"
+                @click="viewDetail(scope.row)"
+              />
+            </template>
+          </MyTableView>
         </div>
       </div>
     </section>
@@ -37,18 +33,27 @@ import SecurityUser from './user-add/index'
 import {
   mapGetters
 } from 'vuex'
+import { array } from 'jszip/lib/support'
 export default {
   name: 'ResourceManagement',
   components: {
     SecurityUser
   },
-  mixins: [
-
-  ],
+  mixins: [],
   props: {
+    columns: {
+      type: array,
+      default: () => []
+    },
+    tableData: {
+      type: array,
+      default: () => []
+    }
   },
   data() {
     return {
+      multipleSelection: [],
+      loading: false,
       dataObj: {
         isShow: false
       },
@@ -63,7 +68,6 @@ export default {
       startRow: 0,
       endRow: 0,
       tableLoading: false,
-      tableData: [],
       rules: {
         roleName: [{
           required: true, message: '请输入角色名称', trigger: 'blur'

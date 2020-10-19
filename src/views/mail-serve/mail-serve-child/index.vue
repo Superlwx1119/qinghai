@@ -17,31 +17,31 @@
               @open="handleOpen"
               @close="handleClose"
             >
-              <el-menu-item index="1">
+              <el-menu-item index="1" @click="chooseItem(1)">
                 <i class="el-icon-folder" />
                 <span slot="title">星标置顶</span>
               </el-menu-item>
-              <el-menu-item index="2">
+              <el-menu-item index="2" @click="chooseItem(2)">
                 <i class="el-icon-folder" />
                 <span slot="title">收件箱</span>
               </el-menu-item>
-              <el-menu-item index="3">
+              <el-menu-item index="3" @click="chooseItem(3)">
                 <i class="el-icon-folder" />
                 <span slot="title">草稿箱</span>
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="4" @click="chooseItem(4)">
                 <i class="el-icon-folder" />
                 <span slot="title">已发送邮件</span>
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="5" @click="chooseItem(5)">
                 <i class="el-icon-folder" />
                 <span slot="title">已删除邮件</span>
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="6" @click="chooseItem(6)">
                 <i class="el-icon-folder" />
                 <span slot="title">预算文件夹</span>
               </el-menu-item>
-              <el-menu-item index="4">
+              <el-menu-item index="7" @click="chooseItem(7)">
                 <i class="el-icon-folder" />
                 <span slot="title">其他文件夹</span>
               </el-menu-item>
@@ -51,19 +51,19 @@
         </el-col>
         <el-col :span="18">
           <el-header style="padding:0.5rem 0;height:auto;">
-            <el-button type="primary" @click="getUnReadCount">
+            <el-button type="primary" @click="getUnReadCounts()">
               <i class="el-icon-download" />
               收取
             </el-button>
-            <el-button type="primary" @click="open">
+            <el-button type="primary" @click="replyshoe()">
               <i class="el-icon-edit-outline" />
               写邮件
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="getCurrentUserbtn()">
               <i class="el-icon-s-comment" />
               回复
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="getCurrentUserbtn()">
               <i class="el-icon-s-comment" />
               回复全部
             </el-button>
@@ -83,7 +83,8 @@
               <el-button slot="append" icon="el-icon-search" @click="search" />
             </el-input>
           </el-header>
-          <role-maintenance ref="roleMaintenance" :data-obj="nodeInfo" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
+          <role-maintenance ref="roleMaintenance" :columns="columns" :data-obj="nodeInfo" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
+          <mail-reply v-if="dataObj.isShow" @cancelDialog="cancel" />
         </el-col>
       </el-row>
     </section>
@@ -95,22 +96,28 @@
 import ApiObj from '@/api/Admin/user-management'
 // eslint-disable-next-line no-unused-vars
 import { queryMail, getUnReadCount } from '@/api/Mail/index'
-
+import { getCurrentUser } from '@/api/Common/Request'
 import RoleMaintenance from './role-maintenance/index'
+import MailReply from './mail-reply/index'
+import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
 export default {
   name: 'ResourceManagement',
   components: {
-    // eslint-disable-next-line vue/no-unused-components
-    RoleMaintenance
+    RoleMaintenance,
+    MailReply
   },
-  mixins: [
-
-  ],
+  mixins: [],
   props: {
-
   },
   data() {
     return {
+      // 表列
+      columns: [],
+      // 数据
+      tableData: [],
+      dataObj: {
+        isShow: false
+      },
       emailSbj: '',
       nodeInfo: {}
     }
@@ -125,15 +132,55 @@ export default {
   },
   created() {
     this.userInfo = JSON.parse(window.sessionStorage.getItem('hsa-portal-user'))
+    this.columns = listitem1
   },
   mounted() {
 
   },
   methods: {
-    open() {
-      this.$alert('<strong>这是 <i>HTML</i> 片段</strong>', 'HTML 片段', {
-        dangerouslyUseHTMLString: true
-      })
+    // 子列表
+    chooseItem(value) {
+      switch (value) {
+        case 1:
+          this.columns = listitem1
+          break
+        case 2:
+          this.columns = listitem1
+          break
+        case 3:
+          this.columns = listitem2
+          break
+        case 4:
+          this.columns = listitem3
+          break
+        case 5:
+          this.columns = listitem4
+          break
+        case 6:
+          this.columns = listitem3
+          break
+        case 7:
+          this.columns = listitem1
+          break
+        default:
+          this.columns = listitem1
+          break
+      }
+    },
+    replyshoe() {
+      this.dataObj.isShow = true
+    },
+    getUnReadCounts() {
+      getUnReadCount().then(res => console.log(res))
+    },
+    getCurrentUserbtn() {
+      const that = this
+      getCurrentUser().then(res =>
+        that.$message({
+          message: '警告哦，这是一条警告消息',
+          type: 'warning'
+        })
+      )
     },
     search() {
       // eslint-disable-next-line no-unused-vars
@@ -149,14 +196,11 @@ export default {
         console.log(res)
       })
     },
-    // getUnReadCounts(){
-    //   getUnReadCount().then(res => console.log(res))
-    // }
     // 清空节点并重新加载
-    // reloadNode() {
-    //   const node = this.rootNode.parent
-    //   this.freshNode(node)
-    // },
+    reloadNode() {
+      const node = this.rootNode.parent
+      this.freshNode(node)
+    },
     // 解除新增状态
     clearAdding() {
       this.isAdding = false
@@ -166,6 +210,23 @@ export default {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath)
+    },
+    // 切换每页的数量
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.getTableData()
+    },
+    // 切换页码
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.getTableData()
+    },
+    // 关闭弹出框
+    cancel(data) {
+      this.dataObj.isShow = false
+      // if (data) {
+      //   this.getTableData()
+      // }
     }
   }
 }
