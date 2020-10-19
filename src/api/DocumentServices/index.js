@@ -4,12 +4,23 @@
 import request from '@/utils/request'
 import api from './Api.js'
 /**
+ * 被分享文件管理？
+ * @param query
+ */
+export function offFileShrPage(params) {
+  return request({
+    url: api.offFileShrPage,
+    method: 'get',
+    params: params
+  })
+}
+/**
  * 文件管理？
  * @param query
  */
-export function beforeFact(params) {
+export function page(params) {
   return request({
-    url: api.beforeFact,
+    url: api.page,
     method: 'get',
     params: params
   })

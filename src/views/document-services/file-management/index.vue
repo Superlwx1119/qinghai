@@ -13,9 +13,9 @@
       <div slot="table-title" class="box-header handle">
         <span class="box-title">数据列表</span>
         <div slot="title-btns" class="box-tools">
-          <el-button type="primary">上传</el-button>
-          <el-button type="primary">下载</el-button>
-          <el-button type="primary">分享</el-button>
+          <el-button type="primary" @click="isDialogVisible = true">上传</el-button>
+          <el-button type="primary" @click="downloadFile">下载</el-button>
+          <el-button type="primary" @click="shareFile">分享</el-button>
           <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
@@ -31,6 +31,7 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
+    <Upload v-model="isDialogVisible" @search="search" />
   </div>
 </template>
 
@@ -38,16 +39,26 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
-import { beforeFact, getFileCollocation, getUrl } from '@/api/DocumentServices/index'
+import Upload from './upload'
+import { page, getFileCollocation, getUrl } from '@/api/DocumentServices/index'
 export default {
   name: 'FileManagement',
-  components: { FormItems, NormalLayer },
+  components: { FormItems, NormalLayer, Upload },
   mixins: [pageHandle],
   data() {
     return {
+      isDialogVisible: false,
       itemsDatas: [
-        { label: '文件名称', prop: '文件名称', type: 'input', message: '请输入' }
+        { label: '文件名称', prop: 'filename', type: 'input', message: '请输入' }
       ],
+      queryForm: {
+        filename: ''
+      },
+      paginationQuery: {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0
+      },
       columns: [
         { type: 'index', label: '序号' },
         { label: '文件名称', prop: '文件名称' },
@@ -57,7 +68,8 @@ export default {
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
       tableData: [
-      ]
+      ],
+      multipleSelection: []
     }
   },
   computed: {},
@@ -69,13 +81,31 @@ export default {
   },
   mounted() {},
   methods: {
+    downloadFile() {
+      if (this.multipleSelection.length === 0) {
+        this.$msgWarning('请选择要下载的文件')
+        return
+      }
+    },
+    pageChange(data) {
+      this.paginationQuery.pageSize = data.pagination.pageSize
+      this.paginationQuery.pageNumber = data.pagination.pageNum
+      this.search()
+    },
+    shareFile() {
+      if (this.multipleSelection.length === 0) {
+        this.$msgWarning('请选择要分享的文件')
+        return
+      }
+    },
     search() {
       const params = {
-        menuCodg: 'ips-wjfw-wjgl'
+        ...this.paginationQuery,
+        filename: this.queryForm.filename
       }
-      beforeFact(params).then(res => {
+      page(params).then(res => {
         if (res.code === 0) {
-          this.tableData = res.data.data
+          this.tableData = res.data.result
         }
       })
     },

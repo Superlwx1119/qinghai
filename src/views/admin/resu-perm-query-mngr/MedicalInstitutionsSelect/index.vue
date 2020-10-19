@@ -21,7 +21,6 @@
         <el-input
           ref="reference"
           v-model="inputVal"
-          readonly
           :disabled="disabled"
           placeholder="点击选择菜单后查询"
           clearable

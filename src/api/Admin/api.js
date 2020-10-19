@@ -6,6 +6,7 @@ export default {
   // 用户列表
   userManagement: {
     page: ips + '/admin/web/user/page', // 查询用户列表
+    excel: ips + '/admin/export/excel', // 导出数据
     adminRoleId: ips + '/admin/web/secRole/units/adminRoleId', // 查询角色id
     beforeFact: ips + '/admin/web/beforeFact', // 请求接口之前的请求
     user: ips + '/admin/web/user', // 新增用户名

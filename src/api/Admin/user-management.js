@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request, { fileService } from '@/utils/request'
 import ApiUrl from './api'
 // 查询用户列表
 export function page(params) {
@@ -6,6 +6,20 @@ export function page(params) {
     url: ApiUrl.userManagement.page,
     method: 'get',
     params: params
+  })
+}
+// 导出数据
+export function excel(params) {
+  return fileService({
+    url: ApiUrl.userManagement.excel + '/' + params.resuName,
+    responseType: 'blob',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
+      withCredentials: true
+    },
+    method: 'post',
+    data: params.params
   })
 }
 export function adminRoleId() {
@@ -620,6 +634,7 @@ export default {
   resource,
   page,
   adminRoleId,
+  excel,
   beforeFact,
   user,
   updateUser,

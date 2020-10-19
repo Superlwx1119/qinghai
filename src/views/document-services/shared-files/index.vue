@@ -13,7 +13,7 @@
       <div slot="table-title" class="box-header handle">
         <span class="box-title">数据列表</span>
         <div slot="title-btns" class="box-tools">
-          <el-button type="primary">下载</el-button>
+          <el-button type="primary" @click="downloadFile">下载</el-button>
           <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
@@ -36,6 +36,7 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
+import { offFileShrPage } from '@/api/DocumentServices/index'
 export default {
   name: 'SharedFiles',
   components: { FormItems, NormalLayer },
@@ -43,8 +44,13 @@ export default {
   data() {
     return {
       itemsDatas: [
-        { label: '文件名称', prop: '文件名称', type: 'input', message: '请输入' }
+        { label: '文件名称', prop: 'filename', type: 'input', message: '请输入' }
       ],
+      paginationQuery: {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0
+      },
       columns: [
         { type: 'index', label: '序号' },
         { label: '文件名称', prop: '文件名称' },
@@ -53,6 +59,7 @@ export default {
         { label: '发送时间', prop: '发送时间' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
+      multipleSelection: [],
       tableData: [
         { 文件名称: 'xxx', 文件大小: 'xxx', 发送人: 'xxx', 发送时间: 'xxx' }
       ]
@@ -60,9 +67,34 @@ export default {
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    this.search()
+  },
   mounted() {},
-  methods: {}
+  methods: {
+    downloadFile() {
+      if (this.multipleSelection.length === 0) {
+        this.$msgWarning('请选择要下载的文件')
+        return
+      }
+    },
+    pageChange(data) {
+      this.paginationQuery.pageSize = data.pagination.pageSize
+      this.paginationQuery.pageNumber = data.pagination.pageNum
+      this.search()
+    },
+    search() {
+      const params = {
+        ...this.paginationQuery,
+        filename: this.queryForm.filename
+      }
+      offFileShrPage(params).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data.result
+        }
+      })
+    }
+  }
 }
 </script>
 

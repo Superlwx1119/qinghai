@@ -23,7 +23,7 @@
       <div slot="table-title" class="box-header handle">
         <span class="box-title">短信消息列表</span>
         <div slot="title-btns" class="box-tools">
-          <el-button type="success">新增</el-button>
+          <el-button type="success" @click="isShowAdd = true">新增</el-button>
           <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
@@ -39,6 +39,7 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
+    <Add v-model="isShowAdd" />
   </div>
 </template>
 
@@ -46,9 +47,10 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
+import Add from './add'
 export default {
   name: 'SmsService',
-  components: { FormItems, NormalLayer },
+  components: { FormItems, NormalLayer, Add },
   mixins: [pageHandle],
   data() {
     return {
@@ -83,14 +85,29 @@ export default {
       ],
       tableData: [
         { 消息批次号: 'xxx', 短信标题: 'xxx', 短信内容: 'xxx', 接收人: 'xxx', 提交日期: 'xxx', 提交状态: 'xxx', 审批状态: 'xxx', 审批结果: 'xxx', 审批人: 'xxx', 审批时间: 'xxx', 审批意见: 'xxx' }
-      ]
+      ],
+      isShowAdd: false,
+      paginationQuery: {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0
+      }
     }
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
+  methods: {
+    pageChange(data) {
+      this.paginationQuery.pageSize = data.pagination.pageSize
+      this.paginationQuery.pageNumber = data.pagination.pageNum
+      this.search()
+    },
+    search() {
+
+    }
+  }
 }
 </script>
 
