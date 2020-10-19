@@ -51,11 +51,11 @@
         </el-col>
         <el-col :span="18">
           <el-header style="padding:0.5rem 0;height:auto;">
-            <el-button type="primary">
+            <el-button type="primary" @click="getUnReadCount">
               <i class="el-icon-download" />
-              答复
+              收取
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="open">
               <i class="el-icon-edit-outline" />
               写邮件
             </el-button>
@@ -94,7 +94,7 @@
 // eslint-disable-next-line no-unused-vars
 import ApiObj from '@/api/Admin/user-management'
 // eslint-disable-next-line no-unused-vars
-import { queryMail } from '@/api/Mail/index'
+import { queryMail, getUnReadCount } from '@/api/Mail/index'
 
 import RoleMaintenance from './role-maintenance/index'
 export default {
@@ -130,6 +130,11 @@ export default {
 
   },
   methods: {
+    open() {
+      this.$alert('<strong>这是 <i>HTML</i> 片段</strong>', 'HTML 片段', {
+        dangerouslyUseHTMLString: true
+      })
+    },
     search() {
       // eslint-disable-next-line no-unused-vars
       const params = {
@@ -144,11 +149,14 @@ export default {
         console.log(res)
       })
     },
+    // getUnReadCounts(){
+    //   getUnReadCount().then(res => console.log(res))
+    // }
     // 清空节点并重新加载
-    reloadNode() {
-      const node = this.rootNode.parent
-      this.freshNode(node)
-    },
+    // reloadNode() {
+    //   const node = this.rootNode.parent
+    //   this.freshNode(node)
+    // },
     // 解除新增状态
     clearAdding() {
       this.isAdding = false
