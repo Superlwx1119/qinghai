@@ -83,26 +83,24 @@
               <el-button slot="append" icon="el-icon-search" @click="search" />
             </el-input>
           </el-header>
-          <role-maintenance ref="roleMaintenance" :columns="columns" :table-data="tableData" :data-obj="nodeInfo" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
-          <mail-reply v-model="isShow" :current-data="tableData" @changeSelection="changeSelection" />
+          <template>
+            <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" />
+          </template>
         </el-col>
       </el-row>
     </section>
+    <MailReply v-model="isShowAdd" />
   </div>
 </template>
 
 <script>
-// eslint-disable-next-line no-unused-vars
-import ApiObj from '@/api/Admin/user-management'
 import { getCurrentUser } from '@/api/Common/Request'
 import { queryMail, getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList } from '@/api/Mail'
-import RoleMaintenance from './role-maintenance/index'
-import MailReply from './mail-reply/index'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
+import MailReply from './mailReply'
 export default {
   name: 'ResourceManagement',
   components: {
-    RoleMaintenance,
     MailReply
   },
   mixins: [],
@@ -110,12 +108,13 @@ export default {
   },
   data() {
     return {
+      multipleSelection: [],
+      loading: false,
       // 表列
       columns: [],
       // 数据
       tableData: [],
-      // dataObj: {
-      isShow: false,
+      isShowAdd: false,
       emailSbj: '',
       nodeInfo: {}
     }
@@ -212,7 +211,8 @@ export default {
       }
     },
     replyshoe() {
-      this.isShow = true
+      console.log('123')
+      this.isShowAdd = true
     },
     getUnReadCounts() {
       getUnReadCount().then(res => console.log(res))
@@ -267,10 +267,7 @@ export default {
     },
     // 关闭弹出框
     cancel(data) {
-      this.isShow = false
-      // if (data) {
-      //   this.getTableData()
-      // }
+      this.isShowAdd = false
     }
   }
 }

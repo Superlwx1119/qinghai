@@ -12,23 +12,17 @@
       </template>
       <div slot="table-title" class="box-header handle">
         <span class="box-title">短信消息列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button type="primary">审批</el-button>
-          <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
-        </div>
       </div>
       <template>
         <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
           <template slot="operation" slot-scope="scope">
-            <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
-            <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
-            <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
-            <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
+            <el-button type="primary" @click="approvalbtn(scope.row)">审批</el-button>
           </template>
         </my-table-view>
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
+    <Approval v-model="isShowAdd" :daterow="daterow" />
   </div>
 </template>
 
@@ -37,12 +31,16 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import { getSmsApprByPage } from '@/api/MessageServer/index'
+import Approval from './approval'
 export default {
   name: 'SmsService',
-  components: { FormItems, NormalLayer },
+  components: { FormItems, NormalLayer, Approval },
   mixins: [pageHandle],
   data() {
     return {
+      isShowAdd: false,
+      daterow: {},
+      tableData: [],
       itemsDatas: [
         { label: '消息批次号', prop: 'msgBchno', type: 'input', message: '请输入' },
         { label: '短信标题', prop: 'smsTtl', type: 'input', message: '请输入' },
@@ -50,7 +48,7 @@ export default {
         { label: '提交日期', prop: 'sbmtTime', type: 'date', message: '请输入' }
       ],
       columns: [
-        { type: 'selection' },
+        // { type: 'selection' },
         { type: 'index', label: '序号' },
         { label: '消息批次号', prop: 'msgBchno' },
         { label: '短信标题', prop: 'smsTtl' },
@@ -59,9 +57,9 @@ export default {
         { label: '提交日期', prop: 'sbmtTime' },
         { label: '审批状态', prop: 'sbmtStas' },
         { label: '审批人', prop: 'apprerName' },
-        { label: '审批时间', prop: 'apprTime' }
+        { label: '审批时间', prop: 'apprTime' },
+        { label: '操作', type: 'operation', fixed: 'right' }
       ],
-      tableData: [],
       rules: {
         msgBchno: [{ required: true, message: '请输入短信标题', trigger: 'blur' }],
         smsTtl: [{ required: true, message: '请输入短信内容', trigger: 'blur' }],
@@ -98,6 +96,10 @@ export default {
       getSmsApprByPage(params).then(res => {
         that.tableData = res.data.result
       })
+    },
+    approvalbtn(value) {
+      this.isShowAdd = true
+      this.daterow = value
     }
   }
 }

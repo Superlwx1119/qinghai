@@ -130,8 +130,9 @@ export default {
             ...this.queryForm
           }
           for (let i = 0; i < this.queryForm.userIdList.length; i++) {
-            if (this.queryForm.userIdList[i].length > 0) {
-              params.userIdList[i] = this.queryForm.userIdList[i].split(',')[0]
+            // eslint-disable-next-line eqeqeq
+            if (this.queryForm.userIdList[i].indexOf(',') != -1) {
+              params.userIdList.push(this.queryForm.userIdList[i].split(',')[0])
             }
           }
           offMsgD(params).then(res => console.log(res))
@@ -147,9 +148,10 @@ export default {
     changeSelection(val) {
       this.tableData = val
       for (let i = 0; i < this.tableData.length; i++) {
-        this.queryForm.userIdList[i] = this.tableData[i].userAcctIdList
+        this.queryForm.userIdList.push(this.tableData[i].userAcctIdList)
         this.queryForm.userIdListname += this.tableData[i].userNameList
       }
+      console.log(this.queryForm)
     },
     rightcheckchange(val) {
       console.log(val)
@@ -157,15 +159,7 @@ export default {
       for (let i = 0; i < val.userlist.length; i++) {
         this.queryForm.userIdListname += val.userlist[i]
       }
-      // for (let i = 0; i < this.tableData.length; i++) {
-      //   this.queryForm.userIdList[i] = this.tableData[i].userAcctIdList
-      //   this.queryForm.userIdListname += this.tableData[i].userNameList
-      // }
     },
-    // handleAvatarSuccess() {
-    //   this.closeDialog()
-    //   this.$emit('search')
-    // },
     reset() {
     },
     closeDialog() {
