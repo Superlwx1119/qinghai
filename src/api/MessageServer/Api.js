@@ -9,5 +9,7 @@ export default {
   page: ips + '/admin/web/admin/offSmsD/page',
   offMsgD: ips + '/ips/admin/web/admin/offMsgD', // 发送消息
   outBox: ips + '/admin/web/admin/offMsgD/outBox', // 发件箱
-  share: ips + '/admin/web/admin/offMsgD/share'
+  share: ips + '/admin/web/admin/offMsgD/share',
+  addSms: ips + '/admin/web/admin/offSmsD/addSms', // 短信信息列表-保存
+  getSmsApprByPage: ips + '/admin/web/admin/offSmsD/getSmsApprByPage' // 消息审批
 }

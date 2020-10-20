@@ -9,27 +9,14 @@
       </FormItems>
     </template>
     <template>
-      <my-table-view ref="myTable" v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="rowClick">
-        <template slot="perpo">
-          <el-input v-model="queryForm.perpo" placeholder="请选择联系人" class="input-with-select" disabled>
-            <el-button slot="append" icon="el-icon-search" />
-          </el-input>
-        </template>
-        <template slot="operation" slot-scope="scope">
-          <MyButton
-            icon="detail"
-            title="详情"
-            @click="viewDetail(scope.row)"
-          />
-        </template>
-      </my-table-view>
+      <my-table-view ref="myTable" v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="rowClick" />
       <Pagination :data="paginationQuery" @refresh="pageChange" />
     </template>
   </normal-layer>
 
 </template>
 <script>
-import { getGrpByPage } from '@/api/MessageServer/index'
+import { getAddrBookByPage } from '@/api/MessageServer/index'
 import FormItems from '@/views/components/PageLayers/form-items'
 import pageHandle from '@/mixins/pageHandle'
 export default {
@@ -72,9 +59,9 @@ export default {
       columns: [
         { type: 'selection' },
         { type: 'index', label: '序号' },
-        { label: '个人通讯录组名称', prop: 'addrbookGrpName' },
-        { label: '组内成员', prop: 'userNameList' },
-        { label: '操作', type: 'operation', width: '120', fixed: 'right' }
+        { label: '姓名', prop: 'userName' },
+        { label: '所属部门', prop: 'orgName' },
+        { label: '手机号码', prop: 'mob' }
       ],
       paginationQuery: {
         pageSize: 10,
@@ -114,7 +101,7 @@ export default {
         userName: this.queryForm.userName
       }
       this.loading = true
-      getGrpByPage(form).then(res => {
+      getAddrBookByPage(form).then(res => {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1

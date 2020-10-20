@@ -25,7 +25,6 @@
     <select-btn v-model="isShowAdd" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
-      <el-button type="reset" title="重置" @click="reset">重置</el-button>
       <el-button type="primary" @click="send()">发送</el-button>
     </span>
   </form-dialog>
@@ -135,7 +134,6 @@ export default {
               params.userIdList[i] = this.queryForm.userIdList[i].split(',')[0]
             }
           }
-          console.log(params.userIdList)
           offMsgD(params).then(res => console.log(res))
         }
       })

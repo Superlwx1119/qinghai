@@ -6,7 +6,7 @@
         <el-col :span="6">
           <div class="box">
             <div class="box-header">
-              <span class="box-title">邮件管理</span>
+              <span class="box-title">邮件分组</span>
             </div>
             <el-menu
               default-active="2"
@@ -51,7 +51,7 @@
         </el-col>
         <el-col :span="18">
           <el-header style="padding:0.5rem 0;height:auto;">
-            <el-button type="primary" @click="getUnReadCounts()">
+            <el-button type="primary" @click="charge()">
               <i class="el-icon-download" />
               收取
             </el-button>
@@ -83,8 +83,8 @@
               <el-button slot="append" icon="el-icon-search" @click="search" />
             </el-input>
           </el-header>
-          <role-maintenance ref="roleMaintenance" :columns="columns" :data-obj="nodeInfo" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
-          <mail-reply v-if="dataObj.isShow" @cancelDialog="cancel" />
+          <role-maintenance ref="roleMaintenance" :columns="columns" :table-data="tableData" :data-obj="nodeInfo" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
+          <mail-reply v-model="isShow" :current-data="tableData" @changeSelection="changeSelection" />
         </el-col>
       </el-row>
     </section>
@@ -94,9 +94,8 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import ApiObj from '@/api/Admin/user-management'
-// eslint-disable-next-line no-unused-vars
-import { queryMail, getUnReadCount } from '@/api/Mail/index'
 import { getCurrentUser } from '@/api/Common/Request'
+import { queryMail, getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList } from '@/api/Mail'
 import RoleMaintenance from './role-maintenance/index'
 import MailReply from './mail-reply/index'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
@@ -115,9 +114,8 @@ export default {
       columns: [],
       // 数据
       tableData: [],
-      dataObj: {
-        isShow: false
-      },
+      // dataObj: {
+      isShow: false,
       emailSbj: '',
       nodeInfo: {}
     }
@@ -138,37 +136,83 @@ export default {
 
   },
   methods: {
+    charge() {
+      this.getUnReadCounts()
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        prntGrpNo: 1,
+        emailType: '02'
+      }
+      getEMailInbox(param).then(res => {
+        this.tableData = res.data.result
+      })
+    },
+    changeSelection(val) {
+      this.tableData = val
+    },
     // 子列表
     chooseItem(value) {
+      this.getUnReadCounts()
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        prntGrpNo: 1,
+        emailType: '02'
+      }
       switch (value) {
         case 1:
           this.columns = listitem1
+          getStarEMailList(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 2:
           this.columns = listitem1
+          getEMailInbox(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 3:
           this.columns = listitem2
+          getDraft(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 4:
           this.columns = listitem3
+          getEMailOutbox(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 5:
           this.columns = listitem4
+          getEMailBin(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 6:
           this.columns = listitem3
+          getArchiveEMailList(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         case 7:
           this.columns = listitem1
+          getStarEMailList(param).then(res => {
+            this.tableData = res.data.result
+          })
           break
         default:
           this.columns = listitem1
+          this.getUnReadCounts()
           break
       }
     },
     replyshoe() {
-      this.dataObj.isShow = true
+      this.isShow = true
     },
     getUnReadCounts() {
       getUnReadCount().then(res => console.log(res))
@@ -177,7 +221,7 @@ export default {
       const that = this
       getCurrentUser().then(res =>
         that.$message({
-          message: '警告哦，这是一条警告消息',
+          message: '警告',
           type: 'warning'
         })
       )
@@ -223,7 +267,7 @@ export default {
     },
     // 关闭弹出框
     cancel(data) {
-      this.dataObj.isShow = false
+      this.isShow = false
       // if (data) {
       //   this.getTableData()
       // }

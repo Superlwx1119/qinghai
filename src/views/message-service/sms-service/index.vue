@@ -54,6 +54,12 @@ export default {
   mixins: [pageHandle],
   data() {
     return {
+      queryForm: {
+        msgBchno: '',
+        ttl: '',
+        smsCont: '',
+        sbmtTime: ''
+      },
       daterow: {
         state: true,
         row: []
@@ -66,10 +72,10 @@ export default {
         label: '不通过'
       }],
       itemsDatas: [
-        { label: '消息批次号', prop: '消息批次号', type: 'input', message: '请输入' },
-        { label: '短信标题', prop: '短信标题', type: 'input', message: '请输入' },
-        { label: '短信内容', prop: '短信内容', type: 'input', message: '请输入' },
-        { label: '提交日期', prop: '提交日期', type: 'date', message: '请输入' },
+        { label: '消息批次号', prop: 'msgBchno', type: 'input', message: '请输入' },
+        { label: '短信标题', prop: 'ttl', type: 'input', message: '请输入' },
+        { label: '短信内容', prop: 'smsCont', type: 'input', message: '请输入' },
+        { label: '提交日期', prop: 'sbmtTime', type: 'date', message: '请输入' },
         { label: '审批结果', prop: '审批结果', type: 'custom', message: '请输入' }
       ],
       columns: [
@@ -121,7 +127,7 @@ export default {
         pageSize: 10,
         pageNumber: 1,
         total: 0,
-        ttl: '' }
+        ...this.queryForm }
       page(param).then(res => {
         that.tableData = res.data.result
       })

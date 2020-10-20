@@ -17,7 +17,7 @@
       @close="cancelDialog"
     >
       <el-row>
-        <el-button type="primary" icon="el-icon-upload2">
+        <el-button type="primary" icon="el-icon-search">
           上传附件</el-button>
         <el-button type="primary" icon="el-icon-s-promotion">发送</el-button>
         <el-button type="primary" icon="el-icon-document-remove">保存草稿</el-button>

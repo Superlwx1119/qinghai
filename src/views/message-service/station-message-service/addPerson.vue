@@ -116,6 +116,15 @@ export default {
     saveCurrent() {
       this.$emit('changeSelection', this.selection)
       this.closeDialog()
+      // if (this.activeName === '通讯录') {
+      //   this.$nextTick(() => {
+      //     this.$refs.Address.multipleSelection = []
+      //   })
+      // } else {
+      //   this.$nextTick(() => {
+      //     this.$refs.AddressList.multipleSelection = []
+      //   })
+      // }
     },
     changeSelection(val) {
       this.selection = val

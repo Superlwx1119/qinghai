@@ -17,10 +17,13 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="closeDialog">关闭</el-button>
+    </span>
   </form-dialog>
 </template>
 <script>
-import { getGrpByPage } from '@/api/MessageServer/index'
+import { getGrpMsgPage } from '@/api/MessageServer/index'
 export default {
   model: {
     prop: 'isDialogVisible',
@@ -113,11 +116,11 @@ export default {
     },
     search() {
       const form = {
-        ...this.paginationQuery
-        // addrbookGrpNo: this.addrbookGrpNo
+        ...this.paginationQuery,
+        addrbookGrpNo: this.addrbookGrpNo
       }
       this.loading = true
-      getGrpByPage(form).then(res => {
+      getGrpMsgPage(form).then(res => {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1

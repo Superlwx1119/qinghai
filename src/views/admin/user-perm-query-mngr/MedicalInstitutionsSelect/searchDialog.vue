@@ -113,11 +113,8 @@ export default {
     search() {
       page().then(res => {
         console.log(res)
+        this.formItemsDatas = res.data.result
       })
-      // this.$nextTick(() => {
-      //   page.th
-      //   // this.$refs.tableRef.iniSearch()
-      // })
     },
     resetForm() {
       this.$nextTick(() => {

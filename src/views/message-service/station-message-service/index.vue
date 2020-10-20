@@ -58,7 +58,7 @@ export default {
       isShowAdd: false,
       isShowOutBox: false,
       itemsDatas: [
-        { label: '标题', prop: '标题', type: 'input', message: '请输入' }
+        { label: '标题', prop: 'ttl', type: 'input', message: '请输入' }
       ],
       columns: [
         { type: 'index', label: '序号' },
@@ -122,7 +122,7 @@ export default {
         pageSize: 10,
         pageNumber: 1,
         total: 0,
-        ttl: that.queryForm
+        ...that.queryForm
       }
       page(param).then(res => {
         that.tableData = res.data.result

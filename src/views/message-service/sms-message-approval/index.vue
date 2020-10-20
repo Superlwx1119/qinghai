@@ -3,7 +3,7 @@
   <div class="smsService">
     <normal-layer :search-number="4">
       <template slot="search-header">
-        <FormItems :items-datas="itemsDatas" :form-datas="queryForm">
+        <FormItems ref="seachbtn" :items-datas="itemsDatas" :form-datas="queryForm">
           <div>
             <el-button @click="reset('queryForm')">重置</el-button>
             <el-button type="primary" @click="iniSearch('queryForm')">查询</el-button>
@@ -36,6 +36,7 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
+import { getSmsApprByPage } from '@/api/MessageServer/index'
 export default {
   name: 'SmsService',
   components: { FormItems, NormalLayer },
@@ -43,35 +44,61 @@ export default {
   data() {
     return {
       itemsDatas: [
-        { label: '消息批次号', prop: '消息批次号', type: 'input', message: '请输入' },
-        { label: '短信标题', prop: '短信标题', type: 'input', message: '请输入' },
-        { label: '短信内容', prop: '短信内容', type: 'input', message: '请输入' },
-        { label: '提交日期', prop: '提交日期', type: 'date', message: '请输入' }
+        { label: '消息批次号', prop: 'msgBchno', type: 'input', message: '请输入' },
+        { label: '短信标题', prop: 'smsTtl', type: 'input', message: '请输入' },
+        { label: '短信内容', prop: 'smsCont', type: 'input', message: '请输入' },
+        { label: '提交日期', prop: 'sbmtTime', type: 'date', message: '请输入' }
       ],
       columns: [
+        { type: 'selection' },
         { type: 'index', label: '序号' },
-        { label: '消息批次号', prop: '消息批次号' },
-        { label: '短信标题', prop: '短信标题' },
-        { label: '短信内容', prop: '短信内容' },
-        { label: '接收人', prop: '接收人' },
-        { label: '提交日期', prop: '提交日期' },
-        { label: '审批状态', prop: '审批状态' },
-        { label: '审批人', prop: '审批人' },
-        { label: '审批时间', prop: '审批时间' }
+        { label: '消息批次号', prop: 'msgBchno' },
+        { label: '短信标题', prop: 'smsTtl' },
+        { label: '短信内容', prop: 'smsCont' },
+        { label: '接收人', prop: 'recers' },
+        { label: '提交日期', prop: 'sbmtTime' },
+        { label: '审批状态', prop: 'sbmtStas' },
+        { label: '审批人', prop: 'apprerName' },
+        { label: '审批时间', prop: 'apprTime' }
       ],
-      tableData: [
-        { 消息批次号: 'xxx', 短信标题: 'xxx', 短信内容: 'xxx', 接收人: 'xxx', 提交日期: 'xxx', 审批状态: 'xxx', 审批人: 'xxx', 审批时间: 'xxx' }
-      ]
+      tableData: [],
+      rules: {
+        msgBchno: [{ required: true, message: '请输入短信标题', trigger: 'blur' }],
+        smsTtl: [{ required: true, message: '请输入短信内容', trigger: 'blur' }],
+        smsCont: [{ required: true, message: '请输入短信内容', trigger: 'blur' }],
+        sbmtTime: [{ required: true, message: '请输入短信内容', trigger: 'blur' }]
+      },
+      queryForm: {
+        msgBchno: '',
+        smsTtl: '',
+        smsCont: '',
+        sbmtTime: ''
+      }
     }
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    this.search()
+  },
   mounted() {},
-  methods: {}
+  methods: {
+    search() {
+      const that = this
+      const params = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 5,
+        order: 'sbmtTime',
+        sort: 'DESC',
+        applstas: 0,
+        ...that.queryForm
+      }
+
+      getSmsApprByPage(params).then(res => {
+        that.tableData = res.data.result
+      })
+    }
+  }
 }
 </script>
-
-<style lang = "sass" scoped>
-
-</style>

@@ -53,7 +53,7 @@ export function page(params) {
 export function offMsgD(params) {
   return request({
     url: api.offMsgD,
-    method: 'get',
+    method: 'post',
     params: params
   })
 }
@@ -77,6 +77,29 @@ export function outBox(params) {
 export function share(params) {
   return request({
     url: api.share,
+    method: 'get',
+    params: params
+  })
+}
+
+/**
+ * 短信信息列表-保存
+ * @param query
+ */
+export function addSms(params) {
+  return request({
+    url: api.addSms,
+    method: 'post',
+    params: params
+  })
+}
+/**
+ * 短信信息列表-保存
+ * @param query
+ */
+export function getSmsApprByPage(params) {
+  return request({
+    url: api.getSmsApprByPage,
     method: 'get',
     params: params
   })

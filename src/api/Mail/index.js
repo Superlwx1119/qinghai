@@ -22,3 +22,44 @@ export function getUnReadCount() {
   })
 }
 
+export function getStarEMailList() {
+  return request({
+    url: api.getStarEMailList,
+    method: 'get'
+  })
+}
+
+export function getEMailInbox() {
+  return request({
+    url: api.getEMailInbox,
+    method: 'get'
+  })
+}
+
+export function getDraft() {
+  return request({
+    url: api.getDraft,
+    method: 'get'
+  })
+}
+
+export function getEMailOutbox() {
+  return request({
+    url: api.getEMailOutbox,
+    method: 'get'
+  })
+}
+
+export function getEMailBin() {
+  return request({
+    url: api.getEMailBin,
+    method: 'get'
+  })
+}
+
+export function getArchiveEMailList() {
+  return request({
+    url: api.getArchiveEMailList,
+    method: 'get'
+  })
+}

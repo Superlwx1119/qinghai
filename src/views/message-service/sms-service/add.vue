@@ -13,7 +13,7 @@
         <div slot="table-title" class="box-header handle">
           <span class="box-title">短信信息表</span>
         </div>
-        <FormItems :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
+        <FormItems ref="searchForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
       </template>
       <div slot="table-title" class="box-header handle">
         <span class="box-title">收信人列表</span>
@@ -32,7 +32,7 @@
     </normal-layer>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
-      <el-button v-show="daterow.state" type="primary">保存</el-button>
+      <el-button v-show="daterow.state" type="primary" @click="saveBtn()">保存</el-button>
     </span>
     <AddPerson v-model="showAdd" :current-data="tableData" @changeSelection="changeSelection" />
   </form-dialog>
@@ -42,6 +42,7 @@ import AddPerson from './addPerson'
 import FormItems from '@/views/components/PageLayers/form-items'
 // eslint-disable-next-line no-unused-vars
 import object from 'element-resize-detector/src/detection-strategy/object'
+import { addSms } from '@/api/MessageServer/index'
 import { array } from 'jszip/lib/support'
 export default {
   components: { FormItems, AddPerson },
@@ -76,21 +77,25 @@ export default {
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '短信标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
-        { label: '短信内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
+        { label: '短信标题', prop: 'smsTtl', type: 'input', span: 24 },
+        { label: '短信内容', prop: 'smsCont', type: 'textarea', span: 24, rows: 3 }
       ],
+      rules: {
+        smsTtl: [{ required: true, message: '请输入短信标题', trigger: 'blur' }],
+        smsCont: [{ required: true, message: '请输入短信内容', trigger: 'blur' }]
+      },
       queryForm: {
-        title: '',
-        content: ''
+        smsTtl: '',
+        smsCont: ''
       },
       multipleSelection: [],
       fileList: [],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '姓名', prop: 'userName', width: '120px' },
-        { label: '所属部门', prop: 'orgName', width: '120px' },
+        { label: '姓名', prop: 'userName' },
+        { label: '所属部门', prop: 'orgName' },
         { label: '手机号码', prop: 'mob' },
-        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
+        { label: '操作', type: 'operation', fixed: 'right' }
       ],
       paginationQuery: {
         pageSize: 10,
@@ -98,14 +103,6 @@ export default {
         total: 0,
         startRow: 0,
         endRow: 0
-      },
-      rules: {
-        title: [
-          { required: true, message: '请输入短信标题', trigger: 'blur' }
-        ],
-        content: [
-          { required: true, message: '请输入短信内容', trigger: 'blur' }
-        ]
       },
       tableData: []
     }
@@ -121,6 +118,23 @@ export default {
   },
 
   methods: {
+    saveBtn() {
+      // this.$refs.searchForm.validate((valid) => {
+      //   if (valid) {
+      const that = this
+      const param = {}
+      param.offSmsDDTO = JSON.stringify(this.queryForm)
+      param.addSmsList = JSON.stringify(this.tableData)
+      addSms(param).then(res => {
+        that.$message({
+          message: '保存成功',
+          type: 'success'
+        })
+        this.closeDialog()
+      })
+      //   }
+      // })
+    },
     showAdditem(value) {
       if (value === 1) {
         this.showAdd = true
