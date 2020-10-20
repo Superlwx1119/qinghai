@@ -15,7 +15,7 @@
         </div>
         <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
           <el-tab-pane name="通讯录" label="通讯录">
-            <AddressList ref="AddressList" :selection="multipleSelection" @changeSelection="changeSelection" />
+            <AddressList ref="AddressList" :selection="multipleSelection" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
           </el-tab-pane>
           <el-tab-pane name="通讯录组" label="通讯录组">
             <Address ref="Address" :selection="multipleSelection" @changeSelection="changeSelection" />
@@ -132,6 +132,9 @@ export default {
           this.$refs.AddressList.search()
         })
       }
+    },
+    rightcheckchange(val) {
+      this.$emit('rightcheckchange', val)
     },
     deleteRow(row) {
       this.tableData.splice(row.rowIndex, 1)

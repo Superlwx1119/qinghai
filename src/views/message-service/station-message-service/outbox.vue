@@ -114,7 +114,8 @@ export default {
   },
   created() {
   },
-
+  mounted() {
+  },
   methods: {
     send() {
       this.$refs.ruleFrom.validate((valid) => {

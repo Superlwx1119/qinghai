@@ -74,22 +74,20 @@ export default {
       ],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '消息批次号', prop: '消息批次号', width: '120px' },
-        { label: '短信标题', prop: '短信标题', width: '120px' },
-        { label: '短信内容', prop: '短信内容' },
-        { label: '接收人', prop: '接收人' },
-        { label: '提交日期', prop: '提交日期' },
-        { label: '提交状态', prop: '提交状态' },
-        { label: '审批状态', prop: '审批状态' },
-        { label: '审批结果', prop: '审批结果' },
+        { label: '消息批次号', prop: 'msgBchno', width: '120px' },
+        { label: '短信标题', prop: 'smsTtl', width: '120px' },
+        { label: '短信内容', prop: 'smsCont' },
+        { label: '接收人', prop: 'recers' },
+        { label: '提交日期', prop: 'sbmtTime' },
+        { label: '提交状态', prop: 'sbmtStas' },
+        { label: '审批状态', prop: 'applstas' },
+        { label: '审批结果', prop: 'sendOptins' },
         { label: '审批人', prop: '审批人' },
         { label: '审批时间', prop: '审批时间' },
         { label: '审批意见', prop: '审批意见' },
         { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
       ],
-      tableData: [
-        { 消息批次号: 'xxx', 短信标题: 'xxx', 短信内容: 'xxx', 接收人: 'xxx', 提交日期: 'xxx', 提交状态: 'xxx', 审批状态: 'xxx', 审批结果: 'xxx', 审批人: 'xxx', 审批时间: 'xxx', 审批意见: 'xxx' }
-      ],
+      tableData: [],
       isShowAdd: false,
       paginationQuery: {
         pageSize: 10,
@@ -118,13 +116,15 @@ export default {
       this.search()
     },
     search() {
-      // const that = this
+      const that = this
       const param = {
         pageSize: 10,
         pageNumber: 1,
         total: 0,
         ttl: '' }
-      page(param).then(res => console.log(res))
+      page(param).then(res => {
+        that.tableData = res.data.result
+      })
     }
   }
 }

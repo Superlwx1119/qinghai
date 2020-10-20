@@ -8,5 +8,6 @@ export default {
   getGrpByPage: ips + '/admin/web/admin/offSmsD/getGrpByPage', // 短信接收人信息表---通讯录组
   page: ips + '/admin/web/admin/offSmsD/page',
   offMsgD: ips + '/ips/admin/web/admin/offMsgD', // 发送消息
-  outBox: ips + '/admin/web/admin/offMsgD/outBox' // 发件箱
+  outBox: ips + '/admin/web/admin/offMsgD/outBox', // 发件箱
+  share: ips + '/admin/web/admin/offMsgD/share'
 }

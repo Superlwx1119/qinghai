@@ -22,7 +22,7 @@
         </FormItems>
       </template>
     </normal-layer>
-    <select-btn v-model="isShowAdd" @changeSelection="changeSelection" />
+    <select-btn v-model="isShowAdd" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
       <el-button type="reset" title="重置" @click="reset">重置</el-button>
@@ -84,6 +84,13 @@ export default {
       },
       multipleSelection: [],
       fileList: [],
+      columns: [
+        { type: 'index', label: '序号' },
+        { label: '姓名', prop: 'userName', width: '120px' },
+        { label: '所属部门', prop: 'orgName', width: '120px' },
+        { label: '手机号码', prop: 'mob' },
+        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
+      ],
       paginationQuery: {
         pageSize: 10,
         pageNumber: 1,
@@ -141,12 +148,21 @@ export default {
     },
     changeSelection(val) {
       this.tableData = val
-      console.log(val)
       for (let i = 0; i < this.tableData.length; i++) {
         this.queryForm.userIdList[i] = this.tableData[i].userAcctIdList
         this.queryForm.userIdListname += this.tableData[i].userNameList
       }
-      this.queryForm.userIdList
+    },
+    rightcheckchange(val) {
+      console.log(val)
+      this.queryForm.userIdList = val.idlist
+      for (let i = 0; i < val.userlist.length; i++) {
+        this.queryForm.userIdListname += val.userlist[i]
+      }
+      // for (let i = 0; i < this.tableData.length; i++) {
+      //   this.queryForm.userIdList[i] = this.tableData[i].userAcctIdList
+      //   this.queryForm.userIdListname += this.tableData[i].userNameList
+      // }
     },
     // handleAvatarSuccess() {
     //   this.closeDialog()

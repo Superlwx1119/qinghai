@@ -69,3 +69,15 @@ export function outBox(params) {
     params: params
   })
 }
+
+/**
+ *
+ * @param query
+ */
+export function share(params) {
+  return request({
+    url: api.share,
+    method: 'get',
+    params: params
+  })
+}

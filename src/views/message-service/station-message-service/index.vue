@@ -43,7 +43,7 @@ import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import Add from './add'
 import OutBox from './outbox'
-import { page, outBox } from '@/api/MessageServer'
+import { page, outBox, share } from '@/api/MessageServer'
 export default {
   name: 'StationMessageService',
   components: { FormItems, NormalLayer, Add, OutBox },
@@ -62,21 +62,24 @@ export default {
       ],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '已读标志', prop: '已读标志' },
-        { label: '标题', prop: '标题' },
-        { label: '内容', prop: '内容' },
-        { label: '发件人', prop: '发件人' },
-        { label: '收取时间', prop: '收取时间' },
+        { label: '已读标志', prop: 'sbmtStas' },
+        { label: '标题', prop: 'smsTtl' },
+        { label: '内容', prop: 'smsCont' },
+        { label: '发件人', prop: 'sender' },
+        { label: '收取时间', prop: 'sbmtTime' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
-      tableData: [
-        { 已读标志: 'xxx', 标题: 'xxx', 内容: 'xxx', 发件人: 'xxx', 收取时间: 'xxx' }
-      ]
+      tableData: []
     }
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    share().then(res => {
+      sessionStorage.setItem('addressBooklist', JSON.stringify(res.data.result))
+      this.search()
+    }).catch(err => console.log(err))
+  },
   mounted() {},
   methods: {
     showDialog(value) {
@@ -121,8 +124,10 @@ export default {
         total: 0,
         ttl: that.queryForm
       }
-      // eslint-disable-next-line no-undef
-      page(param).then(res => console.log(res))
+      page(param).then(res => {
+        that.tableData = res.data.result
+      }
+      )
     }
   }
 }

@@ -16,7 +16,8 @@
           hasChecked: '${checked}/${total}'
         }"
         :data="data"
-        @change="handleChange"
+        @right-check-change="rightcheckchange"
+        @change="handleChange()"
       />
     </div>
   </normal-layer>
@@ -44,7 +45,7 @@ export default {
       type: Array,
       default: () => []
     },
-    queCont: { // 查询内容（1：机构，2：药店）
+    queCont: {
       type: String,
       default: ''
     }
@@ -52,10 +53,12 @@ export default {
   data() {
     const generateData = _ => {
       const data = []
-      for (let i = 1; i <= 15; i++) {
+      this.addressBooklist = JSON.parse(sessionStorage.getItem('addressBooklist'))
+      console.log(this.addressBooklist)
+      for (let i = 0; i < this.addressBooklist.length; i++) {
         data.push({
-          key: i,
-          label: `备选项 ${i}`
+          key: `${i}-${this.addressBooklist[i].orguntId}-${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`,
+          label: `${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`
           // disabled: i % 4 === 0
         })
       }
@@ -66,8 +69,9 @@ export default {
       value: [1],
       value4: [1],
       renderFunc(h, option) {
-        return <span>{ option.key } - { option.label }</span>
+        return <span>{ option.label }</span>
       },
+      addressBooklist: [],
       loading: false,
       itemsDatas: [
         { label: '搜索', prop: 'addrbookGrpName', type: 'input', message: '请输入', span: 12 }
@@ -119,8 +123,22 @@ export default {
   },
 
   methods: {
+    rightcheckchange(value, direction, movedKeys) {
+      console.log(value)
+      const idlist = []; const userlist = []
+      for (let i = 0; i < value.length; i++) {
+        idlist.push(value[i].split('-')[1])
+        userlist.push(value[i].split('-')[2])
+      }
+      // eslint-disable-next-line no-unused-vars
+      const param = {
+        idlist,
+        userlist
+      }
+      this.$emit('rightcheckchange', param)
+    },
     handleChange(value, direction, movedKeys) {
-      console.log(value, direction, movedKeys)
+      // console.log(value, direction, movedKeys)
     },
     reset() {},
     isShow(v) {
