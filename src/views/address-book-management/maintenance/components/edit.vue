@@ -10,16 +10,10 @@
   >
     <normal-layer :search-number="2">
       <template slot="search-header">
-        <!-- <div slot="table-title" class="box-header handle">
-          <span class="box-title">短信信息表</span>
-        </div> -->
         <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm" />
       </template>
       <div slot="table-title" class="box-header handle">
         <span class="box-title">通讯录组列表</span>
-        <div slot="title-btns" class="box-tools">
-          <el-button type="success" @click="addbtn()">新增</el-button>
-        </div>
       </div>
       <template>
         <my-table-view v-loading="loading" height="300px" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
@@ -47,7 +41,7 @@ export default {
     event: 'closeAll'
   },
   props: {
-    daterow: {
+    tableData: {
       type: Array,
       default: () => []
     },
@@ -79,7 +73,6 @@ export default {
       queryForm: {
         addrbookGrpName: ''
       },
-      tableData: [],
       rules: {
         addrbookGrpName: [
           { required: true, message: '请输入个人通讯录组名称', trigger: 'blur' }
@@ -91,12 +84,10 @@ export default {
   },
   watch: {
     isDialogVisible(newVal) {
-      console.log(newVal)
     }
   },
   created() {
   },
-
   methods: {
     isShow(v) {
       this.$emit('closeAll', false)

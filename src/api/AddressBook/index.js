@@ -35,3 +35,36 @@ export function offAddrbookGrpD(data) {
     data
   })
 }
+
+export function offAddrbookGrpDpage(params) {
+  return request({
+    url: api.offAddrbookGrpDpage,
+    method: 'get',
+    params: params
+  })
+}
+
+export function queryAllGrpName(params) {
+  return request({
+    url: api.queryAllGrpName,
+    method: 'get',
+    params: params
+  })
+}
+
+export function getGrpPage(params) {
+  return request({
+    url: api.getGrpPage + '/' + params.addrbookGrpId,
+    method: 'get',
+    params: params
+  })
+}
+
+export function dbtAddr(data) {
+  return request({
+    url: api.dbtAddr,
+    method: 'post',
+    data
+  })
+}
+
