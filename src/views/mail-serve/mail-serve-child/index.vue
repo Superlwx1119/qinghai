@@ -46,7 +46,6 @@
                 <span slot="title">其他文件夹</span>
               </el-menu-item>
             </el-menu>
-
           </div>
         </el-col>
         <el-col :span="18">
@@ -59,23 +58,23 @@
               <i class="el-icon-edit-outline" />
               写邮件
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn()">
+            <el-button type="primary" @click="getCurrentUserbtn(1)">
               <i class="el-icon-s-comment" />
               回复
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn()">
+            <el-button type="primary" @click="getCurrentUserbtn(2)">
               <i class="el-icon-s-comment" />
               回复全部
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="getCurrentUserbtn(3)">
               <i class="el-icon-right" />
               转发
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="getCurrentUserbtn(4)">
               <i class="el-icon-box" />
-              预算
+              归档
             </el-button>
-            <el-button type="primary">
+            <el-button type="primary" @click="Addgroup()">
               <i class="el-icon-folder-add" />
               分组管理
             </el-button>
@@ -90,6 +89,7 @@
       </el-row>
     </section>
     <MailReply v-model="isShowAdd" />
+    <AddGroup v-model="isaddgroup" />
   </div>
 </template>
 
@@ -98,10 +98,12 @@ import { getCurrentUser } from '@/api/Common/Request'
 import { queryMail, getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList } from '@/api/Mail'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
 import MailReply from './mailReply'
+import AddGroup from './compnent/addgroup'
 export default {
   name: 'ResourceManagement',
   components: {
-    MailReply
+    MailReply,
+    AddGroup
   },
   mixins: [],
   props: {
@@ -115,6 +117,7 @@ export default {
       // 数据
       tableData: [],
       isShowAdd: false,
+      isaddgroup: false,
       emailSbj: '',
       nodeInfo: {}
     }
@@ -211,7 +214,6 @@ export default {
       }
     },
     replyshoe() {
-      console.log('123')
       this.isShowAdd = true
     },
     getUnReadCounts() {
@@ -268,6 +270,9 @@ export default {
     // 关闭弹出框
     cancel(data) {
       this.isShowAdd = false
+    },
+    Addgroup() {
+      this.isaddgroup = true
     }
   }
 }

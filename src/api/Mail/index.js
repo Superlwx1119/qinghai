@@ -63,3 +63,42 @@ export function getArchiveEMailList() {
     method: 'get'
   })
 }
+
+export function getGrpByPage(params) {
+  return request({
+    url: api.getGrpByPage,
+    method: 'get',
+    params: params
+  })
+}
+
+export function getGrpMsgPage(params) {
+  return request({
+    url: api.getGrpMsgPage + params.addrbookGrpNo,
+    method: 'get'
+  })
+}
+export function offEmailD(params) {
+  return request({
+    url: api.goffEmailD,
+    method: 'post',
+    data: params
+  })
+}
+
+export function saveDraft(params) {
+  return request({
+    url: api.saveDraft,
+    method: 'post',
+    data: params
+  })
+}
+
+export function addGroup(params) {
+  return request({
+    url: api.addGroup + '/' + params,
+    method: 'get',
+    data: params
+  })
+}
+
