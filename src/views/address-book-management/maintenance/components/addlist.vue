@@ -12,13 +12,13 @@
       <template slot="search-header">
         <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
           <template slot="userName">
-            <el-input v-model="queryForm.userName" placeholder="请选择联系人" class="input-with-select" disabled>
+            <el-input v-model="queryForm.userName" placeholder="请选择联系人" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search()" />
             </el-input>
           </template>
         </FormItems>
         <template>
-          <my-table-view v-loading="loading" :border="true" height="300px" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+          <my-table-view v-loading="loading" :multiple-selection.sync="multipleSelection" :border="true" height="300px" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
             <template slot="operation" slot-scope="scope">
               <el-button type="primary" icon="el-icon-edit" @click="showDialog(scope.row)" />
             </template>
@@ -56,6 +56,7 @@ export default {
   },
   data() {
     return {
+      multipleSelection: [],
       isShowAdd: false,
       showAdd: false,
       loading: false,
@@ -110,8 +111,11 @@ export default {
     },
     resetForm() {
       this.$nextTick(() => {
-        // this.$refs.tableRef.reset()
       })
+    },
+    send() {
+      this.$emit('closeAll', false)
+      this.$emit('stagingData', this.multipleSelection)
     }
   }
 }

@@ -1,10 +1,3 @@
-<!--
- * @Description: In User Settings Edit
- * @Author: your name
- * @Date: 2019-09-16 16:27:20
- * @LastEditTime: 2019-09-27 11:49:12
- * @LastEditors: Please set LastEditors
- -->
 <template>
   <!-- 用户管理 -->
   <normal-layer

@@ -6,7 +6,8 @@ export default {
   // 通讯录
   bookpage: ips + '/admin/web/admin/offAddrbookB/page',
   offAddrbookB: ips + '/admin/web/admin/offAddrbookB',
-  addrBookpage: ips + '/admin/web/admin/offAddrbookGrpD/addrBookpage'
+  addrBookpage: ips + '/admin/web/admin/offAddrbookGrpD/addrBookpage',
+  offAddrbookGrpD: ips + '/admin/web/admin/offAddrbookGrpD'
 //  /ips/admin/web/admin/offAddrbookB
 // ips/admin/web/admin/offAddrbookB/page?pageSize: 10
 // pageNumber: 1

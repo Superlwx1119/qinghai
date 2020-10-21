@@ -57,13 +57,10 @@ export default {
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '备注信息', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 5 }
+        { label: '备注信息', prop: 'memo', type: 'textarea', message: '请输入', span: 24, rows: 5 }
       ],
       queryForm: {
-        title: '',
-        content: '',
-        userIdList: [],
-        userIdListname: ''
+        memo: ''
       },
       rules: {
         // title: [

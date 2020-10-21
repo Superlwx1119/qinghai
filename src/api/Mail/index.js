@@ -78,19 +78,19 @@ export function getGrpMsgPage(params) {
     method: 'get'
   })
 }
-export function offEmailD(params) {
+export function offEmailD(data) {
   return request({
     url: api.goffEmailD,
     method: 'post',
-    data: params
+    data
   })
 }
 
-export function saveDraft(params) {
+export function saveDraft(data) {
   return request({
     url: api.saveDraft,
     method: 'post',
-    data: params
+    data
   })
 }
 

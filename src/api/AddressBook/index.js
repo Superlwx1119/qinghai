@@ -12,11 +12,11 @@ export function bookpage(params) {
   })
 }
 
-export function offAddrbookB(params) {
+export function offAddrbookB(data) {
   return request({
     url: api.offAddrbookB,
     method: 'post',
-    data: params
+    data
   })
 }
 
@@ -25,5 +25,13 @@ export function addrBookpage(params) {
     url: api.addrBookpage,
     method: 'get',
     params: params
+  })
+}
+
+export function offAddrbookGrpD(data) {
+  return request({
+    url: api.offAddrbookGrpD,
+    method: 'post',
+    data
   })
 }
