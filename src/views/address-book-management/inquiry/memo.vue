@@ -73,7 +73,7 @@ export default {
   },
   watch: {
     isDialogVisible(newVal) {
-      console.log(newVal)
+      this.queryForm.memo = this.rowlin.memo
     }
   },
   created() {
@@ -93,16 +93,20 @@ export default {
       })
     },
     send() {
+      const that = this
       const param = {
         content: this.content,
-        ...this.rowlin
+        ...that.rowlin
       }
+      param.memo = that.queryForm.memo
       offAddrbookB(param).then(res => {
-        this.$message({
+        that.$message({
           message: '操作成功',
           type: 'success'
         })
-        this.isDialogVisible = false
+        that.queryForm.memo = ''
+        that.isDialogVisible = false
+        that.$emit('search')
       })
     }
   }

@@ -15,7 +15,7 @@ export function bookpage(params) {
 export function offAddrbookB(data) {
   return request({
     url: api.offAddrbookB,
-    method: 'post',
+    method: 'put',
     data
   })
 }
@@ -33,6 +33,21 @@ export function offAddrbookGrpD(data) {
     url: api.offAddrbookGrpD,
     method: 'post',
     data
+  })
+}
+
+export function offAddrbookGrpDput(data) {
+  return request({
+    url: api.offAddrbookGrpDput,
+    method: 'put',
+    data
+  })
+}
+
+export function offAddrbookGrpDdelet(data) {
+  return request({
+    url: api.offAddrbookGrpDdelet + '/' + data.addrbookGrpNo,
+    method: 'DELETE'
   })
 }
 
@@ -68,3 +83,9 @@ export function dbtAddr(data) {
   })
 }
 
+export function deleteGrpD(data) {
+  return request({
+    url: api.deleteGrpD + '/' + data,
+    method: 'DELETE'
+  })
+}

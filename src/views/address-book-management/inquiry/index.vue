@@ -22,7 +22,7 @@
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <Memo v-model="isShowAdd" :rowlin="rowlin" />
+    <Memo v-model="isShowAdd" :rowlin="rowlin" @search="search" />
   </div>
 </template>
 

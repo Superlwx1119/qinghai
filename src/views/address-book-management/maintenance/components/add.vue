@@ -133,6 +133,7 @@ export default {
               message: '发送成功',
               type: 'success'
             })
+            this.$emit('search')
           })
         }
       })

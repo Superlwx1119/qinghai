@@ -11,9 +11,13 @@ export default {
   offAddrbookGrpDpage: ips + '/admin/web/admin/offAddrbookGrpD/page', // 通讯录查询\
   queryAllGrpName: ips + '/admin/web/admin/offAddrbookGrpD/queryAllGrpName', // 获取个人通讯录组名称
   getGrpPage: ips + '/admin/web/admin/offAddrbookGrpD/getGrpPage', // 获取个人通讯录组-组内列表
-  dbtAddr: ips + '/admin/web/admin/offAddrbookGrpD/dbtAddr'
+  dbtAddr: ips + '/admin/web/admin/offAddrbookGrpD/dbtAddr',
 
-// / admin/web/admin/offAddrbookGrpD/dbtAddr
+  offAddrbookGrpDput: ips + '/admin/web/admin/offAddrbookGrpD', // 修改界面保存 put请求
+  offAddrbookGrpDdelet: ips + '/admin/web/admin/offAddrbookGrpD',
+  deleteGrpD: ips + '/admin/web/admin/offAddrbookGrpD/deleteGrpD'
+
+  // / admin/web/admin/offAddrbookGrpD/dbtAddr
   // /admin/web/admin/offAddrbookGrpD/getGrpPage/202010171101030000000101130000
 //  /ips/admin/web/admin/offAddrbookB
 // ips/admin/web/admin/offAddrbookB/page?pageSize: 10
@@ -23,4 +27,5 @@ export default {
 // userName: 1
 // email: 3
 // mob: 4
+// admin/web/admin/offAddrbookGrpD/deleteGrpD
 }

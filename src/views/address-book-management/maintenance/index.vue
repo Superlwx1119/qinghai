@@ -24,12 +24,12 @@
             <el-button type="danger" icon="el-icon-delete-solid" @click="showDialog('delet',scope.row)" />
           </template>
         </my-table-view>
-        <!-- <Pagination :data="paginationQuery" @refresh="pageChange" /> -->
+        <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <Add v-model="isShowAdd" />
-    <Edit v-model="isShowedit" :table-data="tableDate" :selectitem="selectitem" />
-    <Distribution v-model="isShowAddList" :selectitem="selectitem" />
+    <Add v-model="isShowAdd" @search="search" />
+    <Edit v-model="isShowedit" :table-data="tableDate" :selectitem="selectitem" @search="search" @editsearch="editsearch" />
+    <Distribution v-model="isShowAddList" :selectitem="selectitem" @search="search" />
   </div>
 </template>
 
@@ -42,7 +42,7 @@ import Edit from './components/edit'
 import Add from './components/add'
 import Distribution from './components/distribution'
 // eslint-disable-next-line no-unused-vars
-import { queryAllGrpName, getGrpPage } from '@/api/AddressBook'
+import { queryAllGrpName, getGrpPage, offAddrbookGrpDdelet } from '@/api/AddressBook'
 export default {
   name: 'Inquiry',
   components: { FormItems, NormalLayer, Add, Edit, Distribution },
@@ -56,6 +56,11 @@ export default {
       isShowedit: false,
       queryForm: {
         addrbookGrpName: ''
+      },
+      paginationQuery: {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 6
       },
       itemsDatas: [
         { label: '个人通讯录组名称', prop: 'addrbookGrpName', type: 'input', message: '请输入' }
@@ -88,37 +93,64 @@ export default {
         ...this.queryForm
       }
       offAddrbookGrpDpage(params).then(res => {
+        console.log(res)
         this.tableData = res.data.result
       })
     },
+    offAddrbookGrpDdeletway(value) {
+      const that = this
+      that.$confirm('是否删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        offAddrbookGrpDdelet(value).then(res => {
+          console.log(res)
+          that.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          that.search()
+        }).catch((err) => {
+          console.log(err)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    editsearch(value) {
+      const that = this
+      const params = {
+        ...that.paginationQuery,
+        addrbookGrpId: value.addrbookGrpId
+      }
+      getGrpPage(params).then(res => {
+        that.isShowedit = true
+        console.log(res)
+        sessionStorage.setItem('title', value.addrbookGrpName)
+        that.tableDate = res.data.result
+      })
+    },
     showDialog(type, value) {
+      const that = this
+      that.selectitem = value
       console.log(value)
-      this.selectitem = value
       switch (type) {
         case 'edit':
-          this.isShowedit = true
-          // eslint-disable-next-line no-case-declarations
-          const params = {
-            pageSize: 10,
-            pageNumber: 1,
-            total: 6,
-            addrbookGrpId: value.addrbookGrpId
-          }
-          getGrpPage(params).then(res => {
-            console.log(value.addrbookGrpName)
-            sessionStorage.setItem('title', value.addrbookGrpName)
-            this.tableDate = res.data.result
-          })
-          // queryAllGrpName(params).then(res => { console.log(res) })
+          this.editsearch(value)
           break
         case 'add':
-          this.listdata = value
-          this.isShowAddList = true
+          that.listdata = value
+          that.isShowAddList = true
           break
         case 'delet':
+          this.offAddrbookGrpDdeletway(value)
           break
         default:
-          this.isShowAdd = true
+          that.isShowAdd = true
           break
       }
     }

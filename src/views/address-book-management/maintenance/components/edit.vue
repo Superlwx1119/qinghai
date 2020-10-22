@@ -18,7 +18,7 @@
       <template>
         <my-table-view v-loading="loading" height="300px" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
           <template slot="operation" slot-scope="scope">
-            <el-button type="danger" icon="el-icon-delete" @click.native.prevent="deleteRow(scope)" />
+            <el-button type="danger" icon="el-icon-delete" @click="deleteRow(scope)" />
           </template>
         </my-table-view>
       </template>
@@ -33,7 +33,8 @@
 </template>
 <script>
 import AddList from './addlist'
-import { offAddrbookGrpD } from '@/api/AddressBook'
+// eslint-disable-next-line no-unused-vars
+import { offAddrbookGrpDput, deleteGrpD } from '@/api/AddressBook'
 export default {
   components: { AddList },
   model: {
@@ -41,6 +42,10 @@ export default {
     event: 'closeAll'
   },
   props: {
+    selectitem: {
+      type: Object,
+      default: () => {}
+    },
     tableData: {
       type: Array,
       default: () => []
@@ -84,6 +89,10 @@ export default {
   },
   watch: {
     isDialogVisible(newVal) {
+      console.log(newVal)
+      if (newVal) {
+        this.queryForm.addrbookGrpName = sessionStorage.getItem('title')
+      }
     }
   },
   created() {
@@ -106,24 +115,39 @@ export default {
       this.tableData = val
     },
     deleteRow(rows) {
-      this.tableData.splice(rows.rowIndex, 1)
+      console.log(rows)
+      const that = this
+      that.$confirm('是否删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteGrpD(rows.row.addrbookGrpDetllistId).then(res => {
+          // that.tableData.splice(rows.rowIndex, 1)
+          that.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          that.$emit('editsearch', this.selectitem)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     send() {
       const that = this
+      that.selectitem.addrbookGrpName = that.queryForm.addrbookGrpName
       this.$refs.ruleForm.elForm.validate((valid) => {
         if (valid) {
-          const addrbookGrpName = {
-            addrbookGrpName: that.queryForm.addrbookGrpName
-          }
-          const params = {
-            userList: this.tableData,
-            offAddrbookGrpDDTO: addrbookGrpName
-          }
-          offAddrbookGrpD(params).then(res => {
+          offAddrbookGrpDput(that.selectitem).then(res => {
             this.$message({
-              message: '发送成功',
+              message: '保存成功',
               type: 'success'
             })
+            this.$emit('search')
           })
         }
       })

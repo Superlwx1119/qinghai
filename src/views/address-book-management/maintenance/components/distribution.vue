@@ -118,14 +118,16 @@ export default {
       })
     },
     send() {
+      const that = this
       const params = {
-        addrbookGrpId: this.selectitem.addrbookGrpId,
-        userList: this.multipleSelection
+        addrbookGrpId: that.selectitem.addrbookGrpId,
+        userList: that.multipleSelection
       }
       dbtAddr(params).then(res => {
         console.log(res)
+        that.$emit('search')
+        that.$emit('closeAll', false)
       })
-      this.$emit('closeAll', false)
     }
   }
 }
