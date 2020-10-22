@@ -1,183 +1,187 @@
+  <!--跨省就医结算费用清分结果提取(参保地)-->
 <template>
-  <!-- CMS模板编辑 -->
-  <div class="item2">
-    <section class="layer">
-      <div class="box">
-        <div class="box-header">
-          <span class="box-title">查询条件</span>
-        </div>
-        <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" label-width="105px">
-            <el-row :gutter="12">
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="模板标题" prop="teplTiele" class="clearmargin">
-                  <el-input v-model="searchForm.tmplTitle" clearable placeholder="请输入" style="width:100%;" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6" class="right" style="text-align:right">
-                <el-button @click="restSearch">重置</el-button>
-                <el-button type="primary" @click="search">查询</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </section>
-    <section class="layer">
-      <div class="box">
-        <div class="box-header handle">
-          <span class="box-title">模板信息</span>
-          <div class="box-tools">
-            <el-button type="primary" @click="submit">提交</el-button>
-            <el-button type="success" @click="addItem">新增</el-button>
-          </div>
-        </div>
-        <div class="box-body">
-          <el-table
-            ref="infoTable"
-            v-loading="table.loading"
-            :data="table.tableData"
-            height="tableHeight"
-            element-loading-spinner="el-loading1"
-            border
-            fit
-            highlight-current-row
-            @selection-change="selectRows"
-          >
-            <el-table-column :reserve-selection="true" type="selection" width="55" align="center" />
-            <el-table-column type="index" label="序号" width="50" align="center" />
-            <el-table-column prop="title" align="center" show-overflow-tooltip label="模板标题" />
-            <el-table-column prop="institutions" align="center" show-overflow-tooltip label="应用机构" width="210" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批人" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批意见" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批时间" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批结果" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="提交状态" width="140" />
-            <el-table-column label="操作" width="140" fixed="right" align="center">
-              <template slot-scope="scope">
-                <el-button type="text" class="modify" @click="detail(scope.row)">详情
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-pagination
-            :current-page="table.pageNum"
-            :page-sizes="[15, 30, 50, 100]"
-            :page-size="table.pageSize"
-            :total="table.total"
-            layout="total, prev, pager, next, sizes, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </div>
-    </section>
-    <el-dialog
-      v-dialogDrag
-      :close-on-click-modal="false"
-      :visible.sync="dataObj.show"
-      title="模板编辑"
-      width="80%"
-      @close="closeDialog"
+  <div class="height-full">
+    <normal-layer
+      :search-number="itemsDatas.length"
+      title-name="跨省赴外就医清算明细"
     >
-      <dialog-item ref="dialogItem" />
-      <span slot="footer" class="dialog-footer">
-        <el-button type="" @click="closeDialog">关闭</el-button>
-        <el-button type="primary" @click="dialogSave">暂存</el-button>
-      </span>
-    </el-dialog>
+      <template slot="search-header">
+        <form-items ref="ruleFrom" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
+          <my-button type="reset" title="重置" @click="reset" />
+          <my-button type="search" title="查询" @click="search" />
+        </form-items>
+      </template>
+
+      <div slot="table-title" class="box-header handle">
+        <span class="box-title">模板信息</span>
+        <div slot="title-btns" class="box-tools">
+          <my-button type="other" title="新增" @click="addnewBtn()" />
+        </div>
+      </div>
+      <template>
+        <MyTableView v-loading="loading" :columns="columns" :data="tableData" :multiple-selection.sync="multipleSelection">
+          <template slot="operation" slot-scope="scope">
+            <my-button icon="edit" @click="checkDetail('edit',scope.row)" />
+            <my-button icon="detail" @click="checkDetail('details',scope.row)" />
+            <my-button icon="delete" @click="checkDetail('delete',scope.row)" />
+            <my-button v-show="scope.row.sbmtStas == 0" icon="submit" @click="checkDetail('submit',scope.row)" />
+          </template>
+        </MyTableView>
+        <Pagination :data="paginationQuery" @refresh="pageChange" />
+      </template>
+      <Edit v-model="editShow" :daterow="daterow" @search="search" />
+      <Details v-model="detailsShow" :daterow="daterow" />
+      <Add v-model="addShow" @search="search" />
+    </normal-layer>
   </div>
 </template>
-
 <script>
-import dialogItem from './dialog-item'
+import pageHandle from '@/mixins/pageHandle'
+import Edit from './compnent/edit'
+import Details from './compnent/details'
+import Add from './compnent/add'
+import { cmsPage, cmstmpl, cmsdel } from '@/api/CmsApi'
+import { getCurrentUser } from '@/api/Common/Request'
 export default {
-  name: 'CmsTmpl',
   components: {
-    'dialog-item': dialogItem
+    Edit,
+    Details,
+    Add
   },
+  mixins: [pageHandle],
   data() {
     return {
-      searchForm: {
-        tmplTitle: ''
+      editShow: false,
+      detailsShow: false,
+      deleteShow: false,
+      addShow: false,
+      daterow: {},
+      userinfor: {},
+      multipleSelection: [],
+      queryForm: {
+        tmplTtl: ''
       },
-      searchInfo: {},
-      table: {
-        tableData: [],
-        selectData: [],
-        pageNum: 1,
-        pageSize: 15,
-        total: 0,
-        startRow: 0,
-        endRow: 0,
-        loading: false
-      },
-      dataObj: {
-        show: false
-      }
+      // 查询条件
+      itemsDatas: [
+        { label: '模板标题', prop: 'tmplTtl', type: 'input' }
+      ],
+      columns: [
+        // { type: 'selection' },
+        { type: 'index', label: '序号' },
+        { label: '模板标题', prop: 'tmplTtl', width: '200px', align: 'left' },
+        { label: '应用机构', prop: 'appOptins', width: '200px', align: 'left' },
+        { label: '审批人', prop: 'opterName' },
+        { label: '审批意见', prop: 'apprOpnn' },
+        { label: '审批时间', prop: 'apprTime', type: 'dataTime' },
+        { label: '审批结果', prop: 'applstasName' },
+        { label: '提交状态', prop: 'apprRsltName' },
+        { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
+      ],
+      tableData: [],
+      detailTitle: '',
+      detailData: {},
+      isDetailVisible: false
     }
   },
+  watch: {},
   created() {
+    getCurrentUser().then(res => {
+      this.userinfor = res.data
+    })
     this.search()
   },
   methods: {
-    // 查询
+    // 新增
+    addnewBtn() {
+      this.addShow = true
+    },
     search() {
-      this.table.loading = true
-      const params = this.searchForm
-      this.searchInfo = Object.assign({}, params)
-      this.table.pageNum = 1
-      this.pageChange()
-    },
-    // 页码
-    pageChange() {
-      const params = this.searchInfo
-      params.pageNum = this.table.pageNum
-      params.pageSize = this.table.pageSize
-      this.table.loading = false
-    },
-    // 表格选择
-    selectRows(rows) {
-      this.table.selectData = rows
-    },
-    // 提交
-    submit() {
-      if (this.table.selectData.length === 0) {
-        this.$message.info('请选中一条申请')
-        return false
+      // this.$refs.ruleFrom.validate((valid) => {
+      //   if (valid) {
+      this.loading = true
+      const params = {
+        pageNumber: this.paginationQuery.pageNum,
+        pageSize: this.paginationQuery.pageSize,
+        total: this.paginationQuery.total,
+        ...this.queryForm
       }
+      cmsPage(params).then(res => {
+        this.loading = false
+        this.tableData = res.data.result
+        for (let i = 0; i < this.tableData.length; i++) {
+          this.tableData[i].apprRsltName = (this.tableData[i].sbmtStas === '1') ? '已提交' : '未提交'
+          this.tableData[i].applstasName = (this.tableData[i].apprRslt == null) ? '' : '通过'
+        }
+      // eslint-disable-next-line handle-callback-err
+      }).catch(err => {
+        this.loading = false
+      })
     },
-    // 新增弹窗
-    addItem() {
-      this.dataObj.show = true
+    checkDetail(val, rows) {
+      console.log(rows)
+      const that = this
+      this.daterow = rows
+      switch (val) {
+        case 'edit':
+          console.log(val)
+          this.editShow = true
+          break
+        case 'details':
+          this.detailsShow = true
+          break
+        case 'delete':
+          this.$confirm('是否删除?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'info'
+          }).then(() => {
+            cmsdel(that.daterow.rcdNo).then(res => {
+              that.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              that.search()
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+          break
+        case 'submit':
+          this.$confirm('提交后的申请将不可更改,是否确认提交?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'info'
+          }).then(() => {
+            cmstmpl(that.daterow).then(res => {
+              that.$message({
+                type: 'success',
+                message: '提交成功!'
+              })
+              that.search()
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消提交'
+            })
+          })
+          break
+        default:
+          this.$message({
+            type: 'info',
+            message: '字符匹配错误,请联系开发人员解决'
+          })
+          break
+      }
+      console.log(val)
     },
-    // 关闭弹窗
-    closeDialog() {
-      this.$refs.dialogItem.reset()
-      this.dataObj.show = false
-    },
-    // 新增保存
-    dialogSave() {
-      this.$refs.dialogItem.save()
-    },
-    // 分页导航
-    handleSizeChange(size) {
-      this.table.pageSize = size
-      this.pageChange()
-    },
-    // 分页选择
-    handleCurrentChange(currentPage) {
-      this.table.pageNum = currentPage
-      this.pageChange()
-    },
-    // 重置
-    restSearch() {
-      this.$refs['searchForm'].resetFields()
-      this.search()
-    }
+    submitBtn() {}
   }
 }
-</script>
 
-<style lang="scss" scoped>
+</script>
+<style lang='scss' scoped>
 </style>
