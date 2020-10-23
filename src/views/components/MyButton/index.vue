@@ -97,7 +97,8 @@ export default {
         { icon: 'setting', title: '设置', iconSvg: 'el-icon-setting', isFontSize: true, eleType: 'warning' },
         { icon: 'config', title: '配置', iconSvg: 'el-icon-setting', isFontSize: true, eleType: 'warning' },
         { icon: 'sure', title: '确认', iconSvg: 'el-icon-check', isFontSize: true, eleType: 'success' },
-
+        { icon: 'finished', title: '发布', iconSvg: 'el-icon-finished', isFontSize: true, eleType: 'success' },
+        { icon: 'unfinished', title: '取消发布', iconSvg: 'el-icon-circle-close', isFontSize: true, eleType: 'danger' },
         { icon: 'save', title: '保存', iconSvg: 'save', eleType: 'primary' },
         { icon: 'submit', title: '提交', iconSvg: 'submit', eleType: 'primary' },
         { icon: 'maintenance', title: '维护', iconSvg: 'maintenance', eleType: 'warning' },

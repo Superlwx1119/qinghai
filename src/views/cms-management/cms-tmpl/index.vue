@@ -13,7 +13,7 @@
       </template>
 
       <div slot="table-title" class="box-header handle">
-        <span class="box-title">模板信息</span>
+        <span class="box-title">业务信息</span>
         <div slot="title-btns" class="box-tools">
           <my-button type="other" title="新增" @click="addnewBtn()" />
         </div>
@@ -69,7 +69,7 @@ export default {
         // { type: 'selection' },
         { type: 'index', label: '序号' },
         { label: '模板标题', prop: 'tmplTtl', width: '200px', align: 'left' },
-        { label: '应用机构', prop: 'appOptins', width: '200px', align: 'left' },
+        { label: '应用机构', prop: 'appOptins', width: '150px', align: 'left' },
         { label: '审批人', prop: 'opterName' },
         { label: '审批意见', prop: 'apprOpnn' },
         { label: '审批时间', prop: 'apprTime', type: 'dataTime' },
@@ -110,7 +110,7 @@ export default {
         this.tableData = res.data.result
         for (let i = 0; i < this.tableData.length; i++) {
           this.tableData[i].apprRsltName = (this.tableData[i].sbmtStas === '1') ? '已提交' : '未提交'
-          this.tableData[i].applstasName = (this.tableData[i].apprRslt == null) ? '' : '通过'
+          this.tableData[i].applstasName = ((this.tableData[i].apprRslt != null) ? ((this.tableData[i].apprRslt === '1') ? '通过' : '不通过') : '')
         }
       // eslint-disable-next-line handle-callback-err
       }).catch(err => {

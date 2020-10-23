@@ -50,3 +50,65 @@ export function orgName() {
   })
 }
 
+export function getName() {
+  return request({
+    url: api.getName,
+    method: 'get'
+  })
+}
+
+export function cmsApplPage(params) {
+  return request({
+    url: api.cmsApplPage,
+    method: 'get',
+    params: params
+  })
+}
+
+export function cmsAppl(data) {
+  return request({
+    url: api.cmsAppl,
+    method: 'POST',
+    data
+  })
+}
+
+export function applPage(params) {
+  return request({
+    url: api.applPage,
+    method: 'get',
+    params: params
+  })
+}
+
+export function cmsColContAppl(data) {
+  return request({
+    url: api.cmsColContAppl,
+    method: 'POST',
+    data
+  })
+}
+
+export function allselect(params) {
+  return request({
+    url: api.allselect,
+    method: 'get',
+    params: params
+  })
+}
+
+export function Alllin(params) {
+  return request({
+    url: api.Alllin,
+    method: 'get',
+    params: params
+  })
+}
+
+// pageSize: 10
+// pageNumber: 1
+// total: 1
+// rcdNo: 0
+// colTtl: 11
+// sbmtStas: 0
+// ralStas: 0

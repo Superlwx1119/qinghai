@@ -29,7 +29,6 @@ export default (Vue) => {
   Vue.component('FormDialog', FormDialog)
   Vue.component('RightDetailInfo', RightDetailInfo)
   Vue.component('LeftSearchTable', LeftSearchTable)
-  // Vue.component('ListDialog', ListDialog)
   Vue.component('ConditionHeader', ConditionHeader)
   Vue.component('Audit', Audit)
   Vue.component('AuditDialog', AuditDialog)

@@ -1,149 +1,125 @@
 <template>
-  <!-- CMS栏目内容审批 -->
-  <div class="item2">
-    <section class="layer">
-      <div class="box">
-        <div class="box-header">
-          <span class="box-title">查询条件</span>
-        </div>
-        <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" label-width="105px">
-            <el-row :gutter="12">
-              <el-col :span="6">
-                <el-form-item label="内容标题" prop="teplTiele">
-                  <el-input v-model="searchForm.tmplTitle" clearable placeholder="请输入" style="width:100%;" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="栏目标题" prop="teplTiele">
-                  <el-input v-model="searchForm.tmplTitle" clearable placeholder="请输入" style="width:100%;" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="审批状态" prop="teplTiele">
-                  <el-select v-model="searchForm.tmplTitle" clearable placeholder="请选择" style="width:100%;">
-                    <el-option
-                      v-for="item in stateList"
-                      :key="item.value"
-                      :value="item.value"
-                      :label="item.label"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6" class="right" style="text-align:right">
-                <el-button @click="restSearch">重置</el-button>
-                <el-button type="primary" @click="search">查询</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        </div>
+  <div class="height-full">
+    <normal-layer
+      :search-number="itemsDatas.length"
+      title-name="跨省赴外就医清算明细"
+    >
+      <template slot="search-header">
+        <form-items ref="ruleFrom" :model="queryForm" :items-datas="itemsDatas" :rules="rules" :form-datas="queryForm">
+          <my-button type="reset" title="重置" @click="reset" />
+          <my-button type="search" title="查询" @click="search" />
+        </form-items>
+      </template>
+
+      <div slot="table-title" class="box-header handle">
+        <span class="box-title">栏目信息</span>
       </div>
-    </section>
-    <section class="layer">
-      <div class="box">
-        <div class="box-header handle">
-          <span class="box-title">栏目信息</span>
-        </div>
-        <div class="box-body">
-          <el-table
-            ref="infoTable"
-            v-loading="table.loading"
-            :data="table.tableData"
-            height="tableHeight"
-            element-loading-spinner="el-loading1"
-            border
-            fit
-            highlight-current-row
-          >
-            <el-table-column prop="title" align="center" show-overflow-tooltip label="栏目标题" />
-            <el-table-column prop="institutions" align="center" show-overflow-tooltip label="栏目内容" width="210" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批人" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批时间" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批意见" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="审批结果" width="140" />
-            <el-table-column prop="approval" align="center" show-overflow-tooltip label="提交状态" width="140" />
-            <el-table-column label="操作" width="140" fixed="right" align="center">
-              <template slot-scope="scope">
-                <el-button type="text" class="modify" @click="detail(scope.row)">详情
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-pagination
-            :current-page="table.pageNum"
-            :page-sizes="[15, 30, 50, 100]"
-            :page-size="table.pageSize"
-            :total="table.total"
-            layout="total, prev, pager, next, sizes, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </div>
-    </section>
+      <template>
+        <MyTableView v-loading="loading" :border="true" :columns="columns" :data="tableData" :multiple-selection.sync="multipleSelection">
+          <template slot="operation" slot-scope="scope">
+            <my-button icon="detail" @click="checkDetail('details',scope.row)" />
+            <my-button v-show="scope.row.apprRslt == null " icon="audit" @click="checkDetail('audit',scope.row)" />
+          </template>
+        </MyTableView>
+        <Pagination :data="paginationQuery" @refresh="pageChange" />
+      </template>
+    </normal-layer>
+    <Add v-model="addShow" :daterow="daterow" @search="search" />
   </div>
 </template>
-
 <script>
+import Add from './add'
+import pageHandle from '@/mixins/pageHandle'
+// eslint-disable-next-line no-unused-vars
+import { applPage, allselect } from '@/api/CmsApi'
 export default {
-  name: 'CmsColContAppl',
-  components: {},
+  components: {
+    Add
+  },
+  mixins: [pageHandle],
   data() {
     return {
-      searchForm: {
-        tmplTitle: ''
+      daterow: {},
+      addShow: false,
+      multipleSelection: [],
+      queryForm: {
+        contTtl: '',
+        colTtl: '',
+        applstas: ''
       },
-      stateList: [],
-      searchInfo: {},
-      table: {
-        tableData: [],
-        pageNum: 1,
-        pageSize: 15,
-        total: 0,
-        startRow: 0,
-        endRow: 0,
-        loading: false
+      // 查询条件
+      itemsDatas: [
+        { label: '内容标题', prop: 'contTtl', type: 'input' },
+        { label: '栏目标题', prop: 'colTtl', type: 'input' },
+        { label: '审批状态', prop: 'applstas', span: 12, type: 'select', options: [{ label: '03', value: '已审批' }, { label: '01', value: '未审批' }] }
+      ],
+      // 跨省赴外就医清算明细表
+      columns: [
+        { label: '栏目标题', prop: 'colTtl' },
+        { label: '栏目内容标题', prop: 'contTtl' },
+        { label: '审批人', prop: 'opterName' },
+        { label: '审批时间', prop: 'apprTime' },
+        { label: '审批意见', prop: 'apprOpnn' },
+        { label: '审批结果', prop: 'apprRslt' },
+        { label: '审批状态', prop: 'applstas' },
+        { label: '操作', type: 'operation', fixed: 'right', minWidth: '200' }
+      ],
+      tableData: [
+        { confirmStas: '123' }
+      ],
+      detailTitle: '',
+      detailData: {},
+      isDetailVisible: false,
+      rules: {
+        applstas: { required: true,
+          message: '请选择处理状态',
+          trigger: 'blur' }
       }
     }
   },
+  watch: {},
   created() {
-    this.search()
   },
   methods: {
-    // 查询
     search() {
-      this.table.loading = true
-      const params = this.searchForm
-      this.searchInfo = Object.assign({}, params)
-      this.table.pageNum = 1
-      this.pageChange()
+      this.$refs.ruleFrom.elForm.validate((valid) => {
+        if (valid) {
+          this.loading = true
+          const params = {
+            pageNumber: this.paginationQuery.pageNum,
+            pageSize: this.paginationQuery.pageSize,
+            total: this.paginationQuery.total,
+            ...this.queryForm
+          }
+          switch (params.applstas) {
+            case '已审批':
+              params.applstas = '03'
+              break
+            case '未审批':
+              params.applstas = '01'
+              break
+            default:
+              params.applstas = '03'
+              break
+          }
+          allselect(params).then(res => {
+            this.loading = false
+            this.tableData = res.data.result
+          }).catch(err => console.log(err))
+        }
+      })
     },
-    // 页码
-    pageChange() {
-      const params = this.searchInfo
-      params.pageNum = this.table.pageNum
-      params.pageSize = this.table.pageSize
-      this.table.loading = false
-    },
-    // 分页导航
-    handleSizeChange(size) {
-      this.table.pageSize = size
-      this.pageChange()
-    },
-    // 分页选择
-    handleCurrentChange(currentPage) {
-      this.table.pageNum = currentPage
-      this.pageChange()
-    },
-    // 重置
-    restSearch() {
-      this.$refs['searchForm'].resetFields()
-      this.search()
+    checkDetail(type, val) {
+      this.daterow = val
+      if (type === 'details') {
+        console.log('详情')
+      } else {
+        this.addShow = true
+      }
     }
   }
 }
-</script>
 
-<style lang="scss" scoped>
+</script>
+<style lang='scss' scoped>
 </style>
