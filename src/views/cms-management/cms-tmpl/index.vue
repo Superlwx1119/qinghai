@@ -23,8 +23,8 @@
           <template slot="operation" slot-scope="scope">
             <my-button icon="edit" @click="checkDetail('edit',scope.row)" />
             <my-button icon="detail" @click="checkDetail('details',scope.row)" />
-            <my-button icon="delete" @click="checkDetail('delete',scope.row)" />
             <my-button v-show="scope.row.sbmtStas == 0" icon="submit" @click="checkDetail('submit',scope.row)" />
+            <my-button icon="delete" @click="checkDetail('delete',scope.row)" />
           </template>
         </MyTableView>
         <Pagination :data="paginationQuery" @refresh="pageChange" />

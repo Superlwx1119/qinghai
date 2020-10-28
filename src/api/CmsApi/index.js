@@ -105,10 +105,30 @@ export function Alllin(params) {
   })
 }
 
-// pageSize: 10
-// pageNumber: 1
-// total: 1
-// rcdNo: 0
-// colTtl: 11
-// sbmtStas: 0
-// ralStas: 0
+export function colcont(data) {
+  return request({
+    url: api.colcont,
+    method: 'POST',
+    data
+  })
+}
+// colTtl: "qwqwqqwq"
+// name: "无"
+// prntColNo: "0"
+
+export function cmsCol(data) {
+  return request({
+    url: api.cmsCol,
+    method: 'POST',
+    data
+  })
+}
+
+export function edit(data) {
+  return request({
+    url: api.edit,
+    method: 'POST',
+    data
+  })
+}
+
