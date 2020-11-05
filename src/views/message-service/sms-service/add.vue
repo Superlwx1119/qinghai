@@ -13,7 +13,7 @@
         <div slot="table-title" class="box-header handle">
           <span class="box-title">短信信息表</span>
         </div>
-        <FormItems ref="searchForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
+        <FormItems ref="ruleFrom" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" />
       </template>
       <div slot="table-title" class="box-header handle">
         <span class="box-title">收信人列表</span>
@@ -80,10 +80,10 @@ export default {
         { label: '短信标题', prop: 'smsTtl', type: 'input', span: 24 },
         { label: '短信内容', prop: 'smsCont', type: 'textarea', span: 24, rows: 3 }
       ],
-      rules: {
-        smsTtl: [{ required: true, message: '请输入短信标题', trigger: 'blur' }],
-        smsCont: [{ required: true, message: '请输入短信内容', trigger: 'blur' }]
-      },
+      // rules: {
+      //   smsTtl: [{ required: true, message: '请输入短信标题', trigger: 'blur' }],
+      //   smsCont: [{ required: true, message: '请输入短信内容', trigger: 'blur' }]
+      // },
       queryForm: {
         smsTtl: '',
         smsCont: ''
@@ -119,20 +119,22 @@ export default {
 
   methods: {
     saveBtn() {
-      // this.$refs.searchForm.validate((valid) => {
-      //   if (valid) {
-      const that = this
-      const param = {}
-      param.offSmsDDTO = JSON.stringify(this.queryForm)
-      param.addSmsList = JSON.stringify(this.tableData)
-      addSms(param).then(res => {
-        that.$message({
-          message: '保存成功',
-          type: 'success'
+      // this.$refs.ruleFrom.elForm.validate((valid) => {
+      if (this.queryForm.smsTtl && this.queryForm.smsCont) {
+        const that = this
+        const param = {}
+        param.offSmsDDTO = JSON.stringify(this.queryForm)
+        param.addSmsList = JSON.stringify(this.tableData)
+        addSms(param).then(res => {
+          that.$message({
+            message: '保存成功',
+            type: 'success'
+          })
+          this.closeDialog()
         })
-        this.closeDialog()
-      })
-      //   }
+      } else {
+        this.$message.error('请填写标题以及内容')
+      }
       // })
     },
     showAdditem(value) {

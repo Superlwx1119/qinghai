@@ -62,9 +62,7 @@ export default {
         { label: '备注信息', prop: 'memo' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
-      tableData: [
-      //   { 人员姓名: 'xxx', 办公电话: 'xxx', 邮箱地址: 'xxx', 手机号码: 'xxx', 所属部门: 'xxx', 备注信息: 'xxx' }
-      ]
+      tableData: []
     }
   },
   computed: {},

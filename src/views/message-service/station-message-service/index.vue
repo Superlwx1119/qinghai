@@ -17,7 +17,6 @@
           <el-button type="primary" @click="Editbutton('reply')">回复</el-button>
           <el-button type="primary" @click="Editbutton('read')">标记已读</el-button>
           <el-button type="primary" @click="Editbutton('send')">发件箱</el-button>
-          <!-- <ExportButton :columns="columns" :table-data="tableData" :select-data="multipleSelection" table-title="生活资助申报列表" /> -->
         </div>
       </div>
       <template>

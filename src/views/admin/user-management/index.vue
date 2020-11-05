@@ -7,9 +7,6 @@
   >
     <template slot="search-header">
       <form-items :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
-        <!-- <template slot="orgaUnit">
-          <OrgaUnit ref="OrgaUnitsRef" v-model="queryForm.orguntId" />
-        </template> -->
         <my-button type="reset" title="重置" @click="reset" />
         <my-button type="search" title="查询" @click="iniSearch" />
       </form-items>
@@ -35,12 +32,10 @@
           inactive-value="3"
           @click.native.prevent="switchChange(scope.rowIndex,scope.row)"
         />
-
       </template>
     </my-table-view>
     <Pagination :data="paginationQuery" @refresh="pageChange" />
-
-    <!-- 新增 -->
+    <!-- 新增弹窗 -->
     <filling-add v-if="dataObj.isShow" :data-obj="dataObj" @cancelDialog="cancelDialog" />
   </normal-layer>
 </template>
@@ -50,8 +45,6 @@ import PageHandle from '@/mixins/pageHandle'
 import Columns from './listCloumns'
 import FillingAdd from './user-add/index'
 import ApiObj from '@/api/Admin/user-management'
-// import { PAGE_SIZE } from '@/utils/constant'
-// import OrgaUnit from '@/components/OrgaUnit'
 import {
   mapGetters
 } from 'vuex'
@@ -60,7 +53,6 @@ export default {
   components: {
     NormalLayer,
     'filling-add': FillingAdd
-    // OrgaUnit
   },
   mixins: [PageHandle],
   props: {},
@@ -75,7 +67,6 @@ export default {
           label: '组织机构',
           prop: 'orgaUnit',
           type: 'component', componentName: 'OrgaUnit', folder: 'Common'
-
         }
       ],
       disabledAll: true,
@@ -106,8 +97,6 @@ export default {
   created() {
     this.getUserList()
     this.$set(this.itemsDatas[3], 'options', this.publicCode.codes.UACT_STAS)
-  },
-  mounted() {
   },
   methods: {
     // 禁用启用
@@ -193,7 +182,7 @@ export default {
       this.paginationQuery.pageNum = v.pagination.pageNum
       this.getUserList()
     },
-    // 查询
+    // 查询方法
     search() {
       this.currentPage = 1
       this.pageSize = 15

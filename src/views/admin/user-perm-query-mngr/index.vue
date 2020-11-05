@@ -58,19 +58,6 @@
           <div class="box-header handle">
             <span class="box-title">角色权限信息</span>
           </div>
-          <!-- <template>
-            <el-select v-model="value" style="width:100%" filterable placeholder="请选择">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </template>
-          <template>
-            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" />
-          </template> -->
           <el-input
             v-model="filterText"
             placeholder="输入关键字进行过滤"
@@ -86,7 +73,6 @@
         </div>
       </el-col>
     </el-row>
-    <!-- <edit-dialog v-model="showEditDialog" :dialog-title="dialogTitle" /> -->
   </normal-layer>
 </template>
 

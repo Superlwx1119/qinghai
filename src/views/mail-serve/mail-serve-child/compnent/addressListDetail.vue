@@ -19,9 +19,6 @@
           />
         </el-col>
       </template>
-      <!-- <div slot="table-title" class="box-header handle">
-        <span class="box-title">组内成员</span>
-      </div> -->
       <template>
         <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" />
         <Pagination :data="paginationQuery" @refresh="pageChange" />

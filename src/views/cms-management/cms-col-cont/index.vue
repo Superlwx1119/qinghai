@@ -33,6 +33,12 @@
               <span class="box-title">查询条件</span>
             </div>
             <div class="box-body">
+              <!-- <template slot="search-header">
+                <form-items :items-datas="itemsDatas" :form-datas="queryForm">
+                  <my-button title="重置" type="reset" @click="resetForm" />
+                  <my-button title="查询" type="search" @click="iniSearch" />
+                </form-items>
+              </template> -->
               <el-form ref="searchForm" :model="searchForm" label-width="100px">
                 <el-row :gutter="12">
                   <el-col :md="12" :lg="8" :xl="6">
@@ -78,67 +84,16 @@
               </div>
             </div>
             <div ref="mainTable" class="box-body">
-              <el-table
-                v-loading="table.loading"
-                :data="table.tableData"
-                height="calc(100% - 40px)"
-                border
-                fit
-                element-loading-spinner="el-loading1"
-                style="width: 100%;"
+              <my-table-view
+                v-loading="loading"
+                :data="tableData"
+                :columns="columns"
+                :multiple-selection.sync="multipleSelection"
               >
-                <el-table-column :reserve-selection="true" type="selection" width="55" align="center" />
-                <el-table-column label="序号" type="index" align="center" width="50" />
-                <el-table-column
-                  min-width="100"
-                  prop="stdName"
-                  label="栏目标题"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column prop="admdvsName" label="栏目内容" align="center" show-overflow-tooltip />
-                <el-table-column
-                  prop="appyDateStr"
-                  label="审批人"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column
-                  prop="crtNodeName"
-                  label="审批时间"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column
-                  prop="crtNodeName"
-                  label="审批意见"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column
-                  prop="crtNodeName"
-                  label="审批结果"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column
-                  prop="crtNodeName"
-                  label="审批状态"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column
-                  prop="crtNodeName"
-                  label="提交状态"
-                  align="center"
-                  show-overflow-tooltip
-                />
-                <el-table-column width="180" label="操作" align="center" fixed="right">
-                  <template slot-scope="scope">
-                    <el-button type="text" class="modify" @click.stop="isExamine(scope.row,'query')">详情</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
+                <template slot-scope="scope">
+                  <el-button type="text" class="modify" @click.stop="isExamine(scope.row,'query')">详情</el-button>
+                </template>
+              </my-table-view>
               <el-pagination
                 :current-page="table.pageNum"
                 :page-sizes="[15, 30, 50, 100]"
@@ -156,11 +111,24 @@
   </div>
 </template>
 <script>
+import columns from './columns'
 export default {
   name: 'CmsColCont',
   components: {},
   data() {
     return {
+      itemsDatas: [
+        { label: '栏目内容标题', prop: 'stdName', type: 'input' },
+        { label: '提交状态', prop: 'whthInfoShr', type: 'select' }
+      ],
+      queryForm: {
+        stdName: '',
+        whthInfoShr: ''
+      },
+      loading: false,
+      tableData: [],
+      multipleSelection: [],
+      columns: columns,
       tree: {
         treeData: [],
         filterText: '',
@@ -170,7 +138,7 @@ export default {
         }
       },
       table: {
-        tableData: [],
+        // tableData: [],
         pageNum: 1,
         pageSize: 10,
         total: 0,
@@ -210,7 +178,6 @@ export default {
     },
     // 查询
     search() {
-      this.table.loading = true
       const params = this.searchForm
       this.searchInfo = Object.assign({}, params)
       this.table.pageNum = 1

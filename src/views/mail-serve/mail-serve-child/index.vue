@@ -1,6 +1,6 @@
 <template>
   <div class="resource-management">
-    <!-- 安全角色管理 -->
+    <!-- 邮件服务 -->
     <section class="layer">
       <el-row :gutter="12" style="margin-right:0!important;margin-left:0!important;">
         <el-col :span="6">
@@ -49,7 +49,19 @@
           </div>
         </el-col>
         <el-col :span="18">
+
           <el-header style="padding:0.5rem 0;height:auto;">
+
+            <!-- <template>
+              <my-button type="export" icon="download" title="收取" @click="charge()" />
+              <my-button type="import" icon="detail" title="写邮件" @click="replyshoe()" />
+              <my-button type="primary" icon="detail" title="回复" @click="getCurrentUserbtn(1)" />
+              <my-button type="add" icon="detail" title="回复全部" @click="getCurrentUserbtn(2)" />
+              <my-button type="export" icon="detail" title="转发" @click="getCurrentUserbtn(3)" />
+              <my-button type="import" icon="detail" title="归档" @click="getCurrentUserbtn(4)" />
+              <my-button type="primary" icon="detail" title="分组管理" @click="Addgroup()" />
+            </template> -->
+
             <el-button type="primary" @click="charge()">
               <i class="el-icon-download" />
               收取
