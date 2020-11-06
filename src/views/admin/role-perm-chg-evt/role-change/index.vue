@@ -54,8 +54,14 @@
       </div>
       <template>
         <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
-          <template slot-scope="scope">
-            {{ scope.row.chgType|fliterchgType }}
+          <template slot="resuType" slot-scope="scope">
+            {{ scope.row.resuType | fliterResuType }}
+          </template>
+          <template slot="chgType" slot-scope="scope">
+            {{ scope.row.chgType | fliterchgType }}
+          </template>
+          <template slot="optTime" slot-scope="scope">
+            {{ scope.row.optTime | parseTime }}
           </template>
         </my-table-view>
         <Pagination :data="pageInfo" @refresh="pageChange" />

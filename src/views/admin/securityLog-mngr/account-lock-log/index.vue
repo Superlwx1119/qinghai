@@ -44,122 +44,16 @@
       </div>
       <template>
         <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
-          <template slot="qqqq" slot-scope="scope">
-            {{ scope.row.chgType|fliterchgType }}
+          <template slot="uactStas" slot-scope="scope">
+            {{ scope.row.uactStas|fliterUactStatus }}
+          </template>
+          <template slot="optTime" slot-scope="scope">
+            {{ scope.row.optTime|parseTime }}
           </template>
         </my-table-view>
         <Pagination :data="pageInfo" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <!-- <section class="layer">
-      <div class="box">
-        <div class="box-header">
-          <span class="box-title">查询条件</span>
-        </div>
-        <div class="box-body">
-          <el-form ref="queryForm" :model="queryForm" :rules="rules" label-width="90px">
-            <el-row :gutter="24" style="margin-right:0!important;margin-left:0!important;">
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="用户账号" prop="uact">
-                  <el-input v-model="queryForm.uact" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="用户姓名" prop="userName">
-                  <el-input v-model="queryForm.userName" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="账号状态" prop="uactStas">
-                  <el-select v-model="queryForm.uactStas" placeholder="请选择" style="width:100%" clearable>
-                    <el-option
-                      v-for="item in uactStatusList"
-                      :key="item.value"
-                      :label="item.name"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="起止日期" required prop="daterange">
-                  <el-date-picker
-                    v-model="queryForm.daterange"
-                    :unlink-panels="true"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    style="width:100%"
-                    value-format="yyyy/MM/dd"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6" class="text-right right">
-                <el-button @click="restSearch">重置</el-button>
-                <el-button type="primary" @click="search">查询</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </section> -->
-    <!-- 表格 -->
-    <!-- <section class="layer role-perssion-list">
-      <div class="box">
-        <div class="box-header handle">
-          <span class="box-title">查询结果</span>
-          <div class="box-tools"> -->
-    <!-- <el-button type="success" @click="handleAdd">新增</el-button> -->
-    <!-- </div>
-        </div>
-        <div class="box-body">
-          <el-table
-            v-loading="loading"
-            :data="tableData"
-            height="string"
-            element-loading-spinner="el-loading1"
-            highlight-current-row
-            style="width: 100%"
-            border
-            fit
-          >
-            <el-table-column type="selection" width="55"/>
-            <el-table-column label="序号" type="index" align="center" width="50" />
-            <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />
-            <el-table-column prop="userName" show-overflow-tooltip label="用户姓名" align="center" />
-            <el-table-column prop="uactStas" show-overflow-tooltip label="账号状态" align="center" width="120">
-              <template slot-scope="scope">
-                {{ scope.row.uactStas|fliterUactStatus }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="lckOpter" label="锁定操作人" show-overflow-tooltip header-align="center" align="center" />
-            <el-table-column prop="lckRea" label="锁定原因" show-overflow-tooltip header-align="center" align="center" />
-            <el-table-column prop="ulckOpter" label="解锁操作人" show-overflow-tooltip header-align="center" align="center" />
-            <el-table-column prop="ulckRea" label="解锁原因" show-overflow-tooltip header-align="center" align="center" />
-            <el-table-column prop="optTime" label="经办时间" show-overflow-tooltip header-align="center" align="center">
-              <template slot-scope="scope">
-                {{ scope.row.optTime|parseTime }}
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-pagination
-            :current-page="currentPage"
-            :page-sizes="[15, 30, 50, 100]"
-            :page-size="pageSize"
-            :total="total"
-            layout="slot, prev, pager, next, sizes, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          >
-            <template slot>
-              <span class="el-pagination__total">{{ `总共${total}条 显示${startRow}-${endRow}条` }}</span>
-            </template>
-          </el-pagination>
-        </div>
-      </div>
-    </section> -->
-    <!-- 新增 -->
   </div>
 </template>
 <script>

@@ -15,7 +15,7 @@
         <el-tab-pane label="角色权限变更" name="first">
           <RolePermissionChange />
         </el-tab-pane>
-        <el-tab-pane label="角色账号变更" name="second"><roleAccountChange /></el-tab-pane>
+        <el-tab-pane label="角色账号变更" name="second"><RoleAccountChange /></el-tab-pane>
         <el-tab-pane label="组织机构变更" name="third"><OrganizationChange /></el-tab-pane>
         <el-tab-pane label="角色变更" name="fourth"><RoleChange /></el-tab-pane>
         <el-tab-pane label="资源变更" name="fifth"><ResourceChange /></el-tab-pane>
@@ -31,13 +31,13 @@ import ApiObj from '@/api/Admin/user-management'
 import RolePermissionChange from './role-permission-change/index'
 import OrganizationChange from './organization-change/index'
 import ResourceChange from './resource-change/index'
-import roleAccountChange from './role-account-change/index'
+import RoleAccountChange from './role-account-change/index'
 import RoleChange from './role-change/index'
 export default {
   name: 'UserManagement',
   components: {
     RoleChange,
-    roleAccountChange,
+    RoleAccountChange,
     ResourceChange,
     OrganizationChange,
     RolePermissionChange

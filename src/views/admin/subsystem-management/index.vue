@@ -25,6 +25,11 @@
       </div>
       <template>
         <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+          <!-- <template v-if="item.type == 'custom'" :slot="val.slotName ? val.slotName : 'custom'" slot-scope="scope">
+            <slot :name="val.slotName ? val.slotName : 'custom'" :row="scope.row" :rowIndex="scope.rowIndex">
+              <span>{{ scope.row[val.prop] }}</span>
+            </slot>
+          </template> -->
           <template slot="crteTime" slot-scope="scope">
             {{ scope.row.crteTime | parseTime }}
           </template>

@@ -5,7 +5,8 @@ export const tableColumns = [
   { prop: 'subsysCodg', label: '子系统编码', width: 120 },
   { prop: 'sysPath', label: '系统路', width: 300 },
   { prop: 'crterName', label: '经办人' },
-  { prop: 'crteTime', label: '经办时间', slotName: 'crteTime' },
+  { prop: 'crteTime', label: '经办时间', type: 'custom', slotName: 'crteTime' },
+  // { prop: 'crteTime', label: '经办时间', customProp: 'date', format: 'YYYY-MM-DD HH:MM:ss' },
   { prop: 'dscr', label: '说明', width: 300 },
   { type: 'operation', label: '操作', fixed: 'right', width: 130 }
 ]

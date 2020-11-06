@@ -29,15 +29,8 @@
             <MyButton icon="edit" title="修改" @click.stop="modifyrow(scope.row)" />
             <MyButton icon="delete" title="删除" @click.stop="del(scope.row)" />
           </template>
-          <template slot-scope="scope">
-            <!-- {{ scope.row.uactStas==="1"?'启用':'禁用' }} -->
-            <el-switch
-              v-model="scope.row.uactStas"
-              active-value="1"
-              disabled
-              inactive-value="3"
-              @change="switchChange(scope.$index,scope.row)"
-            />
+          <template slot="crteTime" slot-scope="scope">
+            {{ scope.row.crteTime |parseTime }}
           </template>
         </my-table-view>
       </template>

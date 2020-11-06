@@ -22,6 +22,9 @@
       </div>
       <template>
         <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+          <template slot="uactStas" slot-scope="scope">
+            {{ scope.row.uactStas | fliterUactStatus }}
+          </template>
           <template slot="operation" slot-scope="scope">
             <MyButton icon="edit" title="修改" @click.stop="modifyrow(scope.row)" />
             <MyButton icon="delete" title="删除" @click.stop="del(scope.row)" />

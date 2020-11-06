@@ -98,7 +98,6 @@ el-table-column 传参请查看table-column.vue文件
             </slot>
           </template>
         </table-column>
-
       </template>
     </el-table>
   </section>
