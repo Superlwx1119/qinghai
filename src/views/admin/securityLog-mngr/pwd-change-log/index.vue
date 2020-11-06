@@ -8,23 +8,66 @@
 <template>
   <!-- 密码变更日志 -->
   <div class="item3 item-role-per">
-    <section class="layer">
+    <normal-layer :search-number="itemsDatas.length">
+      <template slot="search-header">
+        <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :rules="rules">
+          <template slot="pwdChgType">
+            <el-select v-model="queryForm.pwdChgType" placeholder="请选择" style="width:100%" clearable>
+              <el-option
+                v-for="item in pwdChgTypeList"
+                :key="item.value"
+                :label="item.name"
+                :value="item.value"
+              />
+            </el-select>
+          </template>
+          <template slot="daterange">
+            <el-date-picker
+              v-model="queryForm.daterange"
+              :unlink-panels="true"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              style="width:100%"
+              value-format="yyyy/MM/dd"
+            />
+          </template>
+          <div>
+            <MyButton type="reset" @click="reset" />
+            <MyButton type="search" @click="iniSearch" />
+          </div>
+        </FormItems>
+      </template>
+      <div slot="table-title" class="box-header">
+        <span class="box-title">子系统列表</span>
+      </div>
+      <template>
+        <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+          <template slot="qqqq" slot-scope="scope">
+            {{ scope.row.chgType|fliterchgType }}
+          </template>
+        </my-table-view>
+        <Pagination :data="pageInfo" @refresh="pageChange" />
+      </template>
+    </normal-layer>
+    <!-- <section class="layer">
       <div class="box">
         <div class="box-header">
           <span class="box-title">查询条件</span>
         </div>
         <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="90px">
+          <el-form ref="queryForm" :model="queryForm" :rules="rules" label-width="90px">
             <el-row :gutter="24" style="margin-right:0!important;margin-left:0!important;">
               <el-col :md="12" :lg="8" :xl="6">
                 <el-form-item label="用户账号" prop="uact">
-                  <el-input v-model="searchForm.uact" clearable placeholder="请输入" />
+                  <el-input v-model="queryForm.uact" clearable placeholder="请输入" />
                 </el-form-item>
               </el-col>
 
               <el-col :md="12" :lg="8" :xl="6">
                 <el-form-item label="密码变更类型" prop="pwdChgType">
-                  <el-select v-model="searchForm.pwdChgType" placeholder="请选择" style="width:100%" clearable>
+                  <el-select v-model="queryForm.pwdChgType" placeholder="请选择" style="width:100%" clearable>
                     <el-option
                       v-for="item in pwdChgTypeList"
                       :key="item.value"
@@ -37,7 +80,7 @@
               <el-col :md="12" :lg="8" :xl="6">
                 <el-form-item label="起止日期" required prop="daterange">
                   <el-date-picker
-                    v-model="searchForm.daterange"
+                    v-model="queryForm.daterange"
                     :unlink-panels="true"
                     type="daterange"
                     range-separator="至"
@@ -57,18 +100,16 @@
         </div>
       </div>
     </section>
-    <!-- 表格 -->
     <section class="layer role-perssion-list">
       <div class="box">
         <div class="box-header handle">
           <span class="box-title">查询结果</span>
           <div class="box-tools">
-            <!-- <el-button type="success" @click="handleAdd">新增</el-button> -->
           </div>
         </div>
         <div class="box-body">
           <el-table
-            v-loading="tableLoading"
+            v-loading="loading"
             :data="tableData"
             height="string"
             element-loading-spinner="el-loading1"
@@ -106,11 +147,15 @@
           </el-pagination>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- 新增 -->
   </div>
 </template>
 <script>
+import pageHandle from '@/mixins/pageHandle'
+import NormalLayer from '@/views/components/PageLayers/normalLayer'
+import FormItems from '@/views/components/PageLayers/form-items'
+import { tableColumns } from './tableConfig'
 import ApiObj from '@/api/Admin/user-management'
 import moment from 'moment'
 import {
@@ -119,8 +164,10 @@ import {
 export default {
   name: 'UserManagement',
   components: {
+    NormalLayer,
+    FormItems
   },
-  mixins: [],
+  mixins: [pageHandle],
   props: {},
   data() {
     var validDate = (rule, value, callback) => {
@@ -138,18 +185,25 @@ export default {
         isModify: false,
         rows: {}
       },
-      currentPage: 1,
-      pageSize: 100,
-      total: 0,
-      startRow: 0,
-      endRow: 0,
-      searchForm: {
+      pageInfo: {
+        pageNumber: 1,
+        pageSize: 15,
+        startRow: 0,
+        endRow: 0,
+        total: 0
+      },
+      queryForm: {
         pwdChgType: '',
         uact: '',
         optEndTime: '',
         optBeginTime: '',
         daterange: [moment(new Date().getTime() - 3600 * 1000 * 24 * 30).format('YYYY/MM/DD hh:mm:ss'), moment(new Date()).format('YYYY/MM/DD hh:mm:ss')]
       },
+      itemsDatas: [
+        { label: '用户账号', prop: 'uact', type: 'input' },
+        { label: '密码变更类型', prop: 'pwdChgType', type: 'custom' },
+        { label: '起止日期', prop: 'daterange', type: 'custom' }
+      ],
       rules: {
         daterange: [{
           validator: validDate,
@@ -157,8 +211,9 @@ export default {
         }]
       },
       tableData: [],
-      tableLoading: false,
-      pwdChgTypeList: []
+      loading: false,
+      pwdChgTypeList: [],
+      columns: tableColumns
     }
   },
   computed: {
@@ -168,61 +223,48 @@ export default {
   },
   watch: {},
   created() {
-    this.getUserList()
-    // this.chgTypeList = this.publicCode.codes.CHG_TYPE
-    this.pwdChgTypeList = this.publicCode.codes.PWD_CHG_TYPE
   },
   mounted() {
+    this.iniSearch()
+    this.pwdChgTypeList = this.publicCode.codes.PWD_CHG_TYPE
   },
   methods: {
+    search() {
+      this.getUserList()
+    },
     // 获取查询信息列表
     getUserList() {
-      this.searchForm.optEndTime = this.searchForm.daterange[1]
-      this.searchForm.optBeginTime = this.searchForm.daterange[0]
-      const obj = Object.assign({}, this.searchForm)
+      this.queryForm.optEndTime = this.queryForm.daterange[1]
+      this.queryForm.optBeginTime = this.queryForm.daterange[0]
+      const obj = Object.assign({}, this.queryForm)
       delete obj.daterange
       const params = {
-        pageSize: this.pageSize,
-        pageNumber: this.currentPage,
+        pageNumber: this.pageInfo.pageNumber,
+        pageSize: this.pageInfo.pageSize,
         total: 0,
         ...obj
       }
-      this.tableLoading = true
+      this.loading = true
       ApiObj.pwdChgPage(params).then(res => {
         if (res.code === 0) {
           this.tableData = res.data.result
-          this.total = res.data.recordCount
-          const num1 = this.pageSize * (this.currentPage - 1) + 1
-          const num2 = this.pageSize * this.currentPage > this.total ? this.total : this.pageSize * this.currentPage
-          this.startRow = num1
-          this.endRow = num2
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.total ? res.data.total : res.data.pageSize * res.data.pageNumber
+          this.pageInfo = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount || 0,
+            startRow: num1 || 0,
+            endRow: num2 || 0
+          }
         }
-        this.tableLoading = false
-      }).catch(() => { this.tableLoading = false })
+        this.loading = false
+      }).catch(() => { this.loading = false })
     },
-    // 查询
-    search() {
-      this.$refs.searchForm.validate((valid) => {
-        if (valid) {
-          this.currentPage = 1
-          this.pageSize = 100
-          this.getUserList()
-        }
-      })
-    },
-    //  重置
-    restSearch() {
-      this.$refs.searchForm.resetFields()
-    },
-    // 切换每页的数量
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.getUserList()
-    },
-    // 切换页码
-    handleCurrentChange(val) {
-      this.currentPage = val
-      this.getUserList()
+    pageChange(data) {
+      this.pageInfo.pageSize = data.pagination.pageSize
+      this.pageInfo.pageNumber = data.pagination.pageNum
+      this.search()
     }
   }
 }

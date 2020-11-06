@@ -9,59 +9,29 @@
   <div class="subsystem-add">
     <!--子系统新增 -->
     <el-dialog
-      v-dialogDrag
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       :title="`${dataObj.isModify ? '修改' : '新增'}子系统`"
       width="70%"
       @close="cancelDialog"
     >
-      <el-form
-        ref="searchForm"
-        :model="searchForm"
-        :rules="rules"
-        class="form-box"
-        label-width="110px"
-      >
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="子系统名称" prop="subsysName">
-              <el-input v-model="searchForm.subsysName" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="子系统编码" prop="subsysCodg">
-              <el-input v-model="searchForm.subsysCodg" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="系统路径" prop="sysPath">
-              <el-input v-model="searchForm.sysPath" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="说明" prop="dscr">
-              <el-input v-model="searchForm.dscr" :rows="5" style="width:100%" type="textarea" resize="none" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+      <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :is-grid="false" :rules="rules" />
       <span slot="footer" class="dialog-footer">
         <el-button type="" @click="cancelDialog(0)">关闭</el-button>
-        <el-button v-if="!dataObj.isModify" type="primary" @click="submitForm('searchForm')">确定</el-button>
-        <el-button v-if="dataObj.isModify" type="primary" @click="modifyForm('searchForm')">确定</el-button>
+        <el-button v-if="!dataObj.isModify" type="primary" @click="submitForm('queryForm')">确定</el-button>
+        <el-button v-if="dataObj.isModify" type="primary" @click="modifyForm('queryForm')">确定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import FormItems from '@/views/components/PageLayers/form-items'
 import ApiObj from '@/api/Admin/user-management'
 export default {
   name: 'SubsystemAdd',
   components: {
+    FormItems
   },
   mixins: [],
   props: {
@@ -79,12 +49,18 @@ export default {
       isPwdChanged: false, // 密码是否修改
       lginWayList: [{ value: '1', label: '密码' }, { value: '2', label: 'CA' }, { value: '3', label: '扫码' }], // 登录方式
       mnitId: '',
-      searchForm: {
+      queryForm: {
         sysPath: '',
         subsysCodg: '',
         subsysName: '',
         dscr: ''
       },
+      itemsDatas: [
+        { label: '子系统名称', prop: 'subsysName', type: 'input', span: 8 },
+        { label: '子系统编码', prop: 'subsysCodg', type: 'input', span: 8 },
+        { label: '系统路径', prop: 'sysPath', type: 'input', span: 8 },
+        { label: '说明', prop: 'dscr', type: 'textarea', span: 24, rows: 5 }
+      ],
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now() - 8.64e7
@@ -120,13 +96,13 @@ export default {
   },
   methods: {
     fillDetaisData() {
-      this.searchForm = this.dataObj.row
+      this.queryForm = this.dataObj.row
     },
     //  新增保存
     submitForm(foconstame) {
-      this.$refs['searchForm'].validate((valid) => {
+      this.$refs['queryForm'].validate((valid) => {
         if (valid) {
-          const params = this.searchForm
+          const params = this.queryForm
           ApiObj.addSysSubsysD(params).then(res => {
             if (res.code === 0) {
               this.$message({
@@ -151,7 +127,7 @@ export default {
     modifyForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = this.searchForm
+          const params = this.queryForm
           ApiObj.updateSubsys(params).then(res => {
             if (res.code === 0) {
               this.$message({
@@ -174,13 +150,9 @@ export default {
         }
       })
     },
-    //  重置
-    restSearch() {
-      this.$refs.searchForm.resetFields()
-    },
     // 关闭
     cancelDialog(data) {
-      this.$refs['searchForm'].resetFields()
+      this.$refs.queryForm.elForm.resetFields()
       this.$emit('cancelDialog', data)
     }
   }

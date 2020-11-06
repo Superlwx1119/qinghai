@@ -14,24 +14,12 @@
           <span class="box-title">密码修改</span>
         </div>
         <div class="box-body passwor-box">
-          <el-form ref="ruleForm" :model="searchForm" :rules="rules" status-icon label-width="100px" class="demo-ruleForm">
-            <el-form-item label="用户账号" prop="uact">
-              <el-input v-model="searchForm.uact" autocomplete="off" readonly="" />
-            </el-form-item>
-            <el-form-item label="输入旧密码" prop="oldPwd">
-              <el-input v-model="searchForm.oldPwd" type="password" autocomplete="off" />
-            </el-form-item>
-            <el-form-item label="输入新密码" prop="newPwd">
-              <el-input v-model="searchForm.newPwd" type="password" autocomplete="off" />
-            </el-form-item>
-            <el-form-item label="确认密码" prop="newPwdAgain">
-              <el-input v-model="searchForm.newPwdAgain" type="password" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
-              <el-button @click="resetForm('ruleForm')">重置</el-button>
-            </el-form-item>
-          </el-form>
+          <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :is-grid="false" :form-datas="queryForm" :rules="rules" :item-span="24">
+            <div>
+              <MyButton type="reset" @click="resetForm('queryForm')" />
+              <MyButton type="submit" @click="submitForm('queryForm')" />
+            </div>
+          </FormItems>
         </div>
       </div>
     </section>
@@ -39,6 +27,7 @@
   </div>
 </template>
 <script>
+import FormItems from '@/views/components/PageLayers/form-items'
 import { password } from '@/api/Admin/user-management'
 // import Crypto from '@/utils/mix-code'
 import {
@@ -47,26 +36,33 @@ import {
 export default {
   name: '',
   components: {
+    FormItems
   },
   mixins: [],
   props: {},
   data() {
     var validatePwd = (rule, value, callback) => {
       console.log(value, 'value')
-      if (value !== this.searchForm.newPwd) {
+      if (value !== this.queryForm.newPwd) {
         callback(new Error('两次密码不一致'))
       } else {
         callback()
       }
     }
     return {
-      searchForm: {
+      queryForm: {
         uact: '',
         newPwd: '',
         newPwdAgain: '',
         uactId: '',
         oldPwd: ''
       },
+      itemsDatas: [
+        { label: '用户账号', prop: 'uact', type: 'input' },
+        { label: '输入旧密码', prop: 'oldPwd', type: 'input' },
+        { label: '输入新密码', prop: 'newPwd', type: 'input' },
+        { label: '确认密码', prop: 'newPwdAgain', type: 'input' }
+      ],
       rules: {
         newPwd: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
         newPwdAgain: [{ required: true, message: '请再次输入新密码', trigger: 'blur' },
@@ -82,8 +78,8 @@ export default {
   watch: {},
   created() {
     const user = JSON.parse(window.sessionStorage.getItem('hsa-portal-user'))
-    this.searchForm.uact = user.userAcct
-    this.searchForm.uactId = user.userAcctId
+    this.queryForm.uact = user.userAcct
+    this.queryForm.uactId = user.userAcctId
   },
   mounted() {
     // this.getConditionList()
@@ -99,9 +95,9 @@ export default {
       this.$router.push(`/login`)
     },
     submitForm() {
-      // let params = this.searchForm
+      // let params = this.queryForm
       this.$store.dispatch('user/GET_TOKEN').then(res => {
-        const params = Crypto.encrypt(JSON.stringify(this.searchForm), this.token)
+        const params = Crypto.encrypt(JSON.stringify(this.queryForm), this.token)
         password(params).then(res => {
           if (res.code === 0) {
             this.$confirm('密码修改成功，请重新登录', {
@@ -123,8 +119,9 @@ export default {
       })
     },
     resetForm() {
-      this.searchForm.newPwd = ''
-      this.searchForm.newPwdAgain = ''
+      this.queryForm.oldPwd = ''
+      this.queryForm.newPwd = ''
+      this.queryForm.newPwdAgain = ''
     }
   }
 }

@@ -8,7 +8,41 @@
 <template>
   <!-- 菜单收藏夹 -->
   <div class="item2 fav-menu">
-    <section class="layer">
+    <normal-layer :search-number="itemsDatas.length">
+      <template slot="search-header">
+        <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
+          <template slot="subsysId">
+            <subSysSelect ref="subSysSelect" @getSubsys="getSubsys" />
+          </template>
+          <div>
+            <MyButton type="reset" @click="reset" />
+            <MyButton type="search" @click="iniSearch" />
+          </div>
+        </FormItems>
+      </template>
+      <div slot="table-title" class="box-header">
+        <span class="box-title">子系统列表</span>
+      </div>
+      <template>
+        <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false">
+          <template slot="operation" slot-scope="scope">
+            <MyButton icon="edit" title="修改" @click.stop="modifyrow(scope.row)" />
+            <MyButton icon="delete" title="删除" @click.stop="del(scope.row)" />
+          </template>
+          <template slot-scope="scope">
+            <!-- {{ scope.row.uactStas==="1"?'启用':'禁用' }} -->
+            <el-switch
+              v-model="scope.row.uactStas"
+              active-value="1"
+              disabled
+              inactive-value="3"
+              @change="switchChange(scope.$index,scope.row)"
+            />
+          </template>
+        </my-table-view>
+      </template>
+    </normal-layer>
+    <!-- <section class="layer">
       <div class="box">
         <div class="box-header">
           <span class="box-title">查询条件</span>
@@ -19,8 +53,8 @@
               <el-col :md="12" :lg="8" :xl="6">
                 <el-form-item label="子系统名称" prop="subsysId">
                   <subSysSelect ref="subSysSelect" @getSubsys="getSubsys" />
-                  <!-- <el-input v-model="searchForm.subsysName" clearable placeholder="请输入" /> -->
-                </el-form-item>
+                   <el-input v-model="searchForm.subsysName" clearable placeholder="请输入" /> -->
+    <!-- </el-form-item>
               </el-col>
               <el-col :md="12" :lg="8" :xl="6">
                 <el-form-item label="菜单名称" prop="resuName">
@@ -35,9 +69,9 @@
           </el-form>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- 表格 -->
-    <section class="layer" style=" height: calc(100% - 109px);">
+    <!-- <section class="layer" style=" height: calc(100% - 109px);">
       <div class="box">
         <div class="box-header handle">
           <span class="box-title">菜单列表</span>
@@ -47,7 +81,7 @@
         </div>
         <div class="box-body">
           <el-table
-            v-loading="tableLoading"
+            v-loading="loading"
             :data="tableData"
             height="string"
             element-loading-spinner="el-loading1"
@@ -58,18 +92,18 @@
           >
             <el-table-column label="序号" type="index" align="center" width="50" />
             <el-table-column prop="resuName" show-overflow-tooltip label="菜单名称" align="center" />
-            <el-table-column :formatter="subsysFormat" prop="subsysId" show-overflow-tooltip label="子系统" align="center">
-              <!-- <template slot-scope="scope">
+            <el-table-column :formatter="subsysFormat" prop="subsysId" show-overflow-tooltip label="子系统" align="center"> -->
+    <!-- <template slot-scope="scope">
                 {{ scope.row.subsysId }}
               </template> -->
-              <!-- {{ scope.row.subsysId|fliterTime }} -->
-            </el-table-column>
+    <!-- {{ scope.row.subsysId|fliterTime }} -->
+    <!-- </el-table-column>
             <el-table-column prop="menuPath" label="菜单路径" align="left" width="400" />
             <el-table-column prop="crteTime" label="经办时间" show-overflow-tooltip header-align="center" width="200" align="center">  <template slot-scope="scope">
               {{ scope.row.crteTime |parseTime }}
-            </template>
-              <!-- {{ scope.row.subsysId|fliterTime }} -->
-            </el-table-column>
+            </template> -->
+    <!-- {{ scope.row.subsysId|fliterTime }} -->
+    <!-- </el-table-column>
 
             <el-table-column label="操作" width="120" align="center">
               <template slot-scope="scope">
@@ -78,12 +112,15 @@
             </el-table-column></el-table>
         </div>
       </div>
-    </section>
+    </section> -->
     <!-- 新增 -->
     <MenuAdd v-if="dataObj.isShow" :data-obj="dataObj" @cancelDialog="cancelDialog" />
   </div>
 </template>
 <script>
+import NormalLayer from '@/views/components/PageLayers/normalLayer'
+import FormItems from '@/views/components/PageLayers/form-items'
+import { tableColumns } from './tableConfig'
 import MenuAdd from './menu-add/index'
 import subSysSelect from '@/components/SubsysSelect/index'
 import ApiObj from '@/api/Admin/user-management'
@@ -91,6 +128,8 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'UserManagement',
   components: {
+    NormalLayer,
+    FormItems,
     MenuAdd,
     subSysSelect
   },
@@ -104,16 +143,17 @@ export default {
         isModify: false,
         rows: {}
       },
-      currentPage: 1,
-      pageSize: 15,
-      total: 0,
-      startRow: 0,
-      endRow: 0,
-      searchForm: {
-        sort: ''
+      itemsDatas: [
+        { label: '子系统名称', prop: 'subsysId', type: 'custom' },
+        { label: '菜单名称', prop: 'resuName', type: 'input' }
+      ],
+      queryForm: {
+        subsysId: '',
+        resuName: ''
       },
+      columns: tableColumns,
       tableData: [],
-      tableLoading: false,
+      loading: false,
       options: []
     }
   },
@@ -127,8 +167,13 @@ export default {
     this.getSysMenuFavD()
   },
   mounted() {
+    this.iniSearch()
   },
   methods: {
+    // 查询
+    iniSearch() {
+      this.getSysMenuFavD()
+    },
     // 子系统过滤器
     subsysFormat(row, column) {
       const subsysId = row[column.property]
@@ -155,18 +200,15 @@ export default {
       const params = {
         ...this.searchForm
       }
-      this.tableLoading = true
+      this.loading = true
       ApiObj.sysMenuFavD(params).then(res => {
         if (res.code === 0) {
           this.tableData = res.data
         }
-        this.tableLoading = false
-      }).catch(() => { this.tableLoading = false })
+        this.loading = false
+      }).catch(() => { this.loading = false })
     },
-    // 查询
-    search() {
-      this.getSysMenuFavD()
-    },
+
     del(row) {
       this.$confirm(`<div class="myalert-header">操作提醒</div><div class="myalert-content">确认删除？</div>`, {
         confirmButtonText: '确定',
@@ -210,7 +252,7 @@ export default {
       this.dataObj.mnitId = row.mnitId
     },
     //  重置
-    restSearch() {
+    reset() {
       this.$refs.searchForm.resetFields()
       this.$refs.subSysSelect.reset()
     },
@@ -219,16 +261,6 @@ export default {
     handleAdd() {
       this.dataObj.isShow = true
       this.dataObj.isModify = false
-    },
-    // 切换每页的数量
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.getSysMenuFavD()
-    },
-    // 切换页码
-    handleCurrentChange(val) {
-      this.currentPage = val
-      this.getSysMenuFavD()
     },
     // 关闭弹出框
     cancelDialog(data) {

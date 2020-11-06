@@ -5,8 +5,8 @@ export default {
       loading: false,
       queryForm: {},
       paginationQuery: {
-        pageSize: 10,
-        pageNum: 1,
+        pageSize: window.top.innerWidth >= 1920 ? 15 : 10,
+        pageNumber: 1,
         total: 0,
         startRow: 0,
         endRow: 0
@@ -32,12 +32,12 @@ export default {
       }
     },
     iniSearch() {
-      this.$set(this.paginationQuery, 'pageNum', 1)
+      this.$set(this.paginationQuery, 'pageNumber', 1)
       this.search()
       // this.queryChange = false
     },
     setPaginationQuery(data) {
-      this.$set(this.paginationQuery, 'total', data.recordCounts)
+      this.$set(this.paginationQuery, 'total', data.total)
       this.$set(this.paginationQuery, 'startRow', data.startRow)
       this.$set(this.paginationQuery, 'endRow', data.endRow)
     },
