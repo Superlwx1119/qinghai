@@ -474,6 +474,22 @@ export function delMenu(data) {
     method: 'get'
   })
 }
+// 上移数据
+export function moveUpMenu(data) {
+  return request({
+    url: ApiUrl.sysMenuFavD.moveUpMenu,
+    method: 'post',
+    data
+  })
+}
+// 下移数据
+export function moveDownMenu(data) {
+  return request({
+    url: ApiUrl.sysMenuFavD.moveDownMenu,
+    method: 'post',
+    data
+  })
+}
 // 重置密码
 export function resetPassword(data) {
   return request({

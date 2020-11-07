@@ -167,7 +167,7 @@ export default {
           this.userTableData = res.data.result
           this.total = res.data.recordCount
           const num1 = this.pageSize * (this.currentPage - 1) + 1
-          const num2 = this.pageSize * this.currentPage > this.total ? this.total : this.pageSize * this.currentPage
+          const num2 = this.pageSize * this.currentPage > res.data.total ? res.data.total : this.pageSize * this.currentPage
           this.startRow = num1
           this.endRow = num2
         }

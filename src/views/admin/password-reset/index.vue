@@ -26,8 +26,7 @@
             {{ scope.row.uactStas | fliterUactStatus }}
           </template>
           <template slot="operation" slot-scope="scope">
-            <MyButton icon="edit" title="修改" @click.stop="modifyrow(scope.row)" />
-            <MyButton icon="delete" title="删除" @click.stop="del(scope.row)" />
+            <MyButton icon="replace" title="重置密码" @click.stop="resetPassword(scope.row)" />
           </template>
           <template slot-scope="scope">
             <!-- {{ scope.row.uactStas==="1"?'启用':'禁用' }} -->
@@ -171,39 +170,33 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.reset(row)
+          const pwd = getSixRandom() + '@abc'
+          this.$store.dispatch('user/GET_TOKEN').then(res => {
+            const PwdParams = {
+              uactId: row.uactId,
+              pwd: pwd
+            }
+            const params = Crypto.encrypt(JSON.stringify(PwdParams), this.token)
+            ApiObj.resetPassword(params).then(res => {
+              if (res.code === 0) {
+                this.getUserList()
+                this.$alert(`<strong>操作成功</strong><p>账号${row.userName}的密码已被重置为${pwd}</p>`, {
+                  dangerouslyUseHTMLString: true, confirmButtonText: '确定',
+                  type: 'success'
+                })
+              } else {
+                this.$alert(`<div class="myalert-header">操作失败</div>
+            <div class="myalert-content">${res.message}</div>`, {
+                  dangerouslyUseHTMLString: true, confirmButtonText: '确定',
+                  type: 'error'
+                })
+              }
+            })
+          })
         })
         .catch(() => {
 
         })
-    },
-    // 重置
-    reset(row) {
-      const pwd = getSixRandom() + '@abc'
-      // let pwdUtf = CryptoJS.enc.Utf8.parse(pwd)
-      // let pwdBase64 = CryptoJS.enc.Base64.stringify(pwdUtf)
-      this.$store.dispatch('user/GET_TOKEN').then(res => {
-        const PwdParams = {
-          uactId: row.uactId,
-          pwd: pwd
-        }
-        const params = Crypto.encrypt(JSON.stringify(PwdParams), this.token)
-        ApiObj.resetPassword(params).then(res => {
-          if (res.code === 0) {
-            this.getUserList()
-            this.$alert(`<strong>操作成功</strong><p>账号${row.userName}的密码已被重置为${pwd}</p>`, {
-              dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-              type: 'success'
-            })
-          } else {
-            this.$alert(`<div class="myalert-header">操作失败</div>
-            <div class="myalert-content">${res.message}</div>`, {
-              dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-              type: 'error'
-            })
-          }
-        })
-      })
     },
     pageChange(data) {
       this.pageInfo.pageSize = data.pagination.pageSize

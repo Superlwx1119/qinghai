@@ -8,7 +8,11 @@
 <template>
   <!-- 菜单收藏夹 -->
   <div class="item2 fav-menu">
-    <normal-layer :search-number="itemsDatas.length">
+    <normal-layer
+      :search-number="itemsDatas.length"
+      title-name="菜单收藏夹列表"
+      title-need-handle
+    >
       <template slot="search-header">
         <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
           <template slot="subsysId">
@@ -20,14 +24,18 @@
           </div>
         </FormItems>
       </template>
-      <div slot="table-title" class="box-header">
-        <span class="box-title">子系统列表</span>
-      </div>
+      <template slot="title-btns">
+        <my-button type="add" title="新增" @click="handleAdd" />
+      </template>
       <template>
         <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false">
           <template slot="operation" slot-scope="scope">
-            <MyButton icon="edit" title="修改" @click.stop="modifyrow(scope.row)" />
             <MyButton icon="delete" title="删除" @click.stop="del(scope.row)" />
+            <MyButton icon="moveUp" title="上移" @click="moveUp(scope.rowIndex,scope.row)" />
+            <MyButton icon="moveDown" title="下移" @click.stop="moveDown(scope.rowIndex,scope.row)" />
+          </template>
+          <template slot="subsysId" slot-scope="scope">
+            {{ scope.row.subsysId|fliterSubsystem }}
           </template>
           <template slot="crteTime" slot-scope="scope">
             {{ scope.row.crteTime |parseTime }}
@@ -35,88 +43,19 @@
         </my-table-view>
       </template>
     </normal-layer>
-    <!-- <section class="layer">
-      <div class="box">
-        <div class="box-header">
-          <span class="box-title">查询条件</span>
-        </div>
-        <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" label-width="90px">
-            <el-row :gutter="24" style="margin-right:0!important;margin-left:0!important;">
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="子系统名称" prop="subsysId">
-                  <subSysSelect ref="subSysSelect" @getSubsys="getSubsys" />
-                   <el-input v-model="searchForm.subsysName" clearable placeholder="请输入" /> -->
-    <!-- </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6">
-                <el-form-item label="菜单名称" prop="resuName">
-                  <el-input v-model="searchForm.resuName" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="6" class="text-right right">
-                <el-button @click="restSearch">重置</el-button>
-                <el-button type="primary" @click="search">查询</el-button>
-              </el-col>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </section> -->
-    <!-- 表格 -->
-    <!-- <section class="layer" style=" height: calc(100% - 109px);">
-      <div class="box">
-        <div class="box-header handle">
-          <span class="box-title">菜单列表</span>
-          <div class="box-tools">
-            <el-button type="success" @click="handleAdd">新增</el-button>
-          </div>
-        </div>
-        <div class="box-body">
-          <el-table
-            v-loading="loading"
-            :data="tableData"
-            height="string"
-            element-loading-spinner="el-loading1"
-            highlight-current-row
-            style="width: 100%"
-            border
-            fit
-          >
-            <el-table-column label="序号" type="index" align="center" width="50" />
-            <el-table-column prop="resuName" show-overflow-tooltip label="菜单名称" align="center" />
-            <el-table-column :formatter="subsysFormat" prop="subsysId" show-overflow-tooltip label="子系统" align="center"> -->
-    <!-- <template slot-scope="scope">
-                {{ scope.row.subsysId }}
-              </template> -->
-    <!-- {{ scope.row.subsysId|fliterTime }} -->
-    <!-- </el-table-column>
-            <el-table-column prop="menuPath" label="菜单路径" align="left" width="400" />
-            <el-table-column prop="crteTime" label="经办时间" show-overflow-tooltip header-align="center" width="200" align="center">  <template slot-scope="scope">
-              {{ scope.row.crteTime |parseTime }}
-            </template> -->
-    <!-- {{ scope.row.subsysId|fliterTime }} -->
-    <!-- </el-table-column>
-
-            <el-table-column label="操作" width="120" align="center">
-              <template slot-scope="scope">
-                <el-button type="text" class="delete" @click.stop="del(scope.row)">删除</el-button>
-              </template>
-            </el-table-column></el-table>
-        </div>
-      </div>
-    </section> -->
     <!-- 新增 -->
     <MenuAdd v-if="dataObj.isShow" :data-obj="dataObj" @cancelDialog="cancelDialog" />
   </div>
 </template>
 <script>
+import pageHandle from '@/mixins/pageHandle'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import { tableColumns } from './tableConfig'
 import MenuAdd from './menu-add/index'
 import subSysSelect from '@/components/SubsysSelect/index'
 import ApiObj from '@/api/Admin/user-management'
+import { moveUpMenu, moveDownMenu } from '@/api/Admin/user-management'
 import { mapGetters } from 'vuex'
 export default {
   name: 'UserManagement',
@@ -126,7 +65,60 @@ export default {
     MenuAdd,
     subSysSelect
   },
-  mixins: [],
+  filters: {
+    // 过滤子系统
+    fliterSubsystem(value) {
+      switch (value) {
+        case '201912211619040000006100000000':
+          return '基础信息管理子系统'
+        case '201912251129150000006500000000':
+          return '报表中心'
+        case '201912231522320000006200000000':
+          return '信用评价管理子系统'
+        case '202001041436400000008400000000':
+          return '电子凭证后台管理'
+        case '202005251014140000015133140000':
+          return '通用综合查询统计平台'
+        case '202007101443010000001133130000':
+          return '测试子系统1'
+        case '201912171924320000003700000000':
+          return '跨省异地就医管理子系统'
+        case '12':
+          return '基金运行及审计监管子系统'
+        case '18001':
+          return '内部控制子系统'
+        case '14001':
+          return '内部统一门户子系统'
+        case '201912241906580000006400000000':
+          return '宏观大数据子系统'
+        case '202001031129080000008200000000':
+          return '消息中心'
+        case '201912241859460000006300000000':
+          return '运行监测'
+        case '21':
+          return '医疗保障智能监管子系统'
+        case '202004041646411002383333100000':
+          return '医保业务基础子系统'
+        case '202009151816210000000133130000':
+          return '问题管理子系统'
+        case '1':
+          return '支付方式管理子系统'
+        case '22':
+          return '医疗服务价格管理子系统'
+        case '201912201146120000005100000000':
+          return '招采子系统'
+        case '202002261528080000003100000000':
+          return '招采子系统省本级'
+        case '202001031411000000008300000000':
+          return 'workflow管理中心'
+        case '201912181344280000003900000000':
+          return 'xxl-job'
+        case '202007130857360000002233130000':
+          return '智能报表'
+      }
+    }
+  },
+  mixins: [pageHandle],
   props: {},
   data() {
     return {
@@ -157,14 +149,13 @@ export default {
   },
   watch: {},
   created() {
-    this.getSysMenuFavD()
   },
   mounted() {
     this.iniSearch()
   },
   methods: {
     // 查询
-    iniSearch() {
+    search() {
       this.getSysMenuFavD()
     },
     // 子系统过滤器
@@ -186,12 +177,12 @@ export default {
     },
     // 切换获取子系统id
     getSubsys(data) {
-      this.searchForm.subsysId = data
+      this.queryForm.subsysId = data
     },
     // 获取查询菜单收藏
     getSysMenuFavD() {
       const params = {
-        ...this.searchForm
+        ...this.queryForm
       }
       this.loading = true
       ApiObj.sysMenuFavD(params).then(res => {
@@ -201,7 +192,6 @@ export default {
         this.loading = false
       }).catch(() => { this.loading = false })
     },
-
     del(row) {
       this.$confirm(`<div class="myalert-header">操作提醒</div><div class="myalert-content">确认删除？</div>`, {
         confirmButtonText: '确定',
@@ -218,10 +208,10 @@ export default {
     },
     // 删除
     deleterow(row) {
-      console.log(row, 'row')
+      this.loading = true
       ApiObj.delMenu(row.menuFavId).then(res => {
-        console.log(res)
         if (res.code === 0) {
+          this.loading = false
           this.$message({
             type: 'success',
             dangerouslyUseHTMLString: true,
@@ -230,6 +220,7 @@ export default {
           })
           this.cancelDialog(1)
         } else {
+          this.loading = false
           this.$alert(`<div class="myalert-header">操作失败</div>
                     <div class="myalert-content">${res.message}</div>`, {
             dangerouslyUseHTMLString: true, confirmButtonText: '确定',
@@ -238,18 +229,45 @@ export default {
         }
       })
     },
-    // 修改
-    modifyrow(row) {
-      this.dataObj.isShow = true
-      this.dataObj.isModify = true
-      this.dataObj.mnitId = row.mnitId
+    // 上移
+    moveUp(index, row) {
+      if (index === 0) {
+        this.$msgInfo('处于顶端，不能继续上移')
+        return
+      } else {
+        this.loading = true
+        const params = {
+          upId: row.menuFavId, // 该行数据id
+          downId: this.tableData[index - 1].menuFavId // 上一行数据的id
+        }
+        moveUpMenu(params).then(res => {
+          this.$msgSuccess('上移成功！')
+          this.loading = false
+          this.iniSearch()
+        }).catch(() => {
+          this.loading = false
+        })
+      }
     },
-    //  重置
-    reset() {
-      this.$refs.searchForm.resetFields()
-      this.$refs.subSysSelect.reset()
+    // 下移
+    moveDown(index, row) {
+      if ((index + 1) === this.tableData.length) {
+        this.$msgInfo('处于底端，不能继续下移')
+      } else {
+        this.loading = true
+        const params = {
+          upId: row.menuFavId, // 该行数据id
+          downId: this.tableData[index + 1].menuFavId // 上一行数据的id
+        }
+        moveDownMenu(params).then(res => {
+          this.$msgSuccess('下移成功！')
+          this.loading = false
+          this.iniSearch()
+        }).catch(() => {
+          this.loading = false
+        })
+      }
     },
-
     // 新增
     handleAdd() {
       this.dataObj.isShow = true

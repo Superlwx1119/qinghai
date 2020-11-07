@@ -75,7 +75,9 @@ export default {
     menu: ips + '/admin/web/menufav/sysMenuFavD/menu', // 已添加菜单查询
     resource: ips + '/admin/web/menufav/sysMenuFavD/tree/resource', // 查询可添加菜单
     saveList: ips + '/admin/web/menufav/sysMenuFavD/saveList', // 保存菜单
-    delMenu: ips + '/admin/web/menufav/sysMenuFavD/delMenu' // 删除菜单
+    delMenu: ips + '/admin/web/menufav/sysMenuFavD/delMenu', // 删除菜单
+    moveUpMenu: ips + '/admin/web/menufav/sysMenuFavD/moveMenu', // 上移数据
+    moveDownMenu: ips + '/admin/web/menufav/sysMenuFavD/moveMenu' // 下移数据
   },
   // 重置密码
   resetPassword: {

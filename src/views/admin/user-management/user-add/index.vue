@@ -16,118 +16,51 @@
       width="70%"
       @close="cancelDialog"
     >
-      <el-form
-        ref="searchForm"
-        :model="searchForm"
-        :rules="rules"
-        class="form-box"
-        label-width="110px"
-      >
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="证件号码" prop="certNO">
-              <el-input v-model="searchForm.certNO" :disabled="dataObj.isModify" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="证件类型" prop="certType">
-              <el-select v-model="searchForm.certType" :disabled="dataObj.isModify" placeholder="请选择" style="width:100%" clearable>
-                <el-option
-                  v-for="item in certTypeList"
-                  :key="item.value"
-                  :label="item.name"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="姓名" prop="userName">
-              <el-input v-model="searchForm.userName" :disabled="dataObj.isModify" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="用户账号" prop="uact">
-              <el-input v-model="searchForm.uact" :disabled="dataObj.isModify" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="密码" prop="pwd">
-              <el-input v-model="searchForm.pwd" type="password" disabled placeholder="密码由系统生成" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="登录方式" prop="lginWay">
-              <el-checkbox-group v-model="searchForm.lginWay">
-                <el-checkbox v-for="(item, i) in lginWayList" :key="i" :label="item.value">{{ item.label }}</el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="手机号码" prop="mob">
-              <el-input v-model="searchForm.mob" style="width:100%" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="办公电话" prop="tel">
-              <el-input v-model="searchForm.tel" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="searchForm.email" style="width:100%" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="组织机构" prop="orguntId">
-              <OrgaUnit v-if="casIsshow" ref="OrgaUnitRef" @getOrgaUnits="getOrgaUnits" />
-              <el-input v-else v-model="searchForm.orgName" readonly style="width:100%" placeholder="请输入" @click.native="changeOrg" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="开始日期" prop="uactBegntime">
-              <el-date-picker
-                v-model="searchForm.uactBegntime"
-                :picker-options="pickerOptionsStart"
-                style="width:100%"
-                type="date"
-                placeholder="选择日期"
-                format="yyyy-MM-dd"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="结束日期" prop="uactEndtime">
-              <el-date-picker
-                v-model="searchForm.uactEndtime"
-                :picker-options="pickerOptionsEnd"
-                style="width:100%"
-                type="date"
-                placeholder="选择日期"
-                format="yyyy-MM-dd"
-              />
-              <!-- <el-input v-model="searchForm.uactEndtime" style="width:100%" readonly /> -->
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="描述信息" prop="dscr">
-              <el-input v-model="searchForm.dscr" style="width:100%" type="textarea" resize="none" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+      <form-items ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :rules="rules" :is-grid="false">
+        <template slot="certType">
+          <el-select v-model="queryForm.certType" :disabled="dataObj.isModify" placeholder="请选择" style="width:100%" clearable>
+            <el-option
+              v-for="item in certTypeList"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            />
+          </el-select>
+        </template>
+        <template slot="lginWay">
+          <el-checkbox-group v-model="queryForm.lginWay">
+            <el-checkbox v-for="(item, i) in lginWayList" :key="i" :label="item.value">{{ item.label }}</el-checkbox>
+          </el-checkbox-group>
+        </template>
+        <template slot="orguntId">
+          <OrgaUnit v-if="casIsshow" ref="OrgaUnitRef" @getOrgaUnits="getOrgaUnits" />
+          <el-input v-else v-model="queryForm.orgName" readonly style="width:100%" placeholder="请输入" @click.native="changeOrg" />
+        </template>
+        <template slot="uactBegntime">
+          <el-date-picker
+            v-model="queryForm.uactBegntime"
+            :picker-options="pickerOptionsStart"
+            style="width:100%"
+            type="date"
+            placeholder="选择日期"
+            format="yyyy-MM-dd"
+          />
+        </template>
+        <template slot="uactEndtime">
+          <el-date-picker
+            v-model="queryForm.uactEndtime"
+            :picker-options="pickerOptionsEnd"
+            style="width:100%"
+            type="date"
+            placeholder="选择日期"
+            format="yyyy-MM-dd"
+          />
+        </template>
+      </form-items>
       <span slot="footer" class="dialog-footer">
         <el-button type="" @click="cancelDialog(0)">关闭</el-button>
-        <el-button v-if="!dataObj.isModify" type="primary" @click="submitForm('searchForm')">确定</el-button>
-        <el-button v-if="dataObj.isModify" type="primary" @click="modifyForm('searchForm')">确定</el-button>
+        <el-button v-if="!dataObj.isModify" type="primary" @click="submitForm('queryForm')">确定</el-button>
+        <el-button v-if="dataObj.isModify" type="primary" @click="modifyForm('queryForm')">确定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -166,7 +99,7 @@ export default {
       isPwdChanged: false, // 密码是否修改
       lginWayList: [{ value: '1', label: '密码' }, { value: '2', label: 'CA' }, { value: '3', label: '扫码' }], // 登录方式
       mnitId: '',
-      searchForm: {
+      queryForm: {
         lginWay: ['1', '2', '3'],
         uact: '',
         certNO: '',
@@ -181,9 +114,24 @@ export default {
         uactEndtime: '',
         dscr: ''
       },
+      itemsDatas: [
+        { label: '证件号码', prop: 'certNO', type: 'input' },
+        { label: '证件类型', prop: 'certType', type: 'custom' },
+        { label: '姓名', prop: 'userName', type: 'input' },
+        { label: '手机号码', prop: 'mob', type: 'input' },
+        { label: '办公电话', prop: 'tel', type: 'input' },
+        { label: '邮箱', prop: 'email', type: 'input' },
+        { label: '用户账号', prop: 'uact', type: 'input' },
+        { label: '密码', prop: 'pwd', type: 'input' },
+        { label: '组织机构', prop: 'orguntId', type: 'custom' },
+        { label: '登录方式', prop: 'lginWay', type: 'custom' },
+        { label: '开始日期', prop: 'uactBegntime', type: 'custom' },
+        { label: '结束日期', prop: 'uactEndtime', type: 'custom' },
+        { label: '描述信息', prop: 'dscr', type: 'textarea', rows: 5, span: 24 }
+      ],
       pickerOptionsStart: {
         disabledDate: time => {
-          const endDateVal = this.searchForm.uactEndtime
+          const endDateVal = this.queryForm.uactEndtime
           if (endDateVal) {
             return time.getTime() > new Date(endDateVal).getTime()
           }
@@ -191,7 +139,7 @@ export default {
       },
       pickerOptionsEnd: {
         disabledDate: time => {
-          const beginDateVal = this.searchForm.uactBegntime
+          const beginDateVal = this.queryForm.uactBegntime
           if (beginDateVal) {
             return (
               time.getTime() < new Date(beginDateVal).getTime()
@@ -227,8 +175,8 @@ export default {
       this.certTypeList = this.publicCode.codes.CERT_TYPE
       // 如果是修改，先查询数据
       if (this.dataObj.isModify) {
-        this.searchForm = this.dataObj.row
-        this.$refs.OrgaUnitRef.assignmentTree(this.searchForm.orgName)
+        this.queryForm = this.dataObj.row
+        this.$refs.OrgaUnitRef.assignmentTree(this.queryForm.orgName)
         this.casIsshow = false
       }
     })
@@ -244,20 +192,20 @@ export default {
     },
     // 获取组织机构
     getOrgaUnits(data) {
-      this.searchForm.orguntId = data[data.length - 1]
+      this.queryForm.orguntId = data[data.length - 1]
     },
     //  新增保存
     submitForm(foconstame) {
-      this.$refs['searchForm'].validate((valid) => {
+      this.$refs['queryForm'].validate((valid) => {
         if (valid) {
-          if (this.searchForm.pwd === '') {
-            this.searchForm.pwd = getSixRandom() + '@abc'
+          if (this.queryForm.pwd === '') {
+            this.queryForm.pwd = getSixRandom() + '@abc'
           }
-          const params = this.searchForm
+          const params = this.queryForm
           ApiObj.user(params).then(res => {
             if (res.code === 0) {
               this.$alert(`<div class="myalert-header">操作成功</div>
-                    <div class="myalert-content">用户名${this.searchForm.uact}的密码是${this.searchForm.pwd}</div>`, {
+                    <div class="myalert-content">用户名${this.queryForm.uact}的密码是${this.queryForm.pwd}</div>`, {
                 dangerouslyUseHTMLString: true, confirmButtonText: '确定',
                 type: 'success'
               })
@@ -275,9 +223,9 @@ export default {
     },
     // 修改保存
     modifyForm(formName) {
-      this.$refs['searchForm'].validate((valid) => {
+      this.$refs['queryForm'].validate((valid) => {
         if (valid) {
-          const params = this.searchForm
+          const params = this.queryForm
           ApiObj.updateUser(params).then(res => {
             if (res.code === 0) {
               this.$message({
@@ -300,11 +248,11 @@ export default {
     },
     //  重置
     restSearch() {
-      this.$refs.searchForm.resetFields()
+      this.$refs.queryForm.resetFields()
     },
     // 关闭
     cancelDialog(data) {
-      this.$refs['searchForm'].resetFields()
+      this.$refs.queryForm.elForm.resetFields()
       this.$emit('cancelDialog', data)
     }
   }

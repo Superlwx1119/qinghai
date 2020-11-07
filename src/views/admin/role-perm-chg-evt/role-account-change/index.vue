@@ -174,7 +174,7 @@ export default {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
-          const num2 = res.data.pageSize * res.data.pageNumber > this.total ? this.total : res.data.pageSize * res.data.pageNumber
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.total ? res.data.total : res.data.pageSize * res.data.pageNumber
           this.pageInfo = {
             pageSize: res.data.pageSize,
             pageNumber: res.data.pageNumber,

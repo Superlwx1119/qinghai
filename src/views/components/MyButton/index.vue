@@ -123,7 +123,9 @@ export default {
         { icon: 'send', title: '发起/发送', iconSvg: 'send', eleType: 'primary' },
         { icon: 'invitation', title: '邀请函', iconSvg: 'invitation', eleType: 'primary' },
         { icon: 'supplement', title: '补充材料', iconSvg: 'supplement', eleType: 'primary' },
-        { icon: 'personnel', title: '人员', iconSvg: 'personnel', eleType: 'primary' }
+        { icon: 'personnel', title: '人员', iconSvg: 'personnel', eleType: 'primary' },
+        { icon: 'moveUp', title: '上移', iconSvg: 'moveUp', eleType: 'primary' },
+        { icon: 'moveDown', title: '下移', iconSvg: 'moveDown', eleType: 'primary' }
       ]
     }
   },

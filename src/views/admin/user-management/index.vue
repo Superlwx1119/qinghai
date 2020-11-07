@@ -34,7 +34,7 @@
         />
       </template>
     </my-table-view>
-    <Pagination :data="paginationQuery" @refresh="pageChange" />
+    <Pagination :data="pageInfo" @refresh="pageChange" />
     <!-- 新增弹窗 -->
     <filling-add v-if="dataObj.isShow" :data-obj="dataObj" @cancelDialog="cancelDialog" />
   </normal-layer>
@@ -75,6 +75,13 @@ export default {
         isQuery: false,
         isModify: false,
         rows: {}
+      },
+      pageInfo: {
+        pageNumber: 1,
+        pageSize: 15,
+        startRow: 0,
+        endRow: 0,
+        total: 0
       },
       columns: Columns,
       queryForm: {
@@ -154,8 +161,8 @@ export default {
     // 获取查询信息列表
     getUserList() {
       const params = {
-        pageNumber: this.paginationQuery.pageNum,
-        pageSize: this.paginationQuery.pageSize,
+        pageNumber: this.pageInfo.pageNumber,
+        pageSize: this.pageInfo.pageSize,
         total: 0,
         ...this.queryForm
       }
@@ -164,28 +171,25 @@ export default {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
-          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
-          this.paginationQuery = {
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.total ? res.data.total : res.data.pageSize * res.data.pageNumber
+          this.pageInfo = {
             pageSize: res.data.pageSize,
-            pageNum: res.data.pageNumber,
-            total: res.data.recordCount,
-            startRow: num1,
-            endRow: num2
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount || 0,
+            startRow: num1 || 0,
+            endRow: num2 || 0
           }
-          console.log(this.pationQuery, 'llll')
         }
         this.tableLoading = false
       }).catch(() => { this.tableLoading = false })
     },
-    pageChange(v) {
-      this.paginationQuery.pageSize = v.pagination.pageSize
-      this.paginationQuery.pageNum = v.pagination.pageNum
-      this.getUserList()
+    pageChange(data) {
+      this.pageInfo.pageSize = data.pagination.pageSize
+      this.pageInfo.pageNumber = data.pagination.pageNum
+      this.search()
     },
     // 查询方法
     search() {
-      this.currentPage = 1
-      this.pageSize = 15
       this.getUserList()
     },
     del(row) {
@@ -231,26 +235,10 @@ export default {
       this.dataObj.isModify = true
       this.dataObj.row = Object.assign({}, row)
     },
-    //  重置
-    restSearch() {
-      this.$refs.queryForm.resetFields()
-      this.$refs.OrgaUnitsRef.reset()
-    },
-
     // 新增
     handleAdd() {
       this.dataObj.isShow = true
       this.dataObj.isModify = false
-    },
-    // 切换每页的数量
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.getUserList()
-    },
-    // 切换页码
-    handleCurrentChange(val) {
-      this.currentPage = val
-      this.getUserList()
     },
     // 关闭弹出框
     cancelDialog(data) {
