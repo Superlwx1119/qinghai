@@ -7,44 +7,35 @@
  -->
 <template>
   <!-- 密码重置 -->
-  <div class="item5 password-reset">
-    <normal-layer :search-number="itemsDatas.length">
-      <template slot="search-header">
-        <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
-          <div>
-            <MyButton type="reset" @click="reset" />
-            <MyButton type="search" @click="iniSearch" />
-          </div>
-        </FormItems>
+  <normal-layer :search-number="itemsDatas.length" title-name="密码重置列表">
+    <template slot="search-header">
+      <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
+        <div>
+          <MyButton type="reset" @click="reset" />
+          <MyButton type="search" @click="iniSearch" />
+        </div>
+      </FormItems>
+    </template>
+    <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+      <template slot="uactStas" slot-scope="scope">
+        {{ scope.row.uactStas | fliterUactStatus }}
       </template>
-      <div slot="table-title" class="box-header">
-        <span class="box-title">子系统列表</span>
-      </div>
-      <template>
-        <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
-          <template slot="uactStas" slot-scope="scope">
-            {{ scope.row.uactStas | fliterUactStatus }}
-          </template>
-          <template slot="operation" slot-scope="scope">
-            <MyButton icon="replace" title="重置密码" @click.stop="resetPassword(scope.row)" />
-          </template>
-          <template slot-scope="scope">
-            <!-- {{ scope.row.uactStas==="1"?'启用':'禁用' }} -->
-            <el-switch
-              v-model="scope.row.uactStas"
-              active-value="1"
-              disabled
-              inactive-value="3"
-              @change="switchChange(scope.$index,scope.row)"
-            />
-          </template>
-        </my-table-view>
-        <Pagination :data="pageInfo" @refresh="pageChange" />
+      <template slot="operation" slot-scope="scope">
+        <MyButton icon="replace" title="重置密码" @click.stop="resetPassword(scope.row)" />
       </template>
-    </normal-layer>
-    <!-- 新增 -->
-    <filling-add v-if="dataObj.isShow" :data-obj="dataObj" @cancelDialog="cancelDialog" />
-  </div>
+      <template slot-scope="scope">
+        <!-- {{ scope.row.uactStas==="1"?'启用':'禁用' }} -->
+        <el-switch
+          v-model="scope.row.uactStas"
+          active-value="1"
+          disabled
+          inactive-value="3"
+          @change="switchChange(scope.$index,scope.row)"
+        />
+      </template>
+    </my-table-view>
+    <Pagination :data="pageInfo" @refresh="pageChange" />
+  </normal-layer>
 </template>
 <script>
 import pageHandle from '@/mixins/pageHandle'
@@ -52,7 +43,6 @@ import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import { tableColumns } from './tableConfig'
 import { getSixRandom } from '@/utils/index'
-import FillingAdd from './user-add/index'
 import ApiObj from '@/api/Admin/user-management'
 // import CryptoJS from 'crypto-js'
 import Crypto from '@/utils/mix-code'
@@ -62,7 +52,6 @@ import {
 export default {
   name: 'UserManagement',
   components: {
-    'filling-add': FillingAdd,
     NormalLayer,
     FormItems
   },
@@ -82,7 +71,6 @@ export default {
           return time.getTime() < new Date(this.queryForm.beginRptMon).getTime()
         }
       },
-      disabledAll: true,
       dataObj: {
         isShow: false,
         isQuery: false,
@@ -127,15 +115,6 @@ export default {
   methods: {
     search() {
       this.getUserList()
-    },
-    // 请求角色id
-    getAdminRoleId() {
-      ApiObj.adminRoleId().then(res => {
-      })
-    },
-    acitiveBeforeFact() {
-      ApiObj.beforeFact({ menuCodg: 'ips-xtgl-yhgl' }).then(res => {
-      })
     },
     // 获取查询信息列表
     getUserList() {

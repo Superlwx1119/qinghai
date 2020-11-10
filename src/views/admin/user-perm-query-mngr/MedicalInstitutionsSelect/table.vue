@@ -11,14 +11,24 @@
       @row-dblclick="handleCurrentChangeSubmit"
     >
       <template slot="select" slot-scope="scope">
-        <el-radio v-model="selMedinsCodg" :label="scope.row.medinsCodg">{{ '' }}</el-radio>
+        <el-radio v-model="selUact" :label="scope.row.uact">{{ '' }}</el-radio>
+      </template>
+      <template slot="uactStas" slot-scope="scope">
+        <el-switch
+          v-model="scope.row.uactStas"
+          disabled
+          active-value="1"
+          inactive-value="3"
+          @change="switchChange(scope.$index,scope.row)"
+        />
       </template>
     </my-table-view>
-    <Pagination :data="paginationQuery" @refresh="pageChange" />
+    <Pagination :data="pageInfo" @refresh="pageChange" />
   </div>
 </template>
 
 <script>
+import { page } from '@/api/Admin/user-management'
 export default {
   props: {
     searchVal: {
@@ -33,11 +43,7 @@ export default {
       type: Boolean,
       default: true
     },
-    fixFlag: {
-      type: String,
-      default: ''
-    },
-    queCont: {
+    orguntId: {
       type: String,
       default: ''
     }
@@ -46,10 +52,10 @@ export default {
     return {
       loading: false,
       tableData: [],
-      selMedinsCodg: '',
-      paginationQuery: {
+      selUact: '',
+      pageInfo: {
         pageSize: 10,
-        pageNum: 1,
+        pageNumber: 1,
         total: 0,
         startRow: 0,
         endRow: 0
@@ -60,39 +66,64 @@ export default {
     columns() {
       const baseArr = [
         { type: 'index', label: '序号' },
-        { prop: 'medinsCodg', label: '用户账户' },
-        { prop: 'medinsName', label: '姓名' },
-        { prop: 'medinsCodg', label: '证件号码' },
-        { prop: 'medinsName', label: '电话号码' },
-        { prop: 'medinsName', label: '选择' }
+        { prop: 'uact', label: '用户账号' },
+        { prop: 'userName', label: '姓名' },
+        { prop: 'certNO', label: '证件号码' },
+        { prop: 'certNO', label: '办公电话' },
+        { prop: 'certNO', label: '手机号码' },
+        { prop: 'uactStas', label: '账号状态', type: 'custom', slotName: 'uactStas' },
+        { prop: 'orgName', label: '组织机构' },
+        { prop: 'dscr', label: '描述信息' }
       ]
       if (this.isInputSearch) {
         return baseArr
       } else {
-        return baseArr
+        return [
+          { type: 'custom', prop: 'select', slotName: 'select', label: '选择', width: '50px' },
+          ...baseArr
+        ]
       }
     }
   },
   methods: {
     iniSearch() {
-      this.$set(this.paginationQuery, 'pageNum', 1)
       this.search()
     },
     search() {
       const params = {
-        fixFlag: this.fixFlag,
-        queCont: this.queCont,
-        pageSize: this.paginationQuery.pageSize,
-        pageNum: this.paginationQuery.pageNum
+        orguntId: this.queryParams.orguntId,
+        pageSize: this.pageInfo.pageSize,
+        pageNumber: this.pageInfo.pageNumber,
+        total: this.pageInfo.total
       }
       if (this.isInputSearch) {
-        params.queCond = this.searchVal
+        params.fixmedinsInfo = this.searchVal
       } else {
         for (const key in this.queryParams) {
           params[key] = this.queryParams[key]
         }
       }
       this.loading = true
+      page(params).then(res => {
+        this.loading = false
+        if (res.code === 0) {
+          this.tableData = res.data.result
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.total ? res.data.total : res.data.pageSize * res.data.pageNumber
+          this.pageInfo = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount || 0,
+            startRow: num1 || 0,
+            endRow: num2 || 0
+          }
+        } else {
+          this.tableData = []
+        }
+      }).catch(() => {
+        this.loading = false
+        this.tableData = []
+      })
     },
     isSearching() {
       if (this.loading) {
@@ -107,20 +138,21 @@ export default {
       this.$set(this.paginationQuery, 'endRow', data.endRow)
     },
     pageChange(data) {
-      this.paginationQuery = data.pagination
+      this.pageInfo.pageSize = data.pagination.pageSize
+      this.pageInfo.pageNumber = data.pagination.pageNum
       this.search()
     },
     handleCurrentChange({ row, column, cell }) {
-      this.selMedinsCodg = row.medinsCodg
+      this.selUact = row.uact
       this.$emit('currentChange', row)
     },
     handleCurrentChangeSubmit(row) {
-      this.selMedinsCodg = row.medinsCodg
+      this.selUact = row.uact
       this.$emit('currentChangeSubmit', row)
     },
     reset() {
       this.loading = false
-      this.selMedinsCodg = ''
+      this.selUact = ''
       this.tableData = []
     }
   }

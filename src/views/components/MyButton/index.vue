@@ -125,7 +125,8 @@ export default {
         { icon: 'supplement', title: '补充材料', iconSvg: 'supplement', eleType: 'primary' },
         { icon: 'personnel', title: '人员', iconSvg: 'personnel', eleType: 'primary' },
         { icon: 'moveUp', title: '上移', iconSvg: 'moveUp', eleType: 'primary' },
-        { icon: 'moveDown', title: '下移', iconSvg: 'moveDown', eleType: 'primary' }
+        { icon: 'moveDown', title: '下移', iconSvg: 'moveDown', eleType: 'primary' },
+        { icon: 'select', title: '选择', iconSvg: 'select', eleType: 'primary' }
       ]
     }
   },

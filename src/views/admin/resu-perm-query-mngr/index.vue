@@ -2,7 +2,7 @@
 <template>
   <normal-layer
     :search-number="itemsDatas.length"
-    title-name="查询结果"
+    title-name="资源权限管理列表"
     title-need-handle
   >
     <template slot="search-header">
@@ -35,7 +35,19 @@
         </el-dropdown-menu>
       </el-dropdown>
     </template>
-    <resu-maintenance ref="roleMaintenance" :table-data="tableData" class="height100b" @handleSelectionChange="handleSelectionChange" />
+    <template>
+      <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+        <template slot="uactStas" slot-scope="scope">
+          <el-switch
+            v-model="scope.row.uactStas"
+            disabled
+            active-value="1"
+            inactive-value="3"
+            @change="switchChange(scope.$index,scope.row)"
+          />
+        </template>
+      </my-table-view>
+    </template>
     <Pagination :data="pageInfo" @refresh="pageChange" />
   </normal-layer>
 </template>
@@ -45,9 +57,10 @@ import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
 import userAccount from '@/views/components/PageSelects/Common/UserAccount'
-import ResuMaintenance from './resu-maintenance/index'
+// import ResuMaintenance from './resu-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
 import { page, excel } from '@/api/Admin/user-management'
+import { tableColumns } from './tableConfig'
 
 export default {
   components: {
@@ -55,7 +68,7 @@ export default {
     FormItems,
     // eslint-disable-next-line vue/no-unused-components
     userAccount,
-    ResuMaintenance,
+    // ResuMaintenance,
     MedicalInstitutionsSelect
   },
   mixins: [PageHandle],
@@ -64,10 +77,6 @@ export default {
       dataForm: {
         fixmedinsCode: '',
         fixmedinsName: '',
-        initSetlDclaNo: '',
-        fundPayType: '',
-        poolareaFundPayType: '',
-        audtDetAmt: '',
         resuCodg: '',
         resuId: ''
       },
@@ -88,7 +97,7 @@ export default {
       },
       pageInfo: {
         pageNumber: 1,
-        pageSize: 15,
+        pageSize: 100,
         startRow: 0,
         endRow: 0,
         total: 0
@@ -103,21 +112,13 @@ export default {
         { label: '组织机构', prop: 'orgName', width: '180px', align: 'left' },
         { label: '描述信息', prop: 'dscr', width: '180px', align: 'left' }
       ],
-      columns: ['用户账号', '姓名', '证件号码', '办公电话', '手机号码', '账号状态', '组织机构', '描述信息'],
+      columns: tableColumns,
+      columnsLabel: ['用户账号', '姓名', '证件号码', '办公电话', '手机号码', '账号状态', '组织机构', '描述信息'],
       columnsValue: ['uact', 'userName', 'certNO', 'tel', 'mob', 'uactStas', 'orgName', 'dscr'],
-      tableData: [],
-      showDetailDialog: false,
-      dialogTitle: '新增',
-      showEditDialog: false
+      tableData: []
     }
   },
   methods: {
-    handleSelectionChange(v) {
-      this.multipleSelection = v
-    },
-    registrationClick() {
-      this.$msgSuccess('')
-    },
     pageChange(data) {
       this.pageInfo.pageSize = data.pagination.pageSize
       this.pageInfo.pageNumber = data.pagination.pageNum
@@ -125,7 +126,7 @@ export default {
     },
     exportLocalData(type) {
       if (this.tableData.length === 0) {
-        this.$msgWarning('暂无数据导出')
+        this.$msgInfo('暂无数据导出')
         return
       }
       let arr = []
@@ -153,7 +154,7 @@ export default {
         arr = this.tableData
       } else {
         if (this.multipleSelection.length === 0) {
-          this.$msgWarning('未选择数据')
+          this.$msgInfo('未选择数据')
           return
         }
         arr = this.multipleSelection
@@ -161,7 +162,7 @@ export default {
       require.ensure([], () => {
         const { export_json_to_excel } = require('@/vendor/ExportExcel')
         // 头
-        const tHeader = this.columns.map((item) => item)
+        const tHeader = this.columnsLabel.map((item) => item)
         // 对应的属性
         const filterVal = this.columnsValue.map((item) => item)
         const data = this.formatJson(filterVal, deepClone(arr))
@@ -179,39 +180,35 @@ export default {
       }
       return jsonData.map((v) => filterVal.map((j) => v[j]))
     },
-    handleHeadData() {
-      const newColums = []
-      this.columns.map((item) => {
-        if (this.exportForm.field.includes(item.prop)) {
-          newColums.push(item)
-        }
-      })
-      return newColums
-    },
     search() {
-      const form = {
-        resuName: this.dataForm.fixmedinsName,
-        admrolId: 'adminRoleId',
-        resuCodg: this.dataForm.resuCodg,
-        resuId: this.dataForm.resuId
-      }
-      for (const i in this.queryForm) {
-        if (this.queryForm[i] === '') {
-          delete this.queryForm[i]
+      if (this.dataForm.fixmedinsName === '') {
+        this.$msgInfo('请先选择菜单再执行查询！')
+        return
+      } else {
+        const form = {
+          resuName: this.dataForm.fixmedinsName,
+          admrolId: 'adminRoleId',
+          resuCodg: this.dataForm.resuCodg,
+          resuId: this.dataForm.resuId
         }
-      }
-      page(Object.assign(this.pageInfo, form, this.queryForm)).then(res => {
-        this.tableData = res.data.result
-        const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
-        const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
-        this.pageInfo = {
-          pageSize: res.data.pageSize,
-          pageNumber: res.data.pageNumber,
-          total: res.data.recordCount,
-          startRow: num1,
-          endRow: num2
+        for (const i in this.queryForm) {
+          if (this.queryForm[i] === '') {
+            delete this.queryForm[i]
+          }
         }
-      })
+        page(Object.assign(this.pageInfo, form, this.queryForm)).then(res => {
+          this.tableData = res.data.result
+          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
+          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
+          this.pageInfo = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.recordCount,
+            startRow: num1,
+            endRow: num2
+          }
+        })
+      }
     },
     getFixmedins(val) {
       this.dataForm.resuId = val.resuId

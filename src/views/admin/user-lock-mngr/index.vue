@@ -7,29 +7,22 @@
  -->
 <template>
   <!-- 账号解锁查询 -->
-  <div class="item2 user-lock">
-    <normal-layer :search-number="itemsDatas.length">
-      <template slot="search-header">
-        <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
-          <div>
-            <MyButton type="reset" @click="reset" />
-            <MyButton type="search" @click="iniSearch" />
-          </div>
-        </FormItems>
+  <normal-layer :search-number="itemsDatas.length" title-name="用户解锁列表">
+    <template slot="search-header">
+      <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
+        <div>
+          <MyButton type="reset" @click="reset" />
+          <MyButton type="search" @click="iniSearch" />
+        </div>
+      </FormItems>
+    </template>
+    <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+      <template slot="operation" slot-scope="scope">
+        <MyButton icon="edit" title="解锁" @click.stop="unlock(scope.row)" />
       </template>
-      <div slot="table-title" class="box-header">
-        <span class="box-title">子系统列表</span>
-      </div>
-      <template>
-        <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
-          <template slot="operation" slot-scope="scope">
-            <MyButton icon="edit" title="解锁" @click.stop="unlock(scope.row)" />
-          </template>
-        </my-table-view>
-        <Pagination :data="pageInfo" @refresh="pageChange" />
-      </template>
-    </normal-layer>
-  </div>
+    </my-table-view>
+    <Pagination :data="pageInfo" @refresh="pageChange" />
+  </normal-layer>
 </template>
 <script>
 import pageHandle from '@/mixins/pageHandle'
@@ -47,7 +40,6 @@ export default {
   props: {},
   data() {
     return {
-      disabledAll: true,
       pageInfo: {
         pageNumber: 1,
         pageSize: 15,

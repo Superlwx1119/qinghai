@@ -16,16 +16,14 @@
       }"
       :disabled="disabled"
     >
-      <Table ref="tableElm" style="margin-top: 10px" :fix-flag="fixFlag" :que-cont="queCont" :search-val="inputVal" @currentChange="tableSelChange" />
-
+      <Table ref="tableElm" style="margin-top: 10px" :search-val="inputVal" @currentChange="tableSelChange" />
       <div slot="reference" class="address-multiple-select-box">
         <el-input ref="reference" v-model="inputVal" :disabled="disabled" placeholder="双击选择菜单后查询" clearable @input="inputChangeEvent" @clear="clearClick" @blur="blurChange" @focus="focusInput">
           <el-button slot="append" :disabled="disabled || inputVal.length > 0" icon="el-icon-search" @click="searchClick" />
         </el-input>
       </div>
     </el-popover>
-
-    <search-dialog v-model="searchDialogVisible" :dialog-title="dialogTitle" :fix-flag="fixFlag" :que-cont="queCont" @selFinish="tableSelChange" />
+    <search-dialog v-model="searchDialogVisible" :dialog-title="dialogTitle" @selFinish="tableSelChange" />
   </div>
 </template>
 
@@ -36,7 +34,7 @@ import emitter from 'element-ui/lib/mixins/emitter'
 import PageHandle from '@/mixins/pageHandle'
 import Table from './table'
 // import { adminRoleId } from '@/api/Admin/user-management'
-import { unit } from '@/api/Common/Request'
+// import { unit } from '@/api/Common/Request'
 // 获取用户账户
 export default {
   components: {
@@ -70,14 +68,6 @@ export default {
       type: Boolean,
       default: false
     },
-    fixFlag: { // 定点标志（0：非定点，1：定点）必填项
-      type: String,
-      default: '1'
-    },
-    queCont: { // 查询内容（1：机构，2：药店）必填项
-      type: String,
-      default: '1'
-    },
     appendToBody: {
       type: Boolean,
       default: true
@@ -86,8 +76,8 @@ export default {
       type: Object,
       default: () => {
         return {
-          keyValue: 'medinsCodg',
-          keyName: 'medinsName'
+          keyValue: 'certNO',
+          keyName: 'uact'
         }
       }
     },
@@ -145,7 +135,6 @@ export default {
     }
   },
   created() {
-    this.adminRoleIdl()
   },
   mounted() {
     on(document, 'click', this.handleDocumentClick)
@@ -154,16 +143,6 @@ export default {
     off(document, 'click', this.handleDocumentClick)
   },
   methods: {
-    // 用户查询  --yt
-    adminRoleIdl() {
-      this.orgUntId = sessionStorage.getItem('orgUntId')
-      this.unitSelect(this.orgUntId)
-    },
-    unitSelect(parames) {
-      unit(parames).then(res => {
-        console.log(res)
-      }).catch(err => console.log(err))
-    },
     blurChange() {
       if (this.visible) return
       this.inputVal = this.currentSelName
@@ -203,28 +182,29 @@ export default {
       }
     },
     tableSelChange(val) {
-      this.currentSelName = val.medinsName
+      console.log(val)
+      this.currentSelName = val.uact
       if (this.bindType === 'code') {
         this.isSelFinish = true
-        this.$emit('change', val.medinsCodg)
+        this.$emit('change', val.certNO)
         this.$emit('changeObj', val)
         this.$nextTick(() => {
-          this.inputVal = val.medinsName
+          this.inputVal = val.uact
         })
       } else if (this.bindType === 'name') {
-        this.$emit('change', val.medinsName)
+        this.$emit('change', val.uact)
         this.$emit('changeObj', val)
-        this.inputVal = val.medinsName
+        this.inputVal = val.uact
       } else if (this.bindType === 'object') {
         this.isSelFinish = true
         const obj = {
           ...val,
-          [this.keyObj.keyValue]: val.medinsCodg,
-          [this.keyObj.keyName]: val.medinsName
+          [this.keyObj.keyValue]: val.certNO,
+          [this.keyObj.keyName]: val.uact
         }
         this.$emit('change', obj)
         this.$emit('changeObj', obj)
-        this.inputVal = val.medinsName
+        this.inputVal = val.uact
       }
       this.visible = false
       this.searchDialogVisible = false

@@ -1,5 +1,5 @@
 export default [
-  // { type: 'selection' },
+  { type: 'selection' },
   { type: 'index', label: '序号', width: '50' },
   { prop: 'uact', label: '用户账号' },
   { prop: 'userName', label: '姓名' },

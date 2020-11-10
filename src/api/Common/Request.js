@@ -126,3 +126,13 @@ export function queryBankBasInfo(data) {
     data
   })
 }
+/**
+ * 导出数据
+ *
+ */
+export function exportAll() {
+  return request({
+    url: api.exportAll,
+    method: 'get'
+  })
+}

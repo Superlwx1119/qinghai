@@ -106,6 +106,9 @@ export default {
   },
   // 用户权限管理
   userPrivilege: {
-    // http://172.18.50.100:20001/ips/admin/web/secRole/units/10006763/sub
+    sub: ips + '/admin/web/secRole/units/-1/sub', // 获取组织机构,
+    one: ips + '/admin/web/busiRole/list/user', // 查询外面的表格数据
+    anotherOne: ips + '/admin/web/secRole/uactId', // 查询外面的表格数据
+    rolePermissions: ips + '/admin/web/secRole/tree/resource' // 查询角色权限信息
   }
 }

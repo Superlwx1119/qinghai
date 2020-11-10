@@ -7,65 +7,75 @@
  -->
 <template>
   <!-- 资源变更 -->
-  <div class="item4 item-role-per">
-    <normal-layer :search-number="itemsDatas.length">
-      <template slot="search-header">
-        <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :rules="rules">
-          <template slot="chgType">
-            <el-select v-model="queryForm.chgType" placeholder="请选择" style="width:100%" clearable>
-              <el-option
-                v-for="item in chgTypeList"
-                :key="item.value"
-                :label="item.name"
-                :value="item.value"
-              />
-            </el-select>
-          </template>
-          <template slot="daterange">
-            <el-date-picker
-              v-model="queryForm.daterange"
-              :unlink-panels="true"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              style="width:100%"
-              value-format="yyyy/MM/dd"
+  <normal-layer :search-number="itemsDatas.length" title-name="资源变更列表" title-need-handle>
+    <template slot="search-header">
+      <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :rules="rules">
+        <template slot="chgType">
+          <el-select v-model="queryForm.chgType" placeholder="请选择" style="width:100%" clearable>
+            <el-option
+              v-for="item in chgTypeList"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
             />
-          </template>
-          <div>
-            <MyButton type="reset" @click="reset" />
-            <MyButton type="search" @click="iniSearch" />
-          </div>
-        </FormItems>
+          </el-select>
+        </template>
+        <template slot="daterange">
+          <el-date-picker
+            v-model="queryForm.daterange"
+            :unlink-panels="true"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            style="width:100%"
+            value-format="yyyy/MM/dd"
+          />
+        </template>
+        <div>
+          <MyButton type="reset" @click="reset" />
+          <MyButton type="search" @click="iniSearch" />
+        </div>
+      </FormItems>
+    </template>
+    <template slot="title-btns">
+      <el-dropdown @command="exportLocalData">
+        <my-button type="primary">
+          导出
+          <i
+            class="el-icon-arrow-down el-icon--right"
+          />
+        </my-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="select">导出选中</el-dropdown-item>
+          <el-dropdown-item command="current">导出当页</el-dropdown-item>
+          <el-dropdown-item command="all">导出全部</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </template>
+    <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+      <template slot="resuType" slot-scope="scope">
+        {{ scope.row.resuType | fliterResuType }}
       </template>
-      <div slot="table-title" class="box-header">
-        <span class="box-title">子系统列表</span>
-      </div>
-      <template>
-        <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
-          <template slot="resuType" slot-scope="scope">
-            {{ scope.row.resuType | fliterResuType }}
-          </template>
-          <template slot="chgType" slot-scope="scope">
-            {{ scope.row.chgType | fliterchgType }}
-          </template>
-          <template slot="optTime" slot-scope="scope">
-            {{ scope.row.optTime | parseTime }}
-          </template>
-        </my-table-view>
-        <Pagination :data="pageInfo" @refresh="pageChange" />
+      <template slot="chgType" slot-scope="scope">
+        {{ scope.row.chgType | fliterchgType }}
       </template>
-    </normal-layer>
-  </div>
+      <template slot="optTime" slot-scope="scope">
+        {{ scope.row.optTime | parseTime }}
+      </template>
+    </my-table-view>
+    <Pagination :data="pageInfo" @refresh="pageChange" />
+  </normal-layer>
 </template>
 <script>
+import { deepClone } from '@/utils/index'
 import pageHandle from '@/mixins/pageHandle'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import { tableColumns } from './tableConfig'
 import ApiObj from '@/api/Admin/user-management'
 import moment from 'moment'
+import { excel } from '@/api/Admin/user-management'
 import {
   mapGetters
 } from 'vuex'
@@ -123,7 +133,17 @@ export default {
       tableData: [],
       loading: false,
       chgTypeList: [],
-      columns: tableColumns
+      columns: tableColumns,
+      columnsLabel: ['资源名称', '资源类型', '资源路径', '变更类型', '经办人', '经办时间'],
+      columnsValue: ['resuName', 'resuType', 'resuPath', 'chgType', 'opterName', 'optTime'],
+      excelCol: [
+        { label: '资源名称', prop: 'resuName', width: '180px', align: 'left' },
+        { label: '资源类型', prop: 'resuType', width: '180px', align: 'left' },
+        { label: '资源路径', prop: 'resuPath', width: '180px', align: 'left' },
+        { label: '变更类型', prop: 'chgType', width: '180px', align: 'left' },
+        { label: '经办人', prop: 'opterName', width: '180px', align: 'left' },
+        { label: '经办时间', prop: 'optTime', width: '180px', align: 'left' }
+      ]
     }
   },
   computed: {
@@ -175,6 +195,75 @@ export default {
       this.pageInfo.pageSize = data.pagination.pageSize
       this.pageInfo.pageNumber = data.pagination.pageNum
       this.search()
+    },
+    exportLocalData(type) {
+      if (this.tableData.length === 0) {
+        this.$msgInfo('暂无数据导出')
+        return
+      }
+      let arr = []
+      if (type === 'all') {
+        // 接口
+        excel({ params: { params: { pageNumber: 1, pageSize: this.pageInfo.total }, url: '/web/user/page/?' + '&pageNumber=1&pageSize=' + this.pageInfo.total, bizReqBody: {}, method: 'GET', cols: this.excelCol }}).then(response => {
+          var blob = new Blob([response.data], { type: 'application/octet-stream' })
+          if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, '资源变更信息.xlsx')
+          } else {
+            var downloadElement = document.createElement('a')
+            var href = window.URL.createObjectURL(blob) // 创建下载的链接
+            downloadElement.href = href
+            downloadElement.download = '资源变更信息.xlsx' // 下载后文件名
+            document.body.appendChild(downloadElement)
+            downloadElement.click() // 点击下载
+            document.body.removeChild(downloadElement) // 下载完成移除元素
+            window.URL.revokeObjectURL(href) // 释放掉blob对象
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+        return
+      } else if (type === 'current') {
+        arr = this.tableData
+      } else {
+        if (this.multipleSelection.length === 0) {
+          this.$msgInfo('未选择数据')
+          return
+        }
+        arr = this.multipleSelection
+      }
+      require.ensure([], () => {
+        const { export_json_to_excel } = require('@/vendor/ExportExcel')
+        // 头
+        const tHeader = this.columnsLabel.map((item) => item)
+        // 对应的属性
+        const filterVal = this.columnsValue.map((item) => item)
+        const data = this.formatJson(filterVal, deepClone(arr))
+        export_json_to_excel(tHeader, data, '资源变更信息')
+      })
+    },
+    // 格式化数据
+    formatJson(filterVal, jsonData) {
+      for (const i in jsonData) {
+        if (jsonData[i].resuType === '1') {
+          jsonData[i].resuType = '菜单'
+        } else if (jsonData[i].resuType === '2') {
+          jsonData[i].resuType = 'api'
+        } else if (jsonData[i].resuType === '3') {
+          jsonData[i].resuType = '工作台组件'
+        } else if (jsonData[i].resuType === '4') {
+          jsonData[i].resuType = '功能'
+        } else if (jsonData[i].resuType === '5') {
+          jsonData[i].resuType = '基础功能'
+        }
+        if (jsonData[i].chgType === '1') {
+          jsonData[i].chgType = '新增'
+        } else if (jsonData[i].chgType === '2') {
+          jsonData[i].chgType = '删除'
+        } else {
+          jsonData[i].chgType = '修改'
+        }
+      }
+      return jsonData.map((v) => filterVal.map((j) => v[j]))
     }
   }
 }

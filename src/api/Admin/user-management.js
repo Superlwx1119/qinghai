@@ -11,7 +11,7 @@ export function page(params) {
 // 导出数据
 export function excel(params) {
   return fileService({
-    url: ApiUrl.userManagement.excel + '/' + params.resuName,
+    url: ApiUrl.userManagement.excel + '/' + params,
     responseType: 'blob',
     headers: {
       Accept: 'application/json',
@@ -594,6 +594,52 @@ export function loginPage(params) {
     params: params
   })
 }
+
+/**
+ * 查询组织机构
+ * @param id
+ */
+export function sub(id) {
+  return request({
+    url: ApiUrl.userPrivilege.sub,
+    method: 'get'
+  })
+}
+
+/**
+ * 查询外面表格的数据
+ * @param params
+ */
+export function one(params) {
+  return request({
+    url: ApiUrl.userPrivilege.one + '/' + params,
+    method: 'get'
+  })
+}
+
+/**
+ * 查询外面表格的数据
+ * @param params
+ */
+export function anotherOne(params) {
+  return request({
+    url: ApiUrl.userPrivilege.anotherOne + '/' + params,
+    method: 'get'
+  })
+}
+
+/**
+ * 查询角色权限信息
+ *
+ */
+export function rolePermissions(params) {
+  return request({
+    url: ApiUrl.userPrivilege.rolePermissions,
+    method: 'get',
+    params: params
+  })
+}
+
 export default {
   resuChgPage,
   delMenu,

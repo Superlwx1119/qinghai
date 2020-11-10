@@ -8,5 +8,6 @@ export default {
   sysAll: ips + '/admin/web/subsys/sysSubsysD/sysAll', // 查询子系统
   getCurrentUser: ips + '/admin/web/getCurrentUser', // 查询登录信息
   current: ips + '/admin/web/user/current', // current
-  admdvs: ips + '/admin/web/admdvs/tree' // 医保区划
+  admdvs: ips + '/admin/web/admdvs/tree', // 医保区划
+  exportAll: ips + '/admin/ui/'
 }

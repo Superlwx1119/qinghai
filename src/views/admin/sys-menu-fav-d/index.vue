@@ -138,8 +138,7 @@ export default {
       },
       columns: tableColumns,
       tableData: [],
-      loading: false,
-      options: []
+      loading: false
     }
   },
   computed: {
@@ -157,23 +156,6 @@ export default {
     // 查询
     search() {
       this.getSysMenuFavD()
-    },
-    // 子系统过滤器
-    subsysFormat(row, column) {
-      const subsysId = row[column.property]
-      if (!subsysId) {
-        return '--'
-      }
-      let sysName = ''
-      this.subsysList.forEach(element => {
-        if (element.subsysId === subsysId) {
-          sysName = element.subsysName
-        }
-      })
-      if (!sysName) {
-        sysName = subsysId
-      }
-      return sysName
     },
     // 切换获取子系统id
     getSubsys(data) {

@@ -10,10 +10,9 @@
   >
     <div class="header-box">
       <form-items
-        ref="ruleFrom"
-        class="ruleFrom"
+        ref="dataForm"
         :is-grid="false"
-        :items-datas="formItemsDatas"
+        :items-datas="itemsDatas"
         :form-datas="dataForm"
       >
         <my-button type="reset" title="重置" @click="reset" />
@@ -24,13 +23,10 @@
     <Table
       ref="tableRef"
       :is-input-search="false"
-      :fix-flag="fixFlag"
-      :que-cont="queCont"
       :query-params="dataForm"
       @currentChange="tableSelChange"
       @currentChangeSubmit="currentChangeSubmit"
     />
-
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">取消</el-button>
       <el-button type="primary" :disabled="!currentRow" @click="submit">确认</el-button>
@@ -40,15 +36,18 @@
 </template>
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
+import PageHandle from '@/mixins/pageHandle'
 import Table from './table'
+import { mapGetters } from 'vuex'
 // 获取列表
 // eslint-disable-next-line no-unused-vars
-import { page } from '@/api/Admin/user-management'
+
 export default {
   components: {
     FormItems,
     Table
   },
+  mixins: [PageHandle],
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
@@ -61,37 +60,40 @@ export default {
     dialogTitle: {
       type: String,
       default: ''
-    },
-    fixFlag: { // 定点标志（0：非定点，1：定点）
-      type: String,
-      default: ''
-    },
-    queCont: { // 查询内容（1：机构，2：药店）
-      type: String,
-      default: ''
     }
   },
   data() {
     return {
       titleShow: '选择用户',
       sureLoading: false,
-      formItemsDatas: [
+      itemsDatas: [
         { label: '用户账户', prop: 'uact', type: 'input' },
         { label: '姓名', prop: 'userName', type: 'input' },
         { label: '证件号码', prop: 'certNO', type: 'input' },
-        { label: '账户状态', prop: 'uactStas', type: 'select', options: [{ label: '0', value: '冻结' }, { label: '2', value: '正常' }, { label: '3', value: '已停用' }] },
-        { label: '组织机构', prop: 'orguntid', type: 'codeTable', codeKey: 'OUT_TYPE' }
+        { label: '账号状态', prop: 'uactStas', type: 'select', options: [], clearable: false },
+        { label: '组织机构', prop: 'orguntId', type: 'component', componentName: 'OrgaUnit', folder: 'Common' }
       ],
       dataForm: {
-        medinsCodg: '',
-        medinsName: '',
-        instisLv: '',
-        outFlag: ''
+        uact: '',
+        userName: '',
+        certNO: '',
+        uactStas: '',
+        orguntId: ''
       },
-      currentRow: null
+      currentRow: null,
+      pageInfo: {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        startRow: 0,
+        endRow: 0
+      }
     }
   },
   computed: {
+    ...mapGetters([
+      'publicCode'
+    ])
   },
   watch: {
     isDialogVisible(newVal) {
@@ -101,19 +103,12 @@ export default {
     }
   },
   created() {
+    this.$set(this.itemsDatas[3], 'options', this.publicCode.codes.UACT_STAS)
   },
   methods: {
-    reset() {
-      this.dataForm = {
-        medinsCodg: '',
-        medinsName: '',
-        instisLv: ''
-      }
-    },
     search() {
-      page().then(res => {
-        console.log(res)
-        this.formItemsDatas = res.data.result
+      this.$nextTick(() => {
+        this.$refs.tableRef.iniSearch()
       })
     },
     resetForm() {

@@ -2,20 +2,16 @@
 <template>
   <normal-layer
     :search-number="itemsDatas.length"
-    title-name="查询结果"
-    title-need-handle
   >
     <template slot="search-header">
       <form-items
         :items-datas="itemsDatas"
         :form-datas="queryForm"
       >
-        <template slot="fixmedinsCode">
+        <template slot="uact">
           <medical-institutions-select
-            v-model="dataForm.fixmedinsCode"
+            v-model="queryForm.uact"
             dialog-title="xxx"
-            :fix-flag="fixFlag"
-            :que-cont="queCont"
             @changeObj="getFixmedins"
           />
         </template>
@@ -31,7 +27,7 @@
         <section class="layer height100b">
           <div class="box height100b">
             <div class="box-header handle">
-              <span class="box-title">角色信息</span>
+              <span class="box-title">用户权限管理列表</span>
               <div class="box-tools">
                 <el-form :inline="true">
                   <el-dropdown>
@@ -47,30 +43,42 @@
                 </el-form>
               </div>
             </div>
-            <role-maintenance
-              ref="roleMaintenance"
-            />
+            <my-table-view v-loading="loading" :columns="columns" :data="tableData" :have-expand="false" :max-cloumns="100" :is-configheader="false" :multiple-selection.sync="multipleSelection">
+              <template slot="valiFlag" slot-scope="scope">
+                {{ scope.row.valiFlag | fliterroleType }}
+              </template>
+            </my-table-view>
           </div>
         </section>
       </el-col>
-      <el-col :span="12">
-        <div class="box">
-          <div class="box-header handle">
-            <span class="box-title">角色权限信息</span>
+      <el-col :span="12" class="height100b">
+        <section class="layer height100b">
+          <div class="box height100c">
+            <div class="box-header handle">
+              <span class="box-title">角色权限信息</span>
+            </div>
+            <el-select
+              v-model="filterText"
+              placeholder="输入关键字进行过滤"
+              style="width:100%"
+              @change="changeEvent()"
+            >
+              <el-option
+                v-for="item in newArr"
+                :key="item.bizRoleId"
+                :label="item.roleName"
+                :value="item.bizRoleId"
+              />
+            </el-select>
+            <el-tree
+              ref="tree"
+              class="filter-tree"
+              :data="roleList"
+              :props="defaultProps"
+              :default-expand-all="false"
+            />
           </div>
-          <el-input
-            v-model="filterText"
-            placeholder="输入关键字进行过滤"
-          />
-          <el-tree
-            ref="tree"
-            class="filter-tree"
-            :data="data"
-            :props="defaultProps"
-            default-expand-all
-            :filter-node-method="filterNode"
-          />
-        </div>
+        </section>
       </el-col>
     </el-row>
   </normal-layer>
@@ -80,14 +88,14 @@
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import FormItems from '@/views/components/PageLayers/form-items'
 import PageHandle from '@/mixins/pageHandle'
-import RoleMaintenance from './role-maintenance/index'
 import MedicalInstitutionsSelect from './MedicalInstitutionsSelect'
 // 获取用户账户
 import { getCurrentUser } from '@/api/Common/Request'
-import moment from 'moment'
+import { tableColumns } from './tableConfig'
+import { one, anotherOne, rolePermissions } from '@/api/Admin/user-management'
+
 export default {
   components: {
-    RoleMaintenance,
     NormalLayer,
     FormItems,
     MedicalInstitutionsSelect
@@ -97,82 +105,40 @@ export default {
   data() {
     return {
       filterText: '',
-      data: [{
-        id: 1,
-        label: '一级 1',
-        children: [{
-          id: 4,
-          label: '二级 1-1',
-          children: [{
-            id: 9,
-            label: '三级 1-1-1'
-          }, {
-            id: 10,
-            label: '三级 1-1-2'
-          }]
-        }]
+      roleList: [{
+        name: '菜单列表',
+        children: []
       }, {
-        id: 2,
-        label: '一级 2',
-        children: [{
-          id: 5,
-          label: '二级 2-1'
-        }, {
-          id: 6,
-          label: '二级 2-2'
-        }]
-      }, {
-        id: 3,
-        label: '一级 3',
-        children: [{
-          id: 7,
-          label: '二级 3-1'
-        }, {
-          id: 8,
-          label: '二级 3-2'
-        }]
+        name: '组件',
+        children: []
       }],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'name'
       },
-      dataForm: {
-        fixmedinsCode: '',
-        fixmedinsName: '',
-        initSetlDclaNo: '',
-        fundPayType: '',
-        poolareaFundPayType: '',
-        audtDetAmt: '',
-        audtDetDscr: '',
-        audtDetSouc: ''
-      },
-      fixFlag: '1',
-      queCont: '1',
       loading: false,
       multipleSelection: [],
       itemsDatas: [
-        { label: '用户账号', prop: 'fixmedinsCode', type: 'custom', slotName: 'fixmedinsCode' },
-        { label: '姓名', prop: 'xxx', type: 'input', disabled: true },
-        { label: '证件号码', prop: 'xxx', type: 'input', disabled: true }
+        { label: '用户账号', prop: 'uact', type: 'custom', slotName: 'uact' },
+        { label: '姓名', prop: 'userName', type: 'input', disabled: true },
+        { label: '证件号码', prop: 'certNO', type: 'input', disabled: true }
       ],
       queryForm: {
-        xxx: '',
-        xxx1: '123',
-        dateRange: [
-          moment().startOf('month').format('YYYY-MM-DD'),
-          moment().endOf('month').format('YYYY-MM-DD')
-        ]
+        uact: '',
+        userName: '',
+        certNO: '',
+        roleId: '',
+        authType: '',
+        resuType: '',
+        uactId: ''
       },
-      columns: [],
       showDetailDialog: false,
       dialogTitle: '新增',
       showEditDialog: false,
-      value: ''
-    }
-  },
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val)
+      value: '',
+      columns: tableColumns,
+      tableData: [],
+      newArr: []
     }
   },
   created() {
@@ -204,9 +170,75 @@ export default {
       this.$msgSuccess('')
     },
     getFixmedins(val) {
-      this.dataForm.fixmedinsCode = val.medinsCodg
-      this.dataForm.fixmedinsName = val.medinsName
-      this.dataForm.fixmedinsType = val.medinsName
+      this.queryForm.uact = val.uact
+      this.queryForm.userName = val.userName
+      this.queryForm.certNO = val.certNO
+      this.queryForm.roleId = val.roleId
+      this.queryForm.authType = val.authType
+      this.queryForm.resuType = val.resuType
+      this.queryForm.uactId = val.uactId
+      this.search()
+    },
+    async search() {
+      if (this.tableData.length !== 0) {
+        this.$msgInfo('请勿重复查询重复数据！')
+        return false
+      } else {
+        await anotherOne(this.queryForm.uactId).then(res => {
+          if (res.data) {
+            this.tableData.push(res.data)
+            this.newArr.push({ bizRoleId: res.data.admrolId, roleName: res.data.roleName })
+          }
+        })
+        await one(this.queryForm.uactId).then(res => {
+          if (res.data) {
+            for (let i = 0; i < res.data.length; i++) {
+              var newObj = {
+                roleName: res.data[i].roleName,
+                valiFlag: res.data[i].valiFlag,
+                dscr: res.data[i].dscr
+              }
+              this.tableData.push(newObj)
+            }
+            res.data.forEach(ele => {
+              this.newArr.push({ bizRoleId: ele.bizRoleId, roleName: ele.roleName })
+              this.filterText = this.newArr[0].bizRoleId
+            })
+            this.changeEvent(this.newArr.bizRoleId)
+          }
+        })
+      }
+    },
+    changeEvent(filterText) {
+      this.roleList = [{
+        name: '菜单列表',
+        children: []
+      }, {
+        name: '组件',
+        children: []
+      }]
+      const params = {
+        roleId: this.filterText,
+        authType: 2,
+        resuType: 1
+      }
+      rolePermissions(params).then(res => {
+        if (res.data) {
+          // this.roleList = res.data
+          const menuList = res.data.filter(item => {
+            return item.parentId === '-1'
+          })
+          const propList = res.data.filter(item => {
+            return item.parentId === '0'
+          })
+          menuList.forEach(item => {
+            this.roleList[0].children.push(item)
+          })
+          propList.forEach(item => {
+            this.roleList[1].children.push(item)
+          })
+        }
+      })
     }
   }
 }
@@ -215,6 +247,10 @@ export default {
 <style scoped lang="scss">
 .height100b{
       height: 100%;
+  }
+  .height100c{
+    height: 100%;
+    overflow: scroll;
   }
   .el-dropdown {
     vertical-align: top;
