@@ -78,6 +78,7 @@ import { tableColumns } from './tableConfig'
 import ApiObj from '@/api/Admin/user-management'
 import moment from 'moment'
 import { excel } from '@/api/Admin/user-management'
+import { parseTime } from '@/filters/index'
 import {
   mapGetters
 } from 'vuex'
@@ -253,6 +254,8 @@ export default {
         } else if (jsonData[i].lginSuccFlag === '1') {
           jsonData[i].lginSuccFlag = '成功'
         }
+        jsonData[i].lginTime = parseTime(jsonData[i].lginTime)
+        jsonData[i].loutTime = parseTime(jsonData[i].loutTime)
       }
       return jsonData.map((v) => filterVal.map((j) => v[j]))
     }

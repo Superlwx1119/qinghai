@@ -86,6 +86,7 @@ import { tableColumns } from './tableConfig'
 import ApiObj from '@/api/Admin/user-management'
 import moment from 'moment'
 import { excel } from '@/api/Admin/user-management'
+import { parseTime } from '@/filters/index'
 import {
   mapGetters
 } from 'vuex'
@@ -286,6 +287,7 @@ export default {
         } else {
           jsonData[i].chgType = '修改'
         }
+        jsonData[i].optTime = parseTime(jsonData[i].optTime)
       }
       return jsonData.map((v) => filterVal.map((j) => v[j]))
     }
