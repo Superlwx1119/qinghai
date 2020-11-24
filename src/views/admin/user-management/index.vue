@@ -210,14 +210,15 @@ export default {
       if (type === 'all') {
         // 接口
         excel({ params: { params: { pageNumber: 1, pageSize: this.pageInfo.total }, url: '/web/user/page/?' + '&pageNumber=1&pageSize=' + this.pageInfo.total, bizReqBody: {}, method: 'GET', cols: this.excelCol }}).then(response => {
-          var blob = new Blob([response.data], { type: 'application/octet-stream' })
+          console.log(response)
+          var blob = new Blob([response], { type: 'application/octet-stream' })
           if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, '账号信息.xlsx')
+            window.navigator.msSaveOrOpenBlob(blob, '用户信息.xlsx')
           } else {
             var downloadElement = document.createElement('a')
             var href = window.URL.createObjectURL(blob) // 创建下载的链接
             downloadElement.href = href
-            downloadElement.download = '账号信息.xlsx' // 下载后文件名
+            downloadElement.download = '用户信息.xlsx' // 下载后文件名
             document.body.appendChild(downloadElement)
             downloadElement.click() // 点击下载
             document.body.removeChild(downloadElement) // 下载完成移除元素
@@ -283,5 +284,7 @@ export default {
 </script>
 
 <style lang="scss">
-
+.el-dropdown{
+  margin-left: 10px;
+}
 </style>

@@ -45,8 +45,6 @@
           </div>
         </el-col>
         <el-col :span="18">
-          <!-- <div class="box handle-resoure">
-            <div class="box-body height100b"> -->
           <el-tabs v-show="resuTypeTag==='3'" class="height100b" type="border-card">
             <el-tab-pane label="组件" class="height100b">
               <MenuMaintenanceAPI ref="menuMaintenanceAPI" class="height100b" @refreshTree="refreshTree" />
@@ -59,8 +57,6 @@
             </el-tab-pane>
             <el-tab-pane label="功能" class="height100b"> <function-list ref="functionList" class="height100b" /></el-tab-pane>
           </el-tabs>
-          <!-- </div>
-          </div> -->
         </el-col>
       </el-row>
     </section>
@@ -306,7 +302,6 @@ export default {
     },
     // 添加
     append(data) {
-      console.log(data.data, ';;;;')
       if (data.name === '菜单列表' || (data.data && data.data.resuType === '1')) {
         const newChild = {
           name: '新增菜单',
