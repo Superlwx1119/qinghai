@@ -336,7 +336,6 @@ export default {
     },
     registerComponent(expand) {
       var url = expand.moduleType + '/' + expand.name
-      debugger
       return import('@/views/' + url + '.vue').then((component) => {
         return Vue.component(expand.name, component.default)
       })
@@ -384,7 +383,7 @@ export default {
     right: 1px;
     top: 1px;
     font-size: 20px;
-    z-index: 999;
+    z-index: 3;
     color: #636363;
     border-left:1px solid #E0E1E2;
     height: 44px;

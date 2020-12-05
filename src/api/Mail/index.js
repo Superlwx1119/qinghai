@@ -29,10 +29,11 @@ export function getStarEMailList() {
   })
 }
 
-export function getEMailInbox() {
+export function getEMailInbox(param) {
   return request({
     url: api.getEMailInbox,
-    method: 'get'
+    method: 'get',
+    params: param
   })
 }
 

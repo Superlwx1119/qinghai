@@ -185,7 +185,9 @@ export default {
           break
         case 2:
           this.columns = listitem1
+          console.log(param, 'parmas')
           getEMailInbox(param).then(res => {
+            console.log(res, 'ppp')
             this.tableData = res.data.result
           })
           break
