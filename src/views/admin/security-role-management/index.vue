@@ -316,42 +316,6 @@ export default {
       })
     },
     handleNodeClick(data, node) {
-      // if (this.isAdding) {
-      //   this.$confirm(`当前有新增未完成项, 是否继续?`, {
-      //     confirmButtonText: '确定',
-      //     cancelButtonText: '取消',
-      //     type: 'warning'
-      //   }).then(() => {
-      //     this.freshNode(node)
-      //     var admrolId
-      //     if (data.data) {
-      //       admrolId = data.data.admrolId
-      //       if (data.data.admrolId) {
-      //         this.$refs.functionList.setCheckedNodes(admrolId)
-      //         this.$refs.shareMenu.setCheckedNodes(admrolId)
-      //         this.$refs.organizationList.setCheckedNodes(admrolId)
-      //         this.$refs.authorizeBusirole.getRoleBusList(admrolId)
-      //         this.$refs.roleMaintenance.getRoleInfo(admrolId)
-      //         this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
-      //         this.transeferNode(node)
-      //       }
-      //     } else {
-      //       admrolId = ''
-      //       // this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
-      //       this.chearTabData()
-      //       this.$refs.roleMaintenance.getRoleInfo(admrolId)
-      //       this.transeferNode(node)
-      //     }
-      //     this.$store.commit('CHANGE_SECURITYROLEID', admrolId)
-      //     this.isAdding = false
-      //   }).catch(() => {
-      //     this.$refs.tree.setCurrentKey(null)
-      //     this.$message({
-      //       type: 'info',
-      //       message: '已取消删除'
-      //     })
-      //   })
-      // }
       this.freshNode(node)
       var admrolId
       if (data.data) {
@@ -367,7 +331,6 @@ export default {
         }
       } else {
         admrolId = ''
-        // this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
         this.chearTabData()
         this.$refs.roleMaintenance.getRoleInfo(admrolId)
         this.transeferNode(node)
@@ -425,9 +388,6 @@ export default {
 
               /deep/ .el-tree-node__content > .el-tree-node__label {
                 width: 100%;
-                // @include one-line-text
-                // word-wrap:break-word;
-                // word-break:normal;
               }
             }
           }

@@ -26,7 +26,7 @@
               </el-col>
               <el-col :md="12" :lg="8" :xl="8">
                 <el-form-item label="子系统" prop="subsysId">
-                  <el-select v-model="searchForm.subsysId" :disabled="subSysIsDisabled" placeholder="请选择" style="width:100%" clearable>
+                  <el-select v-model="searchForm.subsysId" placeholder="请选择" style="width:100%" clearable>
                     <el-option
                       v-for="item in subsysList"
                       :key="item.subsysId"
@@ -34,6 +34,13 @@
                       :value="item.subsysId"
                     />
                   </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="父级菜单" prop="resuPath">
+                  <SelectMenu v-model="searchForm.prntResuId" :props="defaultProps" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -81,12 +88,13 @@
 </template>
 
 <script>
+import SelectMenu from '@/components/SelectMenu'
 import { sysAll, sysResuD, addSysResuD, updateResu } from '@/api/Admin/user-management'
 import { mapGetters } from 'vuex'
 export default {
   name: 'ResourceManagement',
   components: {
-
+    SelectMenu
   },
   mixins: [
 
@@ -98,6 +106,12 @@ export default {
     return {
       iconList: [
       ],
+      defaultProps: {
+        parent: 'parentId', // 父级唯一标识
+        value: 'id', // 唯一标识
+        label: 'name', // 标签显示
+        children: 'children' // 子级
+      },
       // 子系统列表
       subsysList: [],
       treeLoading: false,
@@ -146,8 +160,10 @@ export default {
     addNewMenu(data) {
       this.subSysIsDisabled = false
       let prntResuId = '-1'
+      let subsysId = ''
       if (data.level !== 1 && data.level) {
         prntResuId = data.data.data.resuId
+        subsysId = data.data.data.subsysId
       }
       this.searchForm = {
         dscr: '',
@@ -155,7 +171,7 @@ export default {
         resuIcon: '',
         resuName: '新增菜单',
         resuPath: '',
-        subsysId: '',
+        subsysId: subsysId,
         parent: data.data,
         prntResuId: prntResuId,
         resuId: null,
@@ -208,8 +224,7 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
-              this.$emit('refreshTree')
-              this.$refs.searchForm.resetFields()
+              this.$emit('updateNode', this.searchForm)
             } else {
               this.$alert(`<div class="myalert-header">操作失败</div>
               <div class="myalert-content">${res.message}</div>`, {
@@ -241,7 +256,7 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
-              this.$emit('refreshTree')
+              this.$emit('updateNodeSave', res.data)
               this.$refs.searchForm.resetFields()
               this.subSysIsDisabled = true
             } else {
@@ -260,7 +275,7 @@ export default {
     },
     // 重置
     restSearch() {
-
+      this.$refs.searchForm.resetFields()
     }
 
   }

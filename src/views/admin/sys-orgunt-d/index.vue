@@ -8,9 +8,7 @@
             <div class="box-header">
               <span class="box-title">组织机构树</span>
             </div>
-            <div style="padding:0 10px;">
-              <el-input v-model="filterText" placeholder="输入关键字进行过滤" />
-            </div>
+            <el-input v-model="filterText" placeholder="输入关键字进行过滤" />
             <div
               v-loading="treeLoading"
               class="box-body"
@@ -23,6 +21,7 @@
                 :load="loadNode1"
                 :filter-node-method="filterNode"
                 :default-expanded-keys="idArr"
+                highlight-current
                 node-key="id"
                 lazy
                 @node-contextmenu="newMenu"
@@ -31,7 +30,7 @@
                 <span slot-scope="{ node }" class="custom-tree-node">
                   <svg-icon v-if="node.expanded===true&&node.isLeaf===false" icon-class="folder-open" />
                   <svg-icon v-if="node.expanded===false&&node.isLeaf===false" icon-class="folder-close" />
-                  <svg-icon v-if="node.isLeaf" icon-class="organization" /> <span>{{ node.label }}</span>
+                  <svg-icon v-if="node.isLeaf" icon-class="organization" /> <span :title="node.label">{{ node.label }}</span>
                 </span>
               </el-tree>
               <div v-show="menuShow" id="menu" class="menu-box">
@@ -51,18 +50,18 @@
           </div>
         </el-col>
         <el-col :span="18">
-          <!-- <div class="box handle-resoure">
-            <div class="box-body height100b"> -->
-          <el-tabs class="height100b" type="border-card">
-            <el-tab-pane label="机构维护" class="height100b">
-              <InstitutionalMaintenance ref="institutionalMaintenance" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
-            </el-tab-pane>
-            <el-tab-pane label="用户信息" class="height100b">
-              <UserInfo ref="UserInfo" class="height100b" />
-            </el-tab-pane>
-          </el-tabs>
-          <!-- </div>
-          </div> -->
+          <div class="box handle-resoure">
+            <div class="box-body height100b">
+              <el-tabs class="height100b" type="border-card">
+                <el-tab-pane label="机构维护" class="height100b">
+                  <InstitutionalMaintenance ref="institutionalMaintenance" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
+                </el-tab-pane>
+                <el-tab-pane label="用户信息" class="height100b">
+                  <UserInfo ref="UserInfo" class="height100b" />
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </div>
         </el-col>
       </el-row>
     </section>
@@ -74,6 +73,7 @@
 import ApiObj from '@/api/Admin/user-management'
 import InstitutionalMaintenance from './institutional-maintenance/index'
 import UserInfo from './user-info/index'
+
 export default {
   name: 'ResourceManagement',
   components: {
@@ -119,8 +119,7 @@ export default {
       this.$refs.tree.filter(val)
     }
   },
-  created() {
-  },
+  created() {},
   mounted() {
 
   },
@@ -141,69 +140,45 @@ export default {
     addNewOrg() {
       if (!this.isAdding) {
         if (!this.nodeInfo.expanded) {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${this.nodedata.name}节点，在进行新增！</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'warning'
-          })
+          this.$msgError(`请先展开${this.nodedata.name}节点，在进行新增！`)
           return
         }
         this.append(this.nodedata)
         this.isAdding = true
       } else {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">已有个新增在进行，请新增完毕之后在进行新的新增！</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'warning'
-        })
+        this.$msgWarning('已有个新增在进行，请新增完毕之后在进行新的新增！')
       }
     },
     // 删除组织机构
     removeOrg() {
       if (!this.nodeInfo.expanded) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${this.nodedata.name}节点，在进行删除操作！</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'warning'
-        })
+        this.$msgError(`请先展开${this.nodedata.name}节点，在进行删除操作！`)
         return
       }
       if (!this.nodeInfo.data.id) {
         this.remove(this.nodeInfo, this.nodedata)
         return
       }
-      ApiObj.uct(this.nodeInfo.data.id).then(res => {
-        if (res.code === 0) {
-          ApiObj.orgTree(this.nodeInfo.data.id).then(res => {
-            if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                dangerouslyUseHTMLString: true,
-                message: `<strong>操作成功</strong><p>${res.message}</p>`,
-                duration: 1000
-              })
-              this.remove(this.nodeInfo, this.nodedata)
-              this.reloadNode()
-            } else {
-              this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${res.message}节点，在进行删除操作！</div>`, {
-                dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-                type: 'warning'
-              })
-            }
-          })
-        } else {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${this.nodedata.name}节点，在进行删除操作！</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'error'
-          })
-        }
-      })
+      this.$msgConfirm(`此操作将永久删除【${this.nodeInfo.data.name}】组织机构，确认删除吗`).then(() => {
+        ApiObj.uct(this.nodeInfo.data.id).then(res => {
+          if (res.code === 0) {
+            ApiObj.orgTree(this.nodeInfo.data.id).then(res => {
+              if (res.code === 0) {
+                this.$msgSuccess(res.message)
+                this.remove(this.nodeInfo, this.nodedata)
+                this.reloadNode()
+              } else {
+                this.$msgError(`请先展开${res.message}节点，在进行删除操作！`)
+              }
+            })
+          } else {
+            this.$msgError(`请先展开${this.nodedata.name}节点，在进行删除操作！`)
+          }
+        })
+      }).catch(() => {})
     },
     // 鼠标右击触发事件
     newMenu(MouseEvent, object, Node, element) {
-      console.log(object, Node, element, '/')
       this.nodedata = object// 存当前数据
       this.nodeInfo = Node// 存当前节点信息
       this.menuShow = false // 先把模态框关死，目的是 第二次或者第n次右键鼠标的时候 它默认的是true
@@ -211,21 +186,15 @@ export default {
       var menu = document.querySelector('#menu')
       document.addEventListener('click', this.foo) // 给整个document添加监听鼠标事件，点击任何位置执行foo方法
       menu.style.display = 'block'
-      let calcWidth = 258
-      let calcHeight = 108
-      if (JSON.parse(this.$getSessionStorage('isIframe'))) {
-        calcWidth = 0
-        calcHeight = 0
-      }
-      if (MouseEvent.clientX > 305 + calcWidth) {
+      if (MouseEvent.clientX > 305) {
         menu.style.left = 305 + 'px'
       } else {
-        menu.style.left = MouseEvent.clientX - calcWidth + 'px'
+        menu.style.left = MouseEvent.clientX - 0 + 'px'
       }
       if (MouseEvent.clientY > (document.body.clientHeight - 60)) {
-        menu.style.top = document.body.clientHeight - 60 - calcHeight + 'px'
+        menu.style.top = document.body.clientHeight - 60 + 'px'
       } else {
-        menu.style.top = MouseEvent.clientY - calcHeight + 'px'
+        menu.style.top = MouseEvent.clientY + 'px'
       }
     },
     foo() { // 取消鼠标监听事件 菜单栏
@@ -234,12 +203,28 @@ export default {
     },
     // 清空节点并重新加载
     reloadNode() {
-      this.rootNode.childNodes = []
-      this.treeLoading = true
-      this.loadNode1(this.rootNode, this.rootResolve)
-      setTimeout(() => {
-        this.treeLoading = false
-      }, 600)
+      const node = this.rootNode.parent
+      this.freshNode(node)
+    },
+    freshNode(node) {
+      var theChildren = node.childNodes
+      if (node.level === 0) {
+        const params = -1 + '/sub'
+        ApiObj.units(params).then(res => {
+          if (res.code === 0) {
+            theChildren.splice(0, theChildren.length)
+            node.doCreateChildren(res.data)
+          }
+        }).catch(err => err)
+      } else {
+        const loadParams = node.data.id + '/sub'
+        ApiObj.units(loadParams).then(res => {
+          if (res.code === 0) {
+            theChildren.splice(0, theChildren.length)
+            node.doCreateChildren(res.data)
+          }
+        }).catch(err => err)
+      }
     },
     // 添加
     append(data) {
@@ -256,12 +241,9 @@ export default {
     },
     // 页面删除子节点
     remove(node, data) {
+      console.log(node, 'node')
       if (node.childNodes.length > 0) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">该机构下有子机构请先删除子机构在进行删除</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'warning'
-        })
+        this.$msgError('该机构下有子机构请先删除子机构在进行删除')
         return
       }
       const parent = node.parent
@@ -275,9 +257,9 @@ export default {
       return data.name.indexOf(value) !== -1
     },
     loadNode1(node, resolve) {
+      this.rootNode = node
+      this.rootResolve = resolve
       if (node.level === 0) {
-        this.rootNode = node
-        this.rootResolve = resolve
         const params = -1 + '/sub'
         ApiObj.units(params).then(res => {
           if (res.code === 0) {
@@ -294,7 +276,7 @@ export default {
         }).catch(err => err)
       }
     },
-    handleNodeClick(data) {
+    handleNodeClick(data, node) {
       if (data.id) {
         this.$refs.institutionalMaintenance.getMenuInfo(data.id)
         this.$refs.UserInfo.getFunctionList(data.id)
@@ -312,9 +294,7 @@ export default {
 <style scoped lang="scss">
   .sys-orgunt-d {
     height: 100%;
-  /deep/.el-tabs__content {
-        height: calc(100% - 43px);
-      }
+
     .menu-box{
       position: absolute;
       width: 94px;
@@ -326,8 +306,6 @@ export default {
         height: 26px;
         line-height: 26px;
         border-bottom: 1px solid #e6e6e6;
-        color: rgb(96, 98, 102);
-        background-color: rgb(255, 255, 255);
       }
     }
 
@@ -351,11 +329,17 @@ export default {
 
                 /deep/ .el-tree-node__content>.el-tree-node__label {
                   width: 100%;
-                  // @include one-line-text
-                  // word-wrap:break-word;
-                  // word-break:normal;
-
                 }
+                 /deep/ .custom-tree-node{
+                   width: 100%;
+                span{
+                  display: inline-block;
+                  width:70%;
+                  overflow: hidden;
+                  text-overflow:ellipsis;
+                   white-space: nowrap;
+                }
+              }
               }
             }
           }
@@ -369,6 +353,9 @@ export default {
         height: 100;
       }
 
+      /deep/.el-tabs__content {
+        height: calc(100% - 67px);
+      }
     }
 
     .height100b {

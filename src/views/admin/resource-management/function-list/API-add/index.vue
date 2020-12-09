@@ -13,7 +13,7 @@
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       :title="`${dataObj.isModify ? '修改' : '新增'}API`"
-      width="70%"
+      width="800px"
       @close="cancelDialog"
     >
       <el-form
@@ -29,7 +29,7 @@
               <el-input v-model="searchForm.resuName" placeholder="请输入" />
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="16">
             <el-form-item label="API路径" prop="resuPath">
               <el-input v-model="searchForm.resuPath" placeholder="请输入" />
             </el-form-item>

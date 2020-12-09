@@ -13,7 +13,7 @@
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       :title="`${dataObj.modify ? '修改' : '新增'}API`"
-      width="70%"
+      width="800px"
       @close="cancelDialog"
     >
       <el-form

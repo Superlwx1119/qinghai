@@ -17,11 +17,15 @@
             height="string"
             element-loading-spinner="el-loading1"
             highlight-current-row
-            style="width: 100%"
+            style="width: 100%;height:99%;"
             border
             fit
             @current-change="handleCurrentChange"
           >
+            <!-- <template slot-scope="scope">
+              <el-radio v-model="radio" label="1" />
+            </template> -->
+            <!-- <el-table-column /> -->
             <el-table-column label="序号" type="index" align="center" width="50" />
             <el-table-column prop="resuName" show-overflow-tooltip label="功能名称" align="center" />
             <el-table-column prop="resuCodg" show-overflow-tooltip label="功能编号" align="center" />
@@ -52,7 +56,7 @@
             height="string"
             element-loading-spinner="el-loading1"
             highlight-current-row
-            style="width: 100%;"
+            style="width: 100%;height:99%;"
             border
             fit
           >
@@ -270,9 +274,6 @@ export default {
     height: 50%;
   }
   .function-list{
-    /deep/.el-table{
-      height:100%;
-    }
   }
 
 </style>
