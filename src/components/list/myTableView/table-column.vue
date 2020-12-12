@@ -22,7 +22,7 @@
     :fixed="item.fixed"
   >
     <template slot-scope="scope">
-      <slot name="operation" :row="scope.row" :rowIndex="scope.$index" />
+      <slot name="operation" :row="scope.row" :rowIndex="scope.$index" :prop="item.prop || ''" />
     </template>
   </el-table-column>
 
@@ -31,15 +31,15 @@
     v-else-if="item.type == 'custom'"
     :prop="item.prop"
     :align="item.align || 'center'"
-    :sortable="item.sortable?'custom':false"
+    :sortable="item.sortable?'custom':true"
     :label="item.label || ''"
     :width="item.width || ''"
-    :min-width="item.minWidth || getCloumnMinWidth(item.label)"
+    :min-width="getCloumnMinWidth(item)"
     :show-overflow-tooltip="item.showOverflowToolTip ? true: false"
     :fixed="item.fixed"
   >
     <template slot-scope="scope">
-      <slot :name="item.slotName ? item.slotName : 'custom'" :row="scope.row" :rowIndex="scope.$index">
+      <slot :name="item.slotName ? item.slotName : 'custom'" :row="scope.row" :rowIndex="scope.$index" :prop="item.prop || ''">
         <span>{{ scope.row[item.prop] }}</span>
       </slot>
     </template>
@@ -52,9 +52,9 @@
     :prop="item.prop"
     :label="item.label || ''"
     :align="item.align || 'center'"
-    :sortable="item.sortable?'custom':false"
+    :sortable="item.sortable?'custom':true"
     :width="item.width || ''"
-    :min-width="item.minWidth || getCloumnMinWidth(item.label)"
+    :min-width="getCloumnMinWidth(item)"
     :show-overflow-tooltip="true"
     :fixed="item.fixed"
   >
@@ -66,7 +66,7 @@
       </template>
 
       <!-- normal -->
-      <span v-else>{{ scope.row[item.prop] === 0 ? '0' : scope.row[item.prop] || '--' }}</span>
+      <span v-else>{{ textHandle(scope.row[item.prop]) }}</span>
 
     </template>
   </el-table-column>
@@ -87,11 +87,25 @@ export default {
     }
   },
   methods: {
-    getCloumnMinWidth(str) { // 初略计算列最小宽度最小60px
-      if (!str) {
+    getCloumnMinWidth(item) { // 初略计算列最小宽度最小60px
+      if (item.minWidth) {
+        return item.minWidth
+      }
+      if (item.label === '证件号码') { // 特殊，证件号码
+        return '180px'
+      } else if (item.label === '证件类型') { // 特殊， 证件类型
+        return '180px'
+      } else if (!item.label) {
         return 0
       } else {
-        return str.length < 3 ? '60px' : str.length * 20 + 'px'
+        return item.label.length < 3 ? '60px' : item.label.length * 20 + 'px'
+      }
+    },
+    textHandle(text) {
+      if (typeof (text) === 'number') {
+        return text
+      } else {
+        return text || '--'
       }
     }
   }

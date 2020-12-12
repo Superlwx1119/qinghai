@@ -23,11 +23,11 @@ export default {
       const cloumnsObj = this.summaries_allCloumns.find(obj => (item.property === obj.prop && item.label === obj.label))
       const tempObj = {
         showSummary: false,
-        toFixed: 0
+        toFixed: 2
       }
       if (cloumnsObj) {
         tempObj.showSummary = cloumnsObj.showSummary || false
-        tempObj.toFixed = cloumnsObj.toFixed || 0
+        tempObj.toFixed = cloumnsObj.toFixed === 0 ? 0 : cloumnsObj.toFixed || 2
       }
       return tempObj
     },

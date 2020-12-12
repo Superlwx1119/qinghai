@@ -16,91 +16,88 @@
       width="70%"
       @close="cancelDialog(0)"
     >
-      <!-- <div class="scrollbar" style="padding-bottom:16px;">
-        <el-scrollbar> -->
-      <div style="height:400px;">
-        <section class="layer">
-          <div class="box">
-            <div class="box-header">
-              <span class="box-title">查询条件</span>
+      <div class="scrollbar" style="padding-bottom:16px;">
+        <el-scrollbar>
+          <section class="layer">
+            <div class="box">
+              <div class="box-header">
+                <span class="box-title">查询条件</span>
+              </div>
+              <div class="box-body">
+                <el-form ref="searchForm" :model="searchForm" label-width="90px">
+                  <el-row :gutter="24" style="margin-right:0!important;margin-left:0!important;">
+                    <el-col :md="12" :lg="8" :xl="6">
+                      <el-form-item label="用户账号" prop="uact">
+                        <el-input v-model="searchForm.uact" clearable placeholder="请输入" />
+                      </el-form-item>
+                    </el-col>
+                    <el-col :md="12" :lg="8" :xl="6">
+                      <el-form-item label="姓名" prop="userName">
+                        <el-input v-model="searchForm.userName" clearable placeholder="请输入" />
+                      </el-form-item>
+                    </el-col>
+                    <el-col :md="12" :lg="8" :xl="6" class="text-right right">
+                      <el-button @click="restSearch">重置</el-button>
+                      <el-button type="primary" @click="search">查询</el-button>
+                    </el-col>
+                  </el-row>
+                </el-form>
+              </div>
             </div>
-            <div class="box-body">
-              <el-form ref="searchForm" :model="searchForm" label-width="90px">
-                <el-row :gutter="24" style="margin-right:0!important;margin-left:0!important;">
-                  <el-col :md="12" :lg="8" :xl="6">
-                    <el-form-item label="用户账号" prop="uact">
-                      <el-input v-model="searchForm.uact" clearable placeholder="请输入" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :md="12" :lg="8" :xl="6">
-                    <el-form-item label="姓名" prop="userName">
-                      <el-input v-model="searchForm.userName" clearable placeholder="请输入" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :md="12" :lg="8" :xl="6" class="text-right right">
-                    <el-button @click="restSearch">重置</el-button>
-                    <el-button type="primary" @click="search">查询</el-button>
-                  </el-col>
-                </el-row>
-              </el-form>
-            </div>
-          </div>
-        </section>
-        <section class="layer" style="height:calc(100% - 116px);">
-          <div class="box">
-            <div class="box-header">
-              <span class="box-title">用户账号列表</span>
-            </div>
-            <div class="box-body">
-              <el-table
-                v-loading="userTableLoading"
-                :data="userTableData"
-                height="string"
-                element-loading-spinner="el-loading1"
-                highlight-current-row
-                style="width: 100%;height:calc(100% - 6px);"
-                border
-                fit
-                @selection-change="handleSelectionChange"
-              >
+          </section>
+          <section class="layer">
+            <div class="box">
+              <div class="box-header">
+                <span class="box-title">查询条件</span>
+              </div>
+              <div class="box-body">
+                <el-table
+                  v-loading="userTableLoading"
+                  :data="userTableData"
+                  height="string"
+                  element-loading-spinner="el-loading1"
+                  highlight-current-row
+                  style="width: 100%;height:calc(100% - 104px);"
+                  border
+                  fit
+                  @selection-change="handleSelectionChange"
                 >
-                <el-table-column type="selection" align="center" width="55" />
-                <el-table-column label="序号" type="index" align="center" width="50" />
-                <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />
-                <el-table-column prop="userName" show-overflow-tooltip label="姓名" align="center" />
-                <el-table-column prop="uactStas" show-overflow-tooltip label="账号状态" align="center">
-                  <template slot-scope="scope">
-                    <el-switch
-                      v-model="scope.row.uactStas"
-                      active-value="1"
-                      inactive-value="0"
-                      disabled
-                      @change="switchChange(scope.$index,scope.row)"
-                    />
+                  >
+                  <el-table-column type="selection" align="center" width="55" />
+                  <el-table-column label="序号" type="index" align="center" width="50" />
+                  <el-table-column prop="uact" show-overflow-tooltip label="用户账号" align="center" />
+                  <el-table-column prop="userName" show-overflow-tooltip label="姓名" align="center" />
+                  <el-table-column prop="uactStas" show-overflow-tooltip label="账号状态" align="center">
+                    <template slot-scope="scope">
+                      <el-switch
+                        v-model="scope.row.uactStas"
+                        active-value="1"
+                        inactive-value="0"
+                        disabled
+                        @change="switchChange(scope.$index,scope.row)"
+                      />
 
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="dscr" show-overflow-tooltip label="描述" align="center" />
+                </el-table>
+                <el-pagination
+                  :current-page="currentPage"
+                  :page-sizes="[15, 30, 50, 100]"
+                  :page-size="pageSize"
+                  :total="total"
+                  layout="slot, prev, pager, next, sizes, jumper"
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                >
+                  <template slot>
+                    <span class="el-pagination__total">{{ `总共${total}条 显示${startRow}-${endRow}条` }}</span>
                   </template>
-                </el-table-column>
-                <el-table-column prop="dscr" show-overflow-tooltip label="描述" align="center" />
-              </el-table>
-              <el-pagination
-                :current-page="currentPage"
-                :page-sizes="[15, 30, 50, 100]"
-                :page-size="pageSize"
-                :total="total"
-                layout="slot, prev, pager, next, sizes, jumper"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-              >
-                <template slot>
-                  <span class="el-pagination__total">{{ `总共${total}条 显示${startRow}-${endRow}条` }}</span>
-                </template>
-              </el-pagination>
+                </el-pagination>
+              </div>
             </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- </el-scrollbar></div> -->
+          </section>
+        </el-scrollbar></div>
       <span slot="footer" class="dialog-footer">
         <el-button type="" @click="cancelDialog(0)">关闭</el-button>
         <el-button type="primary" @click="submitForm('searchForm')">确定</el-button>
@@ -169,9 +166,9 @@ export default {
       ApiObj.userpage(params).then(res => {
         if (res.code === 0) {
           this.userTableData = res.data.result || res.data.data
-          this.total = res.data.recordCount
+          this.total = res.data.recordCounts
           const num1 = this.pageSize * (this.currentPage - 1) + 1
-          const num2 = this.pageSize * this.currentPage > res.data.total ? res.data.total : this.pageSize * this.currentPage
+          const num2 = this.pageSize * this.currentPage > this.total ? this.total : this.pageSize * this.currentPage
           this.startRow = num1
           this.endRow = num2
         }

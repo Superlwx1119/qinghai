@@ -12,14 +12,9 @@
         </div>
 
         <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="105px">
+          <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="125px">
             <el-row>
-              <el-col :span="16" prop="uscc">
-                <el-form-item label="统一社会信用代码">
-                  <el-input v-model="searchForm.uscc" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
+              <el-col :span="8" class="h48">
                 <el-form-item label="组织机构类型" prop="orgTypeCode">
                   <el-select v-model="searchForm.orgTypeCode" placeholder="请选择" style="width:100%" clearable>
                     <el-option
@@ -31,34 +26,34 @@
                   </el-select>
                 </el-form-item>
               </el-col>
+              <el-col :span="16" prop="uscc" class="h48">
+                <el-form-item label="统一社会信用代码">
+                  <el-input v-model="searchForm.uscc" clearable placeholder="请输入" />
+                </el-form-item>
+              </el-col>
 
-              <el-col :span="24">
+              <el-col :span="24" class="h48">
                 <el-form-item label="组织机构名称" prop="orgName">
                   <el-input v-model="searchForm.orgName" clearable placeholder="请输入" />
                 </el-form-item>
               </el-col>
-              <el-col :md="12" :lg="8" :xl="8">
+              <!-- <el-col :span="24" class="h48">
+                <el-form-item label="上级组织机构" prop="prntOrgId">
+                <SelectLoadTree :props="defaultProps" v-model="searchForm.prntOrgId"/></el-form-item>
+              </el-col> -->
+              <el-col :md="12" :lg="8" :xl="8" class="h48">
                 <el-form-item label="简称" prop="abbr">
                   <el-input v-model="searchForm.abbr" clearable placeholder="请输入" />
                 </el-form-item>
               </el-col>
-              <el-col :md="12" :lg="8" :xl="8">
+              <el-col :md="12" :lg="8" :xl="8" class="h48">
                 <el-form-item label="医保单位编码" prop="orgCodg">
                   <el-input v-model="searchForm.orgCodg" clearable placeholder="请输入" />
                 </el-form-item>
               </el-col>
-              <el-col :md="12" :lg="8" :xl="8">
+              <el-col :md="12" :lg="8" :xl="8" class="h48">
                 <el-form-item label="医保区划" prop="admdvs">
-                  <el-cascader
-                    v-model="searchForm.admdvs"
-                    :options="options"
-                    :props="optionsProps"
-                    style="width:100%"
-                    filterable
-                    :show-all-levels="false"
-                    @change="handleChange"
-                  />
-                  <!-- <el-input v-model="searchForm.admdvs" clearable placeholder="请输入" /> -->
+                  <el-input v-model="searchForm.admdvs" clearable placeholder="请输入" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -77,14 +72,14 @@
 </template>
 <script>
 import { organizManage, organizManageSave, orgMage } from '@/api/Admin/user-management'
-import { admdvs } from '@/api/Common/Request'
 import {
   mapGetters
 } from 'vuex'
+// import SelectLoadTree from '@/components/SelectLoadTree'
 export default {
   name: 'ResourceManagement',
   components: {
-
+    // SelectLoadTree
   },
   mixins: [
 
@@ -94,13 +89,13 @@ export default {
   },
   data() {
     return {
-      none: '',
-      optionsProps: {
-        value: 'id',
-        label: 'name',
-        checkStrictly: true
+      defaultProps: {
+        parent: 'prntOrgId', // 父级唯一标识
+        value: 'orguntId', // 唯一标识
+        label: 'name', // 标签显示
+        children: 'children' // 子级
       },
-      options: [],
+      none: '',
       // 组织机构类型类别
       ORGTypeList: [],
       // 子系统列表
@@ -114,14 +109,15 @@ export default {
         orgTypeCode: '',
         prntOrgId: '', // 父节点id
         lv: '',
-        admdvs: []
+        admdvs: ''
       },
       rules: {
         orgTypeCode: [{ required: true, message: '请选择组织机构类型', trgger: 'change' }],
-        orgCodg: [{ required: true, message: '请输入医保单位编码', trgger: 'blur' }],
-        admdvs: [{ type: 'array', required: true, message: '请输入医保区划编码', trgger: 'change' }],
+        orgCodg: [{ required: true, message: '请输入系统单位编码', trgger: 'blur' }],
+        admdvs: [{ required: true, message: '请输入统筹区划编码', trgger: 'blur' }],
         orgName: [{ required: true, message: '请输入组织机构名称', trgger: 'blur' }],
         abbr: [{ required: true, message: '请输入简称', trgger: 'blur' }]
+        // prntOrgId: [{ required: true, message: '请选择父节点', trgger: 'blur' }]
       },
       tableLoading: false,
       rootResolve: '',
@@ -138,38 +134,12 @@ export default {
 
   },
   created() {
-    this.getAdmdvs()
     this.ORGTypeList = this.publicCode.codes.ORG_TYPE_CODG
   },
   mounted() {
 
   },
   methods: {
-    // 递归判断列表，把最后的children设为undefined
-    getTreeData(data) {
-      for (var i = 0; i < data.length; i++) {
-        if (data[i].children.length < 1) {
-          // children若为空数组，则将children设为undefined
-          data[i].children = undefined
-        } else {
-          // children若不为空数组，则继续 递归调用 本方法
-          this.getTreeData(data[i].children)
-        }
-      }
-      return data
-    },
-    getAdmdvs() {
-      const params = { admdvsLv: 3 }
-      admdvs(params).then(res => {
-        // console.log(res)
-        if (res.code === 0) {
-          this.options = this.getTreeData(res.data)
-        }
-      })
-    },
-    handleChange(val) {
-      console.log(val)
-    },
     // 循环对象拿到id组成路径
     fnDeep(object) {
       const arr = []

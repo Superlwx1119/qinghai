@@ -8,9 +8,6 @@
 <template>
   <!-- 系统安全日志 -->
   <div class="item-tab">
-    <!-- <section class="layer tab-layer">
-      <div class="box">
-        <div class="box-body"> -->
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="账号锁定日志" name="first">
         <accountLockLog />
@@ -20,8 +17,6 @@
       <el-tab-pane label="登录日志" name="fourth"><loginLog /></el-tab-pane>
     </el-tabs>
   </div>
-  <!-- </div>
-    </section></div> -->
 </template>
 <script>
 import ApiObj from '@/api/Admin/user-management'

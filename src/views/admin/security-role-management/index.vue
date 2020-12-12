@@ -25,7 +25,13 @@
                 node-key="id"
                 @node-click="handleNodeClick"
                 @node-contextmenu="newMenu"
-              />
+              >
+                <span slot-scope="{ node }" class="custom-tree-node">
+                  <svg-icon v-if="node.expanded===true&&node.isLeaf===false" icon-class="folder-open" />
+                  <svg-icon v-if="node.expanded===false&&node.isLeaf===false" icon-class="folder-close" />
+                  <svg-icon v-if="node.isLeaf" icon-class="menu" /> <span>{{ node.label }}</span>
+                </span>
+              </el-tree>
               <div v-show="menuShow&&currentUserRoleId==='adminRoleId'" id="menu" class="menu-box">
                 <el-menu
                   text-color="#000"
@@ -125,11 +131,6 @@ export default {
 
   },
   methods: {
-    //  refreshNodeBy(id){
-    //          let node = this.$refs.asyncTree.getNode(id); // 通过节点id找到对应树节点对象
-    //          node.loaded = false;
-    //          node.expand(); // 主动调用展开节点方法，重新查询该节点下的所有子节点
-    //      },
     filterNode(value, data) {
       if (!value) return true
       return data.name.indexOf(value) !== -1
@@ -291,18 +292,16 @@ export default {
         }).catch(err => err)
       }
       if (node.level > 2) return resolve([])
-      setTimeout(() => {
-        const loadParams = {
-          parentId: node.data ? node.data.id : ''
+      const loadParams = {
+        parentId: node.data ? node.data.id : ''
+      }
+      ApiObj.adminRoles(loadParams).then(res => {
+        if (res.code === 0) {
+          _this.$refs.roleMaintenance.getRoleInfo(node.data.id)
+          _this.$refs.roleMaintenance.getRoleInfoList(node.data.id + '/' + 'users')
+          return resolve(res.data)
         }
-        ApiObj.adminRoles(loadParams).then(res => {
-          if (res.code === 0) {
-            _this.$refs.roleMaintenance.getRoleInfo(node.data.id)
-            _this.$refs.roleMaintenance.getRoleInfoList(node.data.id + '/' + 'users')
-            return resolve(res.data)
-          }
-        }).catch(err => err)
-      }, 3000)
+      }).catch(err => err)
     },
     freshNode(node) {
       var theChildren = node.childNodes
@@ -317,42 +316,6 @@ export default {
       })
     },
     handleNodeClick(data, node) {
-      // if (this.isAdding) {
-      //   this.$confirm(`当前有新增未完成项, 是否继续?`, {
-      //     confirmButtonText: '确定',
-      //     cancelButtonText: '取消',
-      //     type: 'warning'
-      //   }).then(() => {
-      //     this.freshNode(node)
-      //     var admrolId
-      //     if (data.data) {
-      //       admrolId = data.data.admrolId
-      //       if (data.data.admrolId) {
-      //         this.$refs.functionList.setCheckedNodes(admrolId)
-      //         this.$refs.shareMenu.setCheckedNodes(admrolId)
-      //         this.$refs.organizationList.setCheckedNodes(admrolId)
-      //         this.$refs.authorizeBusirole.getRoleBusList(admrolId)
-      //         this.$refs.roleMaintenance.getRoleInfo(admrolId)
-      //         this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
-      //         this.transeferNode(node)
-      //       }
-      //     } else {
-      //       admrolId = ''
-      //       // this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
-      //       this.chearTabData()
-      //       this.$refs.roleMaintenance.getRoleInfo(admrolId)
-      //       this.transeferNode(node)
-      //     }
-      //     this.$store.commit('CHANGE_SECURITYROLEID', admrolId)
-      //     this.isAdding = false
-      //   }).catch(() => {
-      //     this.$refs.tree.setCurrentKey(null)
-      //     this.$message({
-      //       type: 'info',
-      //       message: '已取消删除'
-      //     })
-      //   })
-      // }
       this.freshNode(node)
       var admrolId
       if (data.data) {
@@ -368,7 +331,6 @@ export default {
         }
       } else {
         admrolId = ''
-        // this.$refs.roleMaintenance.getRoleInfoList(admrolId + '/' + 'users')
         this.chearTabData()
         this.$refs.roleMaintenance.getRoleInfo(admrolId)
         this.transeferNode(node)
@@ -426,9 +388,6 @@ export default {
 
               /deep/ .el-tree-node__content > .el-tree-node__label {
                 width: 100%;
-                // @include one-line-text
-                // word-wrap:break-word;
-                // word-break:normal;
               }
             }
           }

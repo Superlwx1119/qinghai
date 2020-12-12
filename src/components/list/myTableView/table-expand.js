@@ -87,6 +87,7 @@ export default {
           arr.push(JSON.parse(JSON.stringify(trArr)))
         }
       })
+      console.log(arr)
       return arr
     },
     handleCloumnsToExpandForm(items) {

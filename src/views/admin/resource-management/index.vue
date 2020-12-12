@@ -8,25 +8,34 @@
             <div class="box-header">
               <span class="box-title">资源树</span>
             </div>
-            <div style="padding:0 10px;">
-              <el-input
-                v-model="filterText"
-                placeholder="输入关键字进行过滤"
-              />
+            <div>
+              <el-input v-model="filterText" placeholder="输入关键字进行过滤" />
             </div>
-            <div v-loading="treeLoading" class="box-body" style="height:calc(100% - 68px)" element-loading-spinner="el-loading1">
-              <el-tree ref="tree" :highlight-current="true" :data="treeData" :props="defaultProps" :filter-node-method="filterNode" node-key="id" @node-contextmenu="newMenu" @node-click="handleNodeClick">
+            <div
+              v-loading="treeLoading"
+              class="box-body"
+              style="height:calc(100% - 68px)"
+              element-loading-spinner="el-loading1"
+            >
+              <el-tree
+                ref="tree"
+                :highlight-current="true"
+                :data="treeData"
+                :props="defaultProps"
+                :filter-node-method="filterNode"
+                :default-expanded-keys="['menu']"
+                node-key="id"
+                @node-contextmenu="newMenu"
+                @node-click="handleNodeClick"
+              >
                 <span slot-scope="{ node }" class="custom-tree-node">
                   <svg-icon v-if="node.expanded===true&&node.isLeaf===false" icon-class="folder-open" />
                   <svg-icon v-if="node.expanded===false&&node.isLeaf===false" icon-class="folder-close" />
-                  <svg-icon v-if="node.isLeaf" icon-class="menu" /> <span>{{ node.label }}</span>
+                  <svg-icon v-if="node.isLeaf" icon-class="menu" /> <span :title="node.label">{{ node.label }}</span>
                 </span>
               </el-tree>
               <div v-show="menuShow" id="menu" class="menu-box">
-                <el-menu
-                  text-color="#000"
-                  @select="handleSelect"
-                >
+                <el-menu text-color="#000" @select="handleSelect">
                   <el-menu-item index="1" class="menuItem">
                     <span slot="title">新增</span>
                   </el-menu-item>
@@ -45,22 +54,36 @@
           </div>
         </el-col>
         <el-col :span="18">
-          <!-- <div class="box handle-resoure">
-            <div class="box-body height100b"> -->
-          <el-tabs v-show="resuTypeTag==='3'" class="height100b" type="border-card">
-            <el-tab-pane label="组件" class="height100b">
-              <MenuMaintenanceAPI ref="menuMaintenanceAPI" class="height100b" @refreshTree="refreshTree" />
-            </el-tab-pane>
-            <el-tab-pane label="组件api" class="height100b"> <FunctionListAPI ref="functionListAPI" class="height100b" /></el-tab-pane>
-          </el-tabs>
-          <el-tabs v-show="resuTypeTag==='1'" class="height100b" type="border-card">
-            <el-tab-pane label="菜单" class="height100b">
-              <menu-maintenance ref="menuMaintenance" class="height100b" @refreshTree="refreshTree" />
-            </el-tab-pane>
-            <el-tab-pane label="功能" class="height100b"> <function-list ref="functionList" class="height100b" /></el-tab-pane>
-          </el-tabs>
-          <!-- </div>
-          </div> -->
+          <div class="box handle-resoure">
+            <div class="box-body height100b">
+              <el-tabs v-show="resuTypeTag==='3'" class="height100b">
+                <el-tab-pane label="组件" class="height100b">
+                  <MenuMaintenanceAPI
+                    ref="menuMaintenanceAPI"
+                    class="height100b"
+                    @updateNode="updateNode"
+                    @updateNodeSave="updateNodeSave"
+                  />
+                </el-tab-pane>
+                <el-tab-pane label="组件api" class="height100b">
+                  <FunctionListAPI ref="functionListAPI" class="height100b" />
+                </el-tab-pane>
+              </el-tabs>
+              <el-tabs v-show="resuTypeTag==='1'" class="height100b" type="border-card">
+                <el-tab-pane label="菜单" class="height100b">
+                  <menu-maintenance
+                    ref="menuMaintenance"
+                    class="height100b"
+                    @updateNode="updateNode"
+                    @updateNodeSave="updateNodeSave"
+                  />
+                </el-tab-pane>
+                <el-tab-pane label="功能" class="height100b" type="border-card">
+                  <function-list ref="functionList" class="height100b" />
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </div>
         </el-col>
       </el-row>
     </section>
@@ -97,8 +120,7 @@ export default {
         children: 'children',
         label: 'name'
       },
-      searchForm: {
-      },
+      searchForm: {},
       nodedata: '',
       nodeInfo: '',
       resuTypeTag: '1',
@@ -124,17 +146,21 @@ export default {
       if (!value) return true
       return data.name.indexOf(value) !== -1
     },
+    // 切换当前菜单id
+    changeResourceId(id) {
+      this.$store.commit('CHANGE_RESOURCEID', id)
+    },
+    // 删除当前菜单id
+    removeResourceId() {
+      this.$store.commit('REMOVE_RESOURCEID')
+    },
     // 解除新增状态
     clearAdding() {
       this.isAdding = false
     },
     // 判断新增状态
     juddgeIsAdding() {
-      this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">已有个新增在进行，请新增完毕之后在进行新的新增！</div>`, {
-        dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-        type: 'warning'
-      })
+      this.$msgError('已有个新增在进行，请新增完毕之后在进行新的新增！')
     },
     // 刷新当前选中的树
 
@@ -154,10 +180,7 @@ export default {
     downDept() {
       const node = this.nodeInfo
       if (node.data.parentId === '0') {
-        this.$message({
-          message: '不允许移动根节点',
-          type: 'warning'
-        })
+        this.$msgWarning('不允许移动根节点')
       } else {
         const pchildNodes = this.nodeInfo.parent.childNodes
         let currentId = {}
@@ -167,32 +190,19 @@ export default {
           }
         }
         if (currentId === pchildNodes.length - 1) {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">处于底端不能下移</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'error'
-          })
+          this.$msgWarning('处于底端不能下移')
           return
         }
         const upid = currentId + 1
         const params = {}
-        params.downId = node.data.id// 当前节点id
-        params.upId = pchildNodes[upid].data.id// 下一个节点id
+        params.downId = node.data.id // 当前节点id
+        params.upId = pchildNodes[upid].data.id // 下一个节点id
         ApiObj.moveNode(params).then(res => {
           if (res.code === 0) {
-            this.$message({
-              type: 'success',
-              dangerouslyUseHTMLString: true,
-              message: `<strong>操作成功</strong><p>${res.message}</p>`,
-              duration: 1000
-            })
+            this.$msgSuccess(res.message)
             this.getTreeData()
           } else {
-            this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">${res.message}</div>`, {
-              dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-              type: 'error'
-            })
+            this.$msgError(res.message)
           }
         })
       }
@@ -201,10 +211,7 @@ export default {
     upDept() {
       const node = this.nodeInfo
       if (node.data.parentId === '0') {
-        this.$message({
-          message: '不允许移动根节点',
-          type: 'warning'
-        })
+        this.$msgWarning('不允许移动根节点')
       } else {
         const pchildNodes = this.nodeInfo.parent.childNodes
         let currentId = {}
@@ -214,44 +221,27 @@ export default {
           }
         }
         if (currentId === 0) {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">处于顶端不能上移</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'error'
-          })
+          this.$msgWarning('处于顶端不能上移')
           return
         }
         const upid = currentId - 1
         const params = {}
-        params.upId = node.data.id// 当前节点id
-        params.downId = pchildNodes[upid].data.id// 上一个节点id
+        params.upId = node.data.id // 当前节点id
+        params.downId = pchildNodes[upid].data.id // 上一个节点id
         ApiObj.moveNode(params).then(res => {
           if (res.code === 0) {
-            this.$message({
-              type: 'success',
-              dangerouslyUseHTMLString: true,
-              message: `<strong>操作成功</strong><p>${res.message}</p>`,
-              duration: 1000
-            })
+            this.$msgSuccess(res.message)
             this.getTreeData()
           } else {
-            this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">${res.message}</div>`, {
-              dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-              type: 'error'
-            })
+            this.$msgError(res.message)
           }
         })
       }
     },
-    // 删除组织机构
+    // 删除资源
     removeOrg() {
       if (this.nodeInfo.childNodes.length > 0) {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">该资源下有子菜单请先删除子菜单在进行删除</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'warning'
-        })
+        this.$msgWarning('该资源下有子菜单请先删除子菜单在进行删除!')
         return
       }
       if (!this.nodeInfo.data.id) {
@@ -262,41 +252,27 @@ export default {
         if (res.code === 0) {
           ApiObj.delResource(this.nodeInfo.data.id).then(res => {
             if (res.code === 0) {
-              this.$message({
-                type: 'success',
-                dangerouslyUseHTMLString: true,
-                message: `<strong>操作成功</strong><p>${res.message}</p>`,
-                duration: 1000
-              })
+              this.$msgSuccess(res.message)
               this.remove(this.nodeInfo, this.nodedata)
-              this.refreshTree()
+              // this.refreshTree()
             } else {
-              this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${res.message}节点，在进行删除操作！</div>`, {
-                dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-                type: 'warning'
-              })
+              this.$msgError(res.message)
             }
           })
         } else {
-          this.$alert(`<div class="myalert-header">操作失败</div>
-                    <div class="myalert-content">请先展开${this.nodedata.name}节点，在进行删除操作！</div>`, {
-            dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-            type: 'error'
-          })
+          this.$msgWarning('请先展开${this.nodedata.name}节点，在进行删除操作！')
         }
       })
     },
     // 页面删除子节点
     remove(node, data) {
-      const parent = node.parent
-      const children = parent.childNodes || parent.data
-      const index = children.findIndex(d => d.id === data.id)
-      children.splice(index, 1)
+      this.$refs.tree.remove(node)
+      this.$refs.menuMaintenance.restSearch()
+      this.$refs.menuMaintenanceAPI.restSearch()
+      this.clearAdding()
     },
     // 添加菜单
     addNewOrg() {
-      console.log(this.isAdding, '?1')
       if (this.isAdding) {
         this.juddgeIsAdding()
         return
@@ -306,7 +282,6 @@ export default {
     },
     // 添加
     append(data) {
-      console.log(data.data, ';;;;')
       if (data.name === '菜单列表' || (data.data && data.data.resuType === '1')) {
         const newChild = {
           name: '新增菜单',
@@ -332,8 +307,8 @@ export default {
     },
     // 鼠标右击触发事件
     newMenu(MouseEvent, object, Node, element) {
-      this.nodedata = object// 存当前数据
-      this.nodeInfo = Node// 存当前节点信息
+      this.nodedata = object // 存当前数据
+      this.nodeInfo = Node // 存当前节点信息
       this.menuShow = false // 先把模态框关死，目的是 第二次或者第n次右键鼠标的时候 它默认的是true
       this.menuShow = true // 显示模态窗口，跳出自定义菜单栏
       if (this.nodedata.data) {
@@ -345,24 +320,20 @@ export default {
           this.resuTypeTag = '1'
         }
       }
+      console.log(MouseEvent, 'ooo')
       var menu = document.querySelector('#menu')
       document.addEventListener('click', this.foo) // 给整个document添加监听鼠标事件，点击任何位置执行foo方法
       menu.style.display = 'block'
-      let calcWidth = 258
-      let calcHeight = 108
-      if (JSON.parse(this.$getSessionStorage('isIframe'))) {
-        calcWidth = 0
-        calcHeight = 0
-      }
-      if (MouseEvent.clientX > 305 + calcWidth) {
-        menu.style.left = 305 + 'px'
+
+      if (MouseEvent.clientX > 180) {
+        menu.style.left = 180 + 'px'
       } else {
-        menu.style.left = MouseEvent.clientX - calcWidth + 'px'
+        menu.style.left = MouseEvent.clientX - 0 + 'px'
       }
-      if (MouseEvent.clientY > (document.body.clientHeight - 60)) {
-        menu.style.top = document.body.clientHeight - 60 - calcHeight + 'px'
+      if (MouseEvent.clientY > (document.body.clientHeight - 120)) {
+        menu.style.top = document.body.clientHeight - 120 + 'px'
       } else {
-        menu.style.top = MouseEvent.clientY - calcHeight + 'px'
+        menu.style.top = MouseEvent.clientY + 'px'
       }
     },
     foo() { // 取消鼠标监听事件 菜单栏
@@ -370,12 +341,29 @@ export default {
       document.removeEventListener('click', this.foo) // 要及时关掉监听，不关掉的是一个坑，不信你试试，虽然前台显示的时候没有啥毛病，加一个alert你就知道了
     },
     // 保存成功之后刷新下拉组件
-    refreshTree() {
+    refreshTree(data) {
       this.clearAdding()
-      console.log(this.isAdding, '?')
       this.getTreeData()
       this.$refs.functionListAPI.clearData()
       this.$refs.functionList.clearData()
+    },
+    updateNodeSave(data) {
+      this.clearAdding()
+      const length = this.$refs.tree.getNode(data.prntResuId).childNodes.length
+      this.$refs.tree.getNode(data.prntResuId).childNodes[length - 1].data.name = data.resuName
+      this.$refs.tree.getNode(data.prntResuId).childNodes[length - 1].data.id = data.resuId
+      this.$refs.tree.getNode(data.prntResuId).childNodes[length - 1].data.resuType = data.resuType
+      this.$refs.tree.getNode(data.prntResuId).childNodes[length - 1].data.data = {
+        id: data.resuId,
+        resuType: data.resuType,
+        resuName: data.resuName,
+        resuId: data.resuId
+      }
+    },
+    updateNode(data) {
+      if (data.resuId) {
+        this.$refs.tree.getNode(data.resuId).data.name = data.resuName
+      }
     },
     // 获取树数据
     getTreeData() {
@@ -386,13 +374,26 @@ export default {
       ApiObj.menuElet(params).then(res => {
         if (res.code === 0) {
           this.listData = res.data
-          const arr = [{ name: '菜单列表', children: [], parentId: '0', id: 'menu' }, { name: '组件', children: [], parentId: '0', id: 'components' }]
+          const arr = [{
+            name: '菜单列表',
+            children: [],
+            parentId: '1',
+            id: 'menu'
+          }
+          // {
+          //   name: '组件',
+          //   children: [],
+          //   parentId: '0',
+          //   id: 'components'
+          // }
+          ]
           this.listData.forEach((item, index) => {
             if (item.parentId === '-1') {
               arr[0].children.push(item)
-            } else {
-              arr[1].children.push(item)
             }
+            // else {
+            //   arr[1].children.push(item)
+            // }
           })
           this.treeData = arr
           this.treeLoading = false
@@ -422,78 +423,92 @@ export default {
         this.dialogObj.kpiFcode = this.kpiCode
         this.dialogObj.kpiFname = this.kpiFname + '-' + this.kpiName
       } else {
-        this.$alert(`<div class="myalert-header">操作失败</div>
-        <div class="myalert-content">请先选择树结点！</div>`, {
-          dangerouslyUseHTMLString: true, confirmButtonText: '确定',
-          type: 'error'
-        })
+        this.$msgError('请先选择树结点！')
       }
     }
   }
 }
+
 </script>
 
 <style scoped lang="scss">
-.resource-management {
-  height: 100%;
-   /deep/.el-tabs__content{
-          height: calc(100% - 67px);
-      }
- .menu-box{
+  .resource-management {
+    height: 100%;
+    min-width: 1000px;
+    min-height: 768px;
+
+    .menu-box {
       position: absolute;
       width: 94px;
-      .el-menu{
-        border:1px solid #e6e6e6;
+
+      .el-menu {
+        border: 1px solid #e6e6e6;
         // border-top:1px solid #e6e6e6;
       }
-      /deep/.el-menu-item{
+
+      /deep/.el-menu-item {
         height: 26px;
         line-height: 26px;
         border-bottom: 1px solid #e6e6e6;
-        color: rgb(96, 98, 102);
-        background-color: rgb(255, 255, 255);
+        background-color:#fff ;
       }
     }
 
-  .layer {
-    height: 100%;
-
-    .el-row {
+    .layer {
       height: 100%;
 
-      .el-col {
+      .el-row {
         height: 100%;
 
-        &:first-child{
+        .el-col {
+          height: 100%;
 
-          .box {
-            height: 100%;
+          &:first-child {
 
-            .el-tree {
+            .box {
               height: 100%;
-              overflow: auto;
 
-              /deep/ .el-tree-node__content > .el-tree-node__label {
-                width: 100%;
-                // @include one-line-text
-                // word-wrap:break-word;
-                // word-break:normal;
+              .el-tree {
+                height: 100%;
+                overflow: auto;
+
+                /deep/ .el-tree-node__content>.el-tree-node__label {
+                  width: 100%;
+                }
+
+                /deep/ .custom-tree-node {
+                  width: 100%;
+
+                  span {
+                    display: inline-block;
+                    width: 70%;
+                    // min-width: 150px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
+                }
               }
             }
           }
-        }
 
+        }
       }
     }
-  }
-  // .handle-resoure{
-  //     .box-body{
-  //         height: 100;
-  //     }
 
-  // }
-  .height100b{
+    .handle-resoure {
+      .box-body {
+        height: 100;
+      }
+
+      /deep/.el-tabs__content {
+        height: calc(100% - 67px);
+      }
+    }
+
+    .height100b {
       height: 100%;
+    }
   }
-}
+
 </style>

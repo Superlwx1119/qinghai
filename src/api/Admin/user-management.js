@@ -11,7 +11,7 @@ export function page(params) {
 // 导出数据
 export function excel(params) {
   return fileService({
-    url: ApiUrl.userManagement.excel + '/' + params,
+    url: ApiUrl.userManagement.excel + '/' + '用户信息',
     responseType: 'blob',
     headers: {
       Accept: 'application/json',

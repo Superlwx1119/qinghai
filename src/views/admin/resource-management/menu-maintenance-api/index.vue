@@ -441,11 +441,12 @@ export default {
     },
     // 父组件新增时调用
     addNewMenu(data) {
-      console.log(data, ';;;data')
       this.subSysIsDisabled = false
       let prntResuId = '0'
+      let subsysId = ''
       if (data.level !== 1) {
         prntResuId = data.data.data.resuId
+        subsysId = data.data.data.subsysId
       }
       this.searchForm = {
         dscr: '',
@@ -453,7 +454,7 @@ export default {
         resuIcon: '',
         resuName: '新增小组件',
         resuPath: '',
-        subsysId: '',
+        subsysId: subsysId,
         parent: data.data,
         prntResuId: prntResuId,
         resuId: null,
@@ -484,8 +485,8 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
-              this.$emit('refreshTree')
-              this.$refs.searchForm.resetFields()
+              this.$emit('updateNode', this.searchForm)
+              // this.$refs.searchForm.resetFields()
             } else {
               this.$alert(`<div class="myalert-header">操作失败</div>
               <div class="myalert-content">${res.message}</div>`, {
@@ -520,7 +521,7 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
-              this.$emit('refreshTree')
+              this.$emit('updateNodeSave', res.data)
               this.$refs.searchForm.resetFields()
               this.subSysIsDisabled = true
             } else {
@@ -543,8 +544,7 @@ export default {
     },
     // 重置
     restSearch() {
-      this.searchForm.kpiName = ''
-      this.searchForm.inptTime = ''
+      this.$refs.searchForm.resetFields()
     }
 
   }

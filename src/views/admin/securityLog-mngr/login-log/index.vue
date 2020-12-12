@@ -210,7 +210,7 @@ export default {
       if (type === 'all') {
         // 接口
         excel({ params: { params: { pageNumber: 1, pageSize: this.pageInfo.total }, url: '/web/user/page/?' + '&pageNumber=1&pageSize=' + this.pageInfo.total, bizReqBody: {}, method: 'GET', cols: this.excelCol }}).then(response => {
-          var blob = new Blob([response.data], { type: 'application/octet-stream' })
+          var blob = new Blob([response], { type: 'application/octet-stream' })
           if (window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveOrOpenBlob(blob, '密码变更日志信息.xlsx')
           } else {

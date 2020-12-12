@@ -198,7 +198,9 @@ export default {
     },
     registerComponent(expand) {
       var url = expand.moduleType + '/' + expand.name
+      console.log('引入url:' + url)
       return import('@/views/' + url + '.vue').then((component) => {
+        console.log('引入组件！！', component)
         return Vue.component(expand.name, component.default)
       })
     }

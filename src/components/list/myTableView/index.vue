@@ -6,7 +6,7 @@ el-table-column 传参请查看table-column.vue文件
   <section :class="['pf-table', sectionHeight ]">
     <!-- 表头配置组件 -->
     <header-config
-      v-if="isConfigheader"
+      v-if="isConfigheader && columns.length > 5"
       v-model="columnsNew"
       :all-colums="expandHandleFinishColumns"
       :min="checboxMin"
@@ -19,10 +19,12 @@ el-table-column 传参请查看table-column.vue文件
       :data="data"
       :border="border"
       :default-sort="defaultSort"
-      :height="height"
+      :height="tableHeight"
       style="width: 100%"
       :highlight-current-row="highlightCurrentRow"
       :summary-method="getSummaries"
+      :header-cell-style="headerCellStyle"
+      v-on="$listeners"
       @row-click="rowClick"
       @selection-change="handleSelectionChange"
       @sort-change="sortChangeEvent"
@@ -86,6 +88,7 @@ el-table-column 传参请查看table-column.vue文件
           v-else
           :key="item.label + item.prop"
           :item="item"
+          :min-width="item.minWidth|| ''"
         >
           <!-- 操作插槽 -->
           <template v-if="item.type == 'operation'" slot="operation" slot-scope="scope">
@@ -98,6 +101,7 @@ el-table-column 传参请查看table-column.vue文件
             </slot>
           </template>
         </table-column>
+
       </template>
     </el-table>
   </section>
@@ -120,15 +124,17 @@ export default {
     data: { type: [Array, Object], default: () => [] }, // 列表数据
     columns: { type: Array, default: () => [] },
     height: { type: [Number, String], default: '100%' },
-
     multipleSelection: { type: Array, default: () => [] }, // 多选 multipleSelection.sync="xxx"
     border: { type: Boolean, default: true },
     haveExpand: { type: Boolean, default: false }, // Table 展开行功能
     checboxMin: { type: [String, Number], default: 7 }, // 头部显示的最小数量
-    isConfigheader: { type: Boolean, default: false }, // 是否显示编辑表头按钮
+    isConfigheader: { type: Boolean, default: true }, // 是否显示编辑表头按钮
     highlightCurrentRow: { type: Boolean, default: true }, // 当前行高亮
     firstHighlight: { type: Boolean, default: false }, //  默认第一行高亮
     havePagination: { type: Boolean, default: true }, // 表格下是否有分页
+    headerCellStyle: { type: Object, default() {
+      return { 'text-align': 'center' }
+    } }, // 设置表头内容对齐方式
     defaultSort: { type: Object, default() { // 排序
       return {
         order: '', // ascending, descending
@@ -144,6 +150,13 @@ export default {
     }
   },
   computed: {
+    tableHeight() {
+      if (this.height === 'auto') {
+        return null
+      } else {
+        return this.height
+      }
+    },
     sectionHeight() {
       if (this.height === '100%' && this.havePagination) {
         return 'have-pagination-height'
@@ -180,6 +193,9 @@ export default {
     })
   },
   methods: {
+    doLayout() {
+      this.$refs['pf-table'].doLayout()
+    },
     headerCheckboxChange(val) { // 监听checkbox选择项
       this.$nextTick(() => {
         this.$refs['pf-table'].doLayout()
@@ -207,11 +223,17 @@ export default {
         this.$refs['pf-table'].setCurrentRow()
       }
     },
+    setCurrentRow() {
+      this.$refs['pf-table'].setCurrentRow()
+    },
     getSummaries(params) {
       if (params.columns.length > 0 && params.data.length > 0) {
-        this.$nextTick(() => {
-          this.$refs['pf-table'].doLayout()
-        })
+        // 查询进来的时候重载一下表格
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.$refs['pf-table'].doLayout()
+          })
+        }, 0)
         return this.getSummariesData(params)
       } else {
         return []
@@ -221,13 +243,40 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.height-auto {
-  height: auto;
-}
-.height-100 {
-  height: 100%;
-}
->>>.el-table thead th .cell {
-  text-align: center;
-}
+  .pf-table{
+    width: 100%
+  }
+  .height-auto {
+    height: auto;
+  }
+  .height-100 {
+    height: 100%;
+  }
+  /deep/.el-table__empty-block{
+    min-height: 100px;
+  }
+  /deep/.el-table__empty-text{
+    position: relative;
+    background: #ffffff url(../../../assets/nodata.png) center no-repeat;
+    background-size: contain;
+    // width: 100%;
+    height: 80%;
+    min-height: 80px;
+    max-height: 150px;
+    &::after{
+      content: '暂无内容';
+      position: absolute;
+      width: 100%;
+      bottom: -20px;
+      line-height: 45px;
+      left: 0px;
+      text-align: center;
+    }
+  }
+  /deep/.el-table__body-wrapper{
+    min-height: 100px;
+  }
+  /deep/.el-table__fixed-right{
+    z-index: 1;
+  }
 </style>
