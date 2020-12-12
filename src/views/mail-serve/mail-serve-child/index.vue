@@ -14,8 +14,7 @@
               active-text-color="#000"
               background-color="#fff"
               text-color="#000"
-              @open="handleOpen"
-              @close="handleClose"
+              @select="handleSelect"
             >
               <el-menu-item index="1" @click="chooseItem(1)">
                 <i class="el-icon-folder" />
@@ -39,11 +38,7 @@
               </el-menu-item>
               <el-menu-item index="6" @click="chooseItem(6)">
                 <i class="el-icon-folder" />
-                <span slot="title">预算文件夹</span>
-              </el-menu-item>
-              <el-menu-item index="7" @click="chooseItem(7)">
-                <i class="el-icon-folder" />
-                <span slot="title">其他文件夹</span>
+                <span slot="title">归档文件夹</span>
               </el-menu-item>
             </el-menu>
           </div>
@@ -70,19 +65,19 @@
               <i class="el-icon-edit-outline" />
               写邮件
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn(1)">
+            <el-button type="primary" @click="reply()">
               <i class="el-icon-s-comment" />
               回复
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn(2)">
+            <el-button type="primary" @click="replyAll()">
               <i class="el-icon-s-comment" />
               回复全部
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn(3)">
+            <el-button type="primary" @click="forward()">
               <i class="el-icon-right" />
               转发
             </el-button>
-            <el-button type="primary" @click="getCurrentUserbtn(4)">
+            <el-button type="primary" @click="placeFile()">
               <i class="el-icon-box" />
               归档
             </el-button>
@@ -95,43 +90,86 @@
             </el-input>
           </el-header>
           <template>
-            <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" />
+            <my-table-view v-loading="loading" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="handleCurrentChange">
+              <template slot="select" slot-scope="scope">
+                <el-radio v-model="rid" :label="scope.row.rid">{{ '' }}</el-radio>
+              </template>
+              <template slot="sendTime" slot-scope="scope">
+                {{ scope.row.sendTime | renderTime }}
+              </template>
+              <template slot="star" slot-scope="scope">
+                <svg v-if="scope.row.star === '1'" t="1607599859618" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3363" width="16" height="16" style="display: inline-block;vertical-align: middle;"><path d="M513.2 68.2l121.6 274.6 298.5 32-223.5 200.5 61.8 293.8-259.7-150.6-260.4 149.6 63-293.6L91.8 373.1l298.7-30.8L513.2 68.2z" p-id="3364" /></svg>
+                <span v-if="scope.row.star === '0'" />
+              </template>
+              <template slot="status" slot-scope="scope">
+                <state-tag :tag-type="scope.row.status | filterState" :title="scope.row.status === '1'?'已读':'未读'" />
+              </template>
+              <template slot="operation" slot-scope="scope">
+                <my-button icon="detail" title="详情" @click="details(scope.row)" />
+                <my-button icon="delete" title="删除" @click="deleteRow(scope.row)" />
+              </template>
+              <Pagination :data="paginationQuery" @refresh="pageChange" />
+            </my-table-view>
           </template>
         </el-col>
       </el-row>
     </section>
-    <MailReply v-model="isShowAdd" />
+    <MailReply v-model="isShowAdd" :select-row="selectRow" :is-reply-mail="isReplyMail" :is-forward-mail="isForwardMail" :dialog-title="dialogTitle" @search="chooseItem(parseInt(selectIndex))" />
+    <viewMail v-model="isShowDetail" :dialog-title="detailTitle" :select-row="selectRow" @search="search" />
     <AddGroup v-model="isaddgroup" />
   </div>
 </template>
 
 <script>
-import { getCurrentUser } from '@/api/Common/Request'
-import { queryMail, getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList } from '@/api/Mail'
+// import { getCurrentUser } from '@/api/Common/Request'
+import { getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList, deleteEMailByReceiver, updateArchiveStatus } from '@/api/Mail'
+import pageHandle from '@/mixins/pageHandle'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
 import MailReply from './mailReply'
-import AddGroup from './compnent/addgroup'
+import viewMail from './components/viewMail'
+import AddGroup from './components/addgroup'
 export default {
   name: 'ResourceManagement',
   components: {
     MailReply,
-    AddGroup
+    AddGroup,
+    viewMail
   },
-  mixins: [],
+  filters: {
+    renderTime(date) {
+      var dateee = new Date(date).toJSON()
+      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+    },
+    filterState(val) {
+      if (val === '0') {
+        return 'nopass'
+      } else if (val === '1') {
+        return 'pass'
+      }
+    }
+  },
+  mixins: [pageHandle],
   props: {
   },
   data() {
     return {
-      multipleSelection: [],
       loading: false,
       // 表列
       columns: [],
       // 数据
       tableData: [],
       isShowAdd: false,
+      isShowDetail: false,
       isaddgroup: false,
       emailSbj: '',
-      nodeInfo: {}
+      nodeInfo: {},
+      rid: '',
+      selectRow: {},
+      selectIndex: '2', // 当前激活的菜单的唯一标识
+      isReplyMail: false, // 是否是回复邮件
+      isForwardMail: false, // 是否是转发邮件
+      dialogTitle: '', // 弹出框名称
+      detailTitle: '' // 详情的弹出框名称
     }
   },
   computed: {
@@ -147,34 +185,38 @@ export default {
     this.columns = listitem1
   },
   mounted() {
-
+    this.getEMailInbox()
   },
   methods: {
     charge() {
       this.getUnReadCounts()
+      this.getEMailInbox()
+    },
+    getEMailInbox() {
       const param = {
         pageSize: 10,
         pageNumber: 1,
         total: 0,
-        prntGrpNo: 1,
-        emailType: '02'
+        prntGrpNo: 1
       }
       getEMailInbox(param).then(res => {
         this.tableData = res.data.result
+        this.setPaginationQuery(res.data)
       })
     },
     changeSelection(val) {
       this.tableData = val
     },
     // 子列表
+    handleSelect(key) {
+      this.selectIndex = key
+    },
     chooseItem(value) {
-      this.getUnReadCounts()
       const param = {
         pageSize: 10,
         pageNumber: 1,
         total: 0,
-        prntGrpNo: 1,
-        emailType: '02'
+        prntGrpNo: 1
       }
       switch (value) {
         case 1:
@@ -213,45 +255,118 @@ export default {
             this.tableData = res.data.result
           })
           break
-        case 7:
-          this.columns = listitem1
-          getStarEMailList(param).then(res => {
-            this.tableData = res.data.result
-          })
-          break
-        default:
-          this.columns = listitem1
-          this.getUnReadCounts()
-          break
+        // default:
+        //   this.columns = listitem1
+        //   this.getUnReadCounts()
+        //   break
       }
     },
     replyshoe() {
       this.isShowAdd = true
+      this.isReplyMail = false
+      this.dialogTitle = '写邮件'
+    },
+    // 回复
+    reply() {
+      const selectIndexToNum = parseInt(this.selectIndex)
+      if (selectIndexToNum === 4) {
+        this.$msgInfo('此文件夹内邮件不支持此功能')
+        return false
+      } else {
+        if (this.rid === '') {
+          this.$msgWarning('请选择邮件')
+        } else {
+          this.isReplyMail = true
+          this.isShowAdd = true
+          this.selectRow
+          this.dialogTitle = `回复：${this.selectRow.title}`
+        }
+      }
+    },
+    // 回复全部
+    replyAll() {
+      const selectIndexToNum = parseInt(this.selectIndex)
+      if (selectIndexToNum === 4) {
+        this.$msgInfo('此文件夹内邮件不支持此功能')
+        return false
+      } else {
+        if (this.rid === '') {
+          this.$msgWarning('请选择邮件')
+        } else {
+          this.isReplyMail = true
+          this.isShowAdd = true
+          this.selectRow
+          this.dialogTitle = `回复全部：${this.selectRow.title}`
+        }
+      }
+    },
+    // 转发
+    forward() {
+      if (this.rid === '') {
+        this.$msgWarning('请选择邮件')
+      } else {
+        this.isForwardMail = true
+        this.isShowAdd = true
+        this.selectRow
+        this.dialogTitle = `转发：${this.selectRow.title}`
+      }
+    },
+    // 归档
+    placeFile() {
+      if (this.rid === '') {
+        this.$msgInfo('请选择邮件')
+      } else {
+        const params = {
+          rid: this.selectRow.rid,
+          star: '1'
+        }
+        updateArchiveStatus(params).then(res => {
+          if (res.code === 0) {
+            console.log(this.selectIndex, 'selectIndex')
+            this.$msgSuccess('归档成功！')
+            this.chooseItem(parseInt(this.selectIndex))
+          }
+        }).catch(() => {
+
+        })
+      }
     },
     getUnReadCounts() {
-      getUnReadCount().then(res => console.log(res))
-    },
-    getCurrentUserbtn() {
-      const that = this
-      getCurrentUser().then(res =>
-        that.$message({
-          message: '警告',
-          type: 'warning'
-        })
-      )
+      getUnReadCount().then(res => {
+        if (res.code === 0) {
+          this.$msgSuccess(res.message)
+        }
+      })
     },
     search() {
-      // eslint-disable-next-line no-unused-vars
-      const params = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 0,
-        prntGrpNo: 1
-      }
-      params.emailSbj = this.emailSbj
-      console.log(params)
-      queryMail(params).then(res => {
-        console.log(res)
+      this.chooseItem(parseInt(this.selectIndex))
+    },
+    // 查看详情
+    details(row) {
+      this.isShowDetail = true
+      this.detailTitle = `主题：${row.title}`
+      this.selectRow = row
+      row.status === '1'
+    },
+    // 删除行
+    deleteRow(row) {
+      this.$msgConfirm('是否将所选邮件删除移动到已删除邮件文件夹?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        deleteEMailByReceiver(row.rid).then(res => {
+          if (res.code === 0) {
+            this.$msgSuccess('操作成功！')
+            this.search()
+            this.loading = false
+          }
+        }).catch(() => {
+          this.loading = false
+        })
+      }).catch(() => {
+        this.$msgInfo('')
       })
     },
     // 清空节点并重新加载
@@ -263,28 +378,11 @@ export default {
     clearAdding() {
       this.isAdding = false
     },
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath)
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath)
-    },
-    // 切换每页的数量
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.getTableData()
-    },
-    // 切换页码
-    handleCurrentChange(val) {
-      this.currentPage = val
-      this.getTableData()
-    },
-    // 关闭弹出框
-    cancel(data) {
-      this.isShowAdd = false
-    },
     Addgroup() {
       this.isaddgroup = true
+    },
+    handleCurrentChange({ row, column, cell }) {
+      this.selectRow = row
     }
   }
 }

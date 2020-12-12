@@ -39,7 +39,7 @@ module.exports = {
     },
     proxy: {
       '/dev-api': {
-        target: 'http://172.18.20.211:20001', // 和宇云地址
+        target: 'http://10.196.161.40:8080', // 和宇云地址
         // target: 'http://172.18.20.178:8080', // 测试ip地址
         // target: 'http://172.16.43.170:8888',
         ws: true,

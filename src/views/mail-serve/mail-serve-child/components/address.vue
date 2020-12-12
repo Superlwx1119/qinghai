@@ -79,7 +79,8 @@ export default {
       },
       tableData: [
         { addrbookGrpName: '123123', userNameList: 'wrwefwf' }
-      ]
+      ],
+      addrbookGrpName: ''
     }
   },
   computed: {
@@ -97,12 +98,12 @@ export default {
     }
   },
   created() {
-    this.search()
+    // this.search()
   },
 
   methods: {
     showDetail(row) {
-      console.log(row)
+      console.log(row, 'row')
       this.addrbookGrpNo = row.addrbookGrpNo
       this.addrbookGrpName = row.addrbookGrpName
       this.isShowDetail = true
