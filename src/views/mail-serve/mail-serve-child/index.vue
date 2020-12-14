@@ -11,7 +11,7 @@
             <el-menu
               default-active="2"
               class="el-menu-vertical-demo"
-              active-text-color="#000"
+              active-text-color="#409EFF"
               background-color="#fff"
               text-color="#000"
               @select="handleSelect"
@@ -22,7 +22,7 @@
               </el-menu-item>
               <el-menu-item index="2" @click="chooseItem(2)">
                 <i class="el-icon-folder" />
-                <span slot="title">收件箱</span>
+                <span slot="title">收件箱（{{ mailCounts }}）</span>
               </el-menu-item>
               <el-menu-item index="3" @click="chooseItem(3)">
                 <i class="el-icon-folder" />
@@ -40,23 +40,24 @@
                 <i class="el-icon-folder" />
                 <span slot="title">归档文件夹</span>
               </el-menu-item>
+              <el-submenu index="7" @click="chooseItem(7)">
+                <template slot="title">
+                  <i class="el-icon-folder" />
+                  <span>其他文件夹</span>
+                </template>
+                <el-menu-item-group>
+                  <el-menu-item v-for="(item,index) in mailGroupList" :key="index.id" @click="chooseOther(item)">
+                    <i class="el-icon-folder" />
+                    {{ item.label }}
+                  </el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
             </el-menu>
           </div>
         </el-col>
         <el-col :span="18">
 
           <el-header style="padding:0.5rem 0;height:auto;">
-
-            <!-- <template>
-              <my-button type="export" icon="download" title="收取" @click="charge()" />
-              <my-button type="import" icon="detail" title="写邮件" @click="replyshoe()" />
-              <my-button type="primary" icon="detail" title="回复" @click="getCurrentUserbtn(1)" />
-              <my-button type="add" icon="detail" title="回复全部" @click="getCurrentUserbtn(2)" />
-              <my-button type="export" icon="detail" title="转发" @click="getCurrentUserbtn(3)" />
-              <my-button type="import" icon="detail" title="归档" @click="getCurrentUserbtn(4)" />
-              <my-button type="primary" icon="detail" title="分组管理" @click="Addgroup()" />
-            </template> -->
-
             <el-button type="primary" @click="charge()">
               <i class="el-icon-download" />
               收取
@@ -108,21 +109,21 @@
                 <my-button icon="detail" title="详情" @click="details(scope.row)" />
                 <my-button icon="delete" title="删除" @click="deleteRow(scope.row)" />
               </template>
-              <Pagination :data="paginationQuery" @refresh="pageChange" />
             </my-table-view>
+            <Pagination :data="paginationQuery2" @refresh="pageChange2" />
           </template>
         </el-col>
       </el-row>
     </section>
     <MailReply v-model="isShowAdd" :select-row="selectRow" :is-reply-mail="isReplyMail" :is-forward-mail="isForwardMail" :dialog-title="dialogTitle" @search="chooseItem(parseInt(selectIndex))" />
-    <viewMail v-model="isShowDetail" :dialog-title="detailTitle" :select-row="selectRow" @search="search" />
+    <viewMail v-model="isShowDetail" :dialog-title="detailTitle" :select-row="selectRow" @search="search" @readFlag="readFlag" />
     <AddGroup v-model="isaddgroup" />
   </div>
 </template>
 
 <script>
 // import { getCurrentUser } from '@/api/Common/Request'
-import { getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList, deleteEMailByReceiver, updateArchiveStatus } from '@/api/Mail'
+import { getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList, deleteEMailByReceiver, updateArchiveStatus, readFlag, getEMailGroups, getEMailsFromGroup } from '@/api/Mail'
 import pageHandle from '@/mixins/pageHandle'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
 import MailReply from './mailReply'
@@ -169,7 +170,10 @@ export default {
       isReplyMail: false, // 是否是回复邮件
       isForwardMail: false, // 是否是转发邮件
       dialogTitle: '', // 弹出框名称
-      detailTitle: '' // 详情的弹出框名称
+      detailTitle: '', // 详情的弹出框名称
+      paginationQuery2: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 },
+      mailCounts: '',
+      mailGroupList: []// 存放其他文件夹的数据
     }
   },
   computed: {
@@ -185,6 +189,8 @@ export default {
     this.columns = listitem1
   },
   mounted() {
+    this.getEMailGroups()
+    this.getUnReadCounts()
     this.getEMailInbox()
   },
   methods: {
@@ -192,16 +198,30 @@ export default {
       this.getUnReadCounts()
       this.getEMailInbox()
     },
+    // 获取其他文件夹的内容
+    getEMailGroups() {
+      getEMailGroups({}).then(res => {
+        if (res.code === 0) {
+          this.mailGroupList = res.data
+        }
+      })
+    },
     getEMailInbox() {
       const param = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 0,
+        pageSize: this.paginationQuery2.pageSize,
+        pageNumber: this.paginationQuery2.pageNumber,
+        total: this.paginationQuery2.total,
         prntGrpNo: 1
       }
       getEMailInbox(param).then(res => {
         this.tableData = res.data.result
-        this.setPaginationQuery(res.data)
+        this.paginationQuery2 = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.total,
+          startRow: res.data.startRow,
+          endRow: res.data.endRow
+        }
       })
     },
     changeSelection(val) {
@@ -213,54 +233,114 @@ export default {
     },
     chooseItem(value) {
       const param = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 0,
+        pageSize: this.paginationQuery2.pageSize,
+        pageNumber: this.paginationQuery2.pageNumber,
+        total: this.paginationQuery2.total,
         prntGrpNo: 1
       }
       switch (value) {
         case 1:
           this.columns = listitem1
+          this.loading = true
           getStarEMailList(param).then(res => {
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
         case 2:
           this.columns = listitem1
-          console.log(param, 'parmas')
+          this.loading = true
           getEMailInbox(param).then(res => {
-            console.log(res, 'ppp')
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
         case 3:
           this.columns = listitem2
+          this.loading = true
           getDraft(param).then(res => {
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
         case 4:
           this.columns = listitem3
+          this.loading = true
           getEMailOutbox(param).then(res => {
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
         case 5:
           this.columns = listitem4
+          this.loading = true
           getEMailBin(param).then(res => {
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
         case 6:
           this.columns = listitem3
+          this.loading = true
           getArchiveEMailList(param).then(res => {
+            this.loading = false
             this.tableData = res.data.result
+            this.paginationQuery2 = {
+              pageSize: res.data.pageSize,
+              pageNumber: res.data.pageNumber,
+              total: res.data.total,
+              startRow: res.data.startRow,
+              endRow: res.data.endRow
+            }
+          }).catch(() => {
+            this.loading = false
           })
           break
-        // default:
-        //   this.columns = listitem1
-        //   this.getUnReadCounts()
-        //   break
       }
     },
     replyshoe() {
@@ -305,7 +385,7 @@ export default {
     // 转发
     forward() {
       if (this.rid === '') {
-        this.$msgWarning('请选择邮件')
+        this.$msgInfo('请选择邮件')
       } else {
         this.isForwardMail = true
         this.isShowAdd = true
@@ -336,7 +416,7 @@ export default {
     getUnReadCounts() {
       getUnReadCount().then(res => {
         if (res.code === 0) {
-          this.$msgSuccess(res.message)
+          this.mailCounts = res.data
         }
       })
     },
@@ -360,8 +440,8 @@ export default {
         this.loading = true
         deleteEMailByReceiver(row.rid).then(res => {
           if (res.code === 0) {
-            this.$msgSuccess('操作成功！')
             this.search()
+            this.$msgSuccess('操作成功！')
             this.loading = false
           }
         }).catch(() => {
@@ -385,6 +465,45 @@ export default {
     },
     handleCurrentChange({ row, column, cell }) {
       this.selectRow = row
+    },
+    // 刷新已读标志
+    readFlag(v) {
+      const param = v
+      readFlag(param).then(res => {
+        if (res.code === 0) {
+          this.getEMailInbox()
+        }
+      })
+    },
+    // 切换分页
+    pageChange2(v) {
+      this.paginationQuery2.pageSize = v.pagination.pageSize
+      this.paginationQuery2.pageNumber = v.pagination.pageNumber
+      this.chooseItem(this.selectIndex)
+    },
+    // 选择其他文件夹里的文件
+    chooseOther(item) {
+      const params = {
+        pageSize: this.paginationQuery2.pageSize,
+        pageNumber: this.paginationQuery2.pageNumber,
+        total: this.paginationQuery2.total,
+        groupId: item.id,
+        prntGrpNo: '1'
+      }
+      this.loading = true
+      getEMailsFromGroup(params).then(res => {
+        this.loading = false
+        this.tableData = res.data.result
+        this.paginationQuery2 = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.total,
+          startRow: res.data.startRow,
+          endRow: res.data.endRow
+        }
+      }).catch(() => {
+        this.loading = false
+      })
     }
   }
 }
@@ -422,6 +541,7 @@ export default {
 
           .box {
             height: 100%;
+            overflow: scroll;
 
             .el-tree {
               height: 100%;
@@ -443,6 +563,9 @@ export default {
 
   .height100b{
       height: 100%;
+  };
+  /deep/.pf-table{
+    height: calc(100% - 86px) !important;
   }
 }
 </style>

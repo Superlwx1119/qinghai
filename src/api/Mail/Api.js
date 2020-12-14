@@ -21,7 +21,10 @@ export default {
   deleteEMailByReceiver: ips + '/admin/web/admin/email/offEmailD/deleteEMailByReceiver', // 通讯录中选择收件人
   getEMailGroups: ips + '/admin/web/admin/email/offEmailD/getEMailGroups', // 查询分组管理
   delTree: ips + '/admin/web/admin/email/offEmailD/delTree', // 删除分组管理
-  updateArchiveStatus: ips + '/admin/web/admin/email/offEmailD/updateArchiveStatus'// 选择数据进行归档
+  updateArchiveStatus: ips + '/admin/web/admin/email/offEmailD/updateArchiveStatus', // 选择数据进行归档
+  getEMail: ips + '/admin/web/admin/email/offEmailD/getEMail', // 查看邮件详情
+  readFlag: ips + '/admin/web/admin/email/offEmailD/readFlag', // 查看邮件详情
+  getEMailsFromGroup: ips + '/admin/web/admin/email/offEmailD/getEMailsFromGroup'// 查看其他文件夹的文件
 }
 // 已发送
 // /ips/admin/web/admin/email/offEmailD/getEMailOutbox

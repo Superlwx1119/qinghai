@@ -141,7 +141,7 @@ export function recer(query) {
 export function deleteEMailByReceiver(params) {
   return request({
     url: api.deleteEMailByReceiver + '/' + params,
-    method: 'get',
+    method: 'delete',
     data: params
   })
 }
@@ -178,5 +178,40 @@ export function updateArchiveStatus(query) {
     url: api.updateArchiveStatus,
     method: 'post',
     data: query
+  })
+}
+
+/**
+ * 查看邮件详情
+ * @param query
+*/
+export function getEMail(query) {
+  return request({
+    url: api.getEMail,
+    method: 'post',
+    data: query
+  })
+}
+
+/**
+ * 刷新已读标志
+*/
+export function readFlag(params) {
+  return request({
+    url: api.readFlag + '/' + params,
+    method: 'get',
+    data: params
+  })
+}
+
+/**
+ * 查看其他文件夹里的文件
+ * @param query
+*/
+export function getEMailsFromGroup(query) {
+  return request({
+    url: api.getEMailsFromGroup,
+    method: 'get',
+    params: query
   })
 }

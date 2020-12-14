@@ -60,7 +60,6 @@ export default {
         return <span>{ option.label }</span>
       },
       addressBooklist: [],
-      loading: false,
       itemsDatas: [
         { label: '搜索', prop: 'addrbookGrpName', type: 'input', message: '请输入', span: 12 }
       ],
@@ -103,7 +102,8 @@ export default {
         if (v) {
           this.generateData()
         }
-      }
+      },
+      deep: true
     }
   },
   methods: {

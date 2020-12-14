@@ -12,14 +12,14 @@
     <div class="orgEmailContent">
       <div style="margin:10px 0;height:300px">
         <div class="top">
-          <b>发件人：</b><span style="color:#0000FF">{{ selectRow.senderName }}</span><br>
-          <b>发送时间：</b>{{ selectRow.sendTime |renderTime }}<br>
-          <b>收件人：</b><span style="color:#0000FF">{{ selectRow.receiverName }}</span><br>
-          <b>抄送人：</b><span style="color:#0000FF">{{ selectRow.ccName |filterState }}</span><br>
-          <b>主题：</b>{{ selectRow.title }}<br>
+          <b>发件人：</b><span style="color:#0000FF">{{ tableData.senderName }}</span><br>
+          <b>发送时间：</b>{{ tableData.sendTime |renderTime }}<br>
+          <b>收件人：</b><span style="color:#0000FF">{{ tableData.receiverName }}</span><br>
+          <b>抄送人：</b><span style="color:#0000FF">{{ tableData.ccName |filterState }}</span><br>
+          <b>主题：</b>{{ tableData.title }}<br>
         </div>
         <div class="content">
-          <p v-html="selectRow.content">{{ selectRow.content }}</p>
+          <p v-html="tableData.content">{{ tableData.content }}</p>
         </div>
       </div>
       <!-- <el-button type="primary" @click="submit">提交</el-button> -->
@@ -42,6 +42,7 @@
   </form-dialog>
 </template>
 <script>
+import { getEMail } from '@/api/Mail/index'
 export default {
   filters: {
     renderTime(date) {
@@ -61,10 +62,6 @@ export default {
     event: 'closeAll'
   },
   props: {
-    daterow: {
-      type: Array,
-      default: () => []
-    },
     isShowDetail: {
       type: Boolean,
       default: false
@@ -80,45 +77,7 @@ export default {
   },
   data() {
     return {
-      // 选择的人员类别  1 收件人  2发件人
-      userType: 1,
-      fileList: [],
-      editorOption: {},
-      isSelectShow: false,
-      isShowAdd: false,
-      showAdd: false,
-      loading: false,
-      itemsDatas: [
-        { label: '收件人', prop: 'cc', type: 'custom', span: 24 },
-        { label: '抄送人', prop: 'recp', type: 'custom', span: 24 },
-        { label: '邮件主题', prop: 'content', type: 'input', message: '请输入', span: 24, rows: 3 },
-        { label: '邮件内容', prop: 'emailCont', type: 'custom', span: 24 }
-      ],
-      itemsDatas1: [
-        { label: '收件人', prop: 'cc', type: 'custom', span: 24 },
-        { label: '抄送人', prop: 'recp', type: 'custom', span: 24 },
-        { label: '邮件主题', prop: 'content', type: 'input', message: '请输入', span: 24, rows: 3 },
-        { label: '邮件内容', prop: 'emailCont', type: 'custom', span: 24 },
-        { label: '原邮件内容', prop: 'orgEmailContent', type: 'custom', span: 24 }
-      ],
-      queryForm: {
-        cc: '',
-        recp: '',
-        sendType: '01',
-        content: '',
-        emailCont: '',
-        orgEmailContent: [],
-        ccIdList: [],
-        recpIdList: []
-      },
-      rules: {
-        content: [
-          { required: true, message: '请输入短信主题', trigger: 'blur' }
-        ],
-        cc: [
-          { required: true, message: '请选择收件人', trigger: 'change' }
-        ]
-      }
+      tableData: {}
     }
   },
   computed: {
@@ -126,15 +85,20 @@ export default {
   watch: {
     isShowDetail(v) {
       if (v) {
-        if (this.isForwardMail === true) this.queryForm.content = this.dialogTitle
-        if (this.isReplyMail === true) {
-          this.queryForm.content = this.dialogTitle
-          this.queryForm.cc = this.selectRow.senderName
-        }
+        this.getEmail()
+      } else {
+        this.$emit('readFlag', this.selectRow.rid)
       }
     }
   },
   methods: {
+    getEmail() {
+      getEMail({ rid: this.selectRow.rid }).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data[0]
+        }
+      })
+    },
     isShow(v) {
       this.$emit('closeAll', v)
     },

@@ -28,13 +28,13 @@
           </el-upload>
         </template>
         <FormItems ref="ruleForm" style="margin:1rem 0;" :items-datas="isReplyMail ||isForwardMail=== true? itemsDatas1: itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
-          <template slot="cc">
-            <el-input v-model="queryForm.cc" placeholder="请选择联系人" class="input-with-select" @focus="showAdditem(1)">
+          <template slot="recp">
+            <el-input v-model="queryForm.recp" placeholder="请选择联系人" class="input-with-select" @focus="showAdditem(1)">
               <el-button slot="append" icon="el-icon-search" @click="showAdditem(1)" />
             </el-input>
           </template>
-          <template slot="recp">
-            <el-input v-model="queryForm.recp" placeholder="请选择联系人" class="input-with-select" @focus="showAdditem(2)">
+          <template slot="cc">
+            <el-input v-model="queryForm.cc" placeholder="请选择联系人" class="input-with-select" @focus="showAdditem(2)">
               <el-button slot="append" icon="el-icon-search" @click="showAdditem(2)" />
             </el-input>
           </template>
@@ -138,33 +138,33 @@ export default {
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '收件人', prop: 'cc', type: 'custom', span: 24 },
-        { label: '抄送人', prop: 'recp', type: 'custom', span: 24 },
-        { label: '邮件主题', prop: 'content', type: 'input', message: '请输入', span: 24, rows: 3 },
+        { label: '收件人', prop: 'recp', type: 'custom', span: 24 },
+        { label: '抄送人', prop: 'cc', type: 'custom', span: 24 },
+        { label: '邮件主题', prop: 'emailSbj', type: 'input', message: '请输入', span: 24, rows: 3 },
         { label: '邮件内容', prop: 'emailCont', type: 'custom', span: 24 }
       ],
       itemsDatas1: [
-        { label: '收件人', prop: 'cc', type: 'custom', span: 24 },
-        { label: '抄送人', prop: 'recp', type: 'custom', span: 24 },
-        { label: '邮件主题', prop: 'content', type: 'input', message: '请输入', span: 24, rows: 3 },
+        { label: '收件人', prop: 'recp', type: 'custom', span: 24 },
+        { label: '抄送人', prop: 'cc', type: 'custom', span: 24 },
+        { label: '邮件主题', prop: 'emailSbj', type: 'input', message: '请输入', span: 24, rows: 3 },
         { label: '邮件内容', prop: 'emailCont', type: 'custom', span: 24 },
         { label: '原邮件内容', prop: 'orgEmailContent', type: 'custom', span: 24 }
       ],
       queryForm: {
-        cc: '',
         recp: '',
+        cc: '',
         sendType: '01',
-        content: '',
+        emailSbj: '',
         emailCont: '',
         orgEmailContent: [],
         ccIdList: [],
         recpIdList: []
       },
       rules: {
-        content: [
-          { required: true, message: '请输入短信主题', trigger: 'blur' }
+        emailSbj: [
+          { required: true, message: '请输入邮件主题', trigger: 'blur' }
         ],
-        cc: [
+        recp: [
           { required: true, message: '请选择收件人', trigger: 'change' }
         ]
       }
@@ -175,10 +175,10 @@ export default {
   watch: {
     isDialogVisible(v) {
       if (v) {
-        if (this.isForwardMail === true) this.queryForm.content = this.dialogTitle
+        if (this.isForwardMail === true) this.queryForm.emailSbj = this.dialogTitle
         if (this.isReplyMail === true) {
-          this.queryForm.content = this.dialogTitle
-          this.queryForm.cc = this.selectRow.senderName
+          this.queryForm.emailSbj = this.dialogTitle
+          this.queryForm.recp = this.selectRow.senderName
         }
       }
     }
@@ -233,14 +233,14 @@ export default {
     },
     rightcheckchange(val) {
       if (this.userType === 1) {
-        this.queryForm.ccIdList = JSON.parse(JSON.stringify(val.idlist))
-        for (let i = 0; i < val.userlist.length; i++) {
-          this.queryForm.cc += val.userlist[i] + ','
-        }
-      } else {
         this.queryForm.recpIdList = JSON.parse(JSON.stringify(val.idlist))
         for (let i = 0; i < val.userlist.length; i++) {
           this.queryForm.recp += val.userlist[i] + ','
+        }
+      } else {
+        this.queryForm.ccIdList = JSON.parse(JSON.stringify(val.idlist))
+        for (let i = 0; i < val.userlist.length; i++) {
+          this.queryForm.cc += val.userlist[i] + ','
         }
       }
     },
