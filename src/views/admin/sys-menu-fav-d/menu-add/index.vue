@@ -9,6 +9,7 @@
   <div class="menu-add">
     <!--新增菜单 -->
     <el-dialog
+      v-dialogDrag
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       title="菜单"

@@ -9,13 +9,14 @@
   <div class="subsystem-add">
     <!--子系统新增 -->
     <el-dialog
+      v-dialogDrag
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       :title="`${dataObj.isModify ? '修改' : '新增'}子系统`"
       width="70%"
       @close="cancelDialog"
     >
-      <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :is-grid="false" :rules="rules" />
+      <FormItems ref="queryForm" v-loading="loading" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm" :is-grid="false" :rules="rules" />
       <span slot="footer" class="dialog-footer">
         <el-button type="" @click="cancelDialog(0)">关闭</el-button>
         <el-button v-if="!dataObj.isModify" type="primary" @click="submitForm('queryForm')">确定</el-button>
@@ -44,6 +45,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       certTypeList: [{ label: '身份证', value: '99' }],
       userExtInfo: {},
       isPwdChanged: false, // 密码是否修改
@@ -99,9 +101,10 @@ export default {
       this.queryForm = this.dataObj.row
     },
     //  新增保存
-    submitForm(foconstame) {
-      this.$refs['queryForm'].validate((valid) => {
+    submitForm() {
+      this.$refs.queryForm.elForm.validate((valid) => {
         if (valid) {
+          this.loading = true
           const params = this.queryForm
           ApiObj.addSysSubsysD(params).then(res => {
             if (res.code === 0) {
@@ -111,8 +114,10 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
+              this.loading = false
               this.cancelDialog(1)
             } else {
+              this.loading = false
               this.$alert(`<div class="myalert-header">操作失败</div>
                     <div class="myalert-content">${res.message}</div>`, {
                 dangerouslyUseHTMLString: true, confirmButtonText: '确定',
@@ -124,9 +129,10 @@ export default {
       })
     },
     // 修改保存
-    modifyForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    modifyForm() {
+      this.$refs.queryForm.elForm.validate((valid) => {
         if (valid) {
+          this.loading = true
           const params = this.queryForm
           ApiObj.updateSubsys(params).then(res => {
             if (res.code === 0) {
@@ -136,8 +142,10 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
+              this.loading = false
               this.cancelDialog(1)
             } else {
+              this.loading = false
               this.$alert(`<div class="myalert-header">操作失败</div>
                 <div class="myalert-content">${res.message}</div>`, {
                 dangerouslyUseHTMLString: true, confirmButtonText: '确定',

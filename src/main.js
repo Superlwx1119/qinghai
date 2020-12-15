@@ -18,6 +18,7 @@ import App from './App'
 import store from './store'
 import router from './router'
 import locale from '@/assets/locale/cn.js'
+import './directive/el-drag-dialog/drag'
 import './icons' // icon
 // import './permission' // permission control
 import './utils/error-log' // error log
@@ -60,7 +61,6 @@ Vue.use(Element, {
   size: Cookies.get('size') || 'small', // set element-ui default size
   locale: locale
 })
-
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

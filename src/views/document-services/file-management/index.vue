@@ -20,12 +20,16 @@
         </div>
       </div>
       <template>
-        <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+        <my-table-view v-loading="loading" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="handleCurrentChange">
+          <template slot="select" slot-scope="scope">
+            <el-radio v-model="fileInfoId" :label="scope.row">{{ '' }}</el-radio>
+          </template>
           <template slot="operation" slot-scope="scope">
-            <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
-            <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
-            <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
-            <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
+            <my-button icon="edit" @click="showDialog('edit',scope.row)" />
+            <my-button icon="delete" @click="deleteRow(scope.row)" />
+          </template>
+          <template slot="upldTime" slot-scope="scope">
+            {{ scope.row.upldTime | renderTime }}
           </template>
         </my-table-view>
         <Pagination :data="paginationQuery" @refresh="pageChange" />
@@ -40,10 +44,16 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import Upload from './upload'
-import { page, getFileCollocation, getUrl } from '@/api/DocumentServices/index'
+import { page, getFileCollocation, getUrl, downLoadFile } from '@/api/DocumentServices/index'
 export default {
   name: 'FileManagement',
   components: { FormItems, NormalLayer, Upload },
+  filters: {
+    renderTime(date) {
+      var dateee = new Date(date).toJSON()
+      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+    }
+  },
   mixins: [pageHandle],
   data() {
     return {
@@ -60,16 +70,19 @@ export default {
         total: 0
       },
       columns: [
+        { type: 'custom', prop: 'select', slotName: 'select', label: '选择', width: 55 },
         { type: 'index', label: '序号' },
-        { label: '文件名称', prop: '文件名称' },
-        { label: '文件大小(MB)', prop: '文件大小' },
-        { label: '上传时间', prop: '上传时间' },
-        { label: '文件说明', prop: '文件说明' },
+        { label: '文件名称', prop: 'filename' },
+        { label: '文件大小(MB)', prop: 'ossFilesize' },
+        { label: '上传时间', prop: 'upldTime', type: 'custom', minWidth: '100', slotName: 'upldTime' },
+        { label: '分享状态', prop: 'optins' },
+        { label: '文件说明', prop: 'dscr' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
       tableData: [
       ],
-      multipleSelection: []
+      fileInfoId: '',
+      selectRow: {}
     }
   },
   computed: {},
@@ -82,9 +95,33 @@ export default {
   mounted() {},
   methods: {
     downloadFile() {
-      if (this.multipleSelection.length === 0) {
-        this.$msgWarning('请选择要下载的文件')
+      debugger
+      if (this.fileInfoId === '') {
+        this.$msgInfo('请选择要下载的文件')
         return
+      } else {
+        const hidden = { shrEdit: true, onlineEdit: true }
+        const preset = { hidden }
+        const params = Object.assign(this.selectRow, { preset: preset })
+        downLoadFile(params).then(res => {
+          const disposition = res.headers['content-disposition']
+          var blob = new Blob([res.data], { type: 'application/octet-stream' })
+          const fileType = disposition ? disposition.substr(disposition.lastIndexOf('.') + 1) : ''
+          if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, params.fileName + '.' + fileType)
+          } else {
+            var downloadElement = document.createElement('a')
+            var href = window.URL.createObjectURL(blob) // 创建下载的链接
+            downloadElement.href = href
+            downloadElement.download = params.fileName // 下载后文件名
+            document.body.appendChild(downloadElement)
+            downloadElement.click() // 点击下载
+            document.body.removeChild(downloadElement) // 下载完成移除元素
+            window.URL.revokeObjectURL(href) // 释放掉blob对象
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       }
     },
     pageChange(data) {
@@ -124,6 +161,9 @@ export default {
           console.log(res.data)
         }
       })
+    },
+    handleCurrentChange({ row, column, cell }) {
+      this.selectRow = row
     }
   }
 }

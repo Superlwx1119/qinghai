@@ -219,8 +219,8 @@ export default {
           pageSize: res.data.pageSize,
           pageNumber: res.data.pageNumber,
           total: res.data.total,
-          startRow: res.data.startRow,
-          endRow: res.data.endRow
+          startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+          endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
         }
       })
     },
@@ -232,6 +232,7 @@ export default {
       this.selectIndex = key
     },
     chooseItem(value) {
+      // debugger
       const param = {
         pageSize: this.paginationQuery2.pageSize,
         pageNumber: this.paginationQuery2.pageNumber,
@@ -249,8 +250,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -266,8 +267,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -283,8 +284,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -300,8 +301,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -317,8 +318,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -334,8 +335,8 @@ export default {
               pageSize: res.data.pageSize,
               pageNumber: res.data.pageNumber,
               total: res.data.total,
-              startRow: res.data.startRow,
-              endRow: res.data.endRow
+              startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+              endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
             }
           }).catch(() => {
             this.loading = false
@@ -422,6 +423,7 @@ export default {
     },
     search() {
       this.chooseItem(parseInt(this.selectIndex))
+      this.getUnReadCounts()
     },
     // 查看详情
     details(row) {
@@ -477,9 +479,10 @@ export default {
     },
     // 切换分页
     pageChange2(v) {
+      console.log(v)
       this.paginationQuery2.pageSize = v.pagination.pageSize
-      this.paginationQuery2.pageNumber = v.pagination.pageNumber
-      this.chooseItem(this.selectIndex)
+      this.paginationQuery2.pageNumber = v.pagination.pageNum
+      this.chooseItem(parseInt(this.selectIndex))
     },
     // 选择其他文件夹里的文件
     chooseOther(item) {

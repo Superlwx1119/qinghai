@@ -57,7 +57,7 @@
                   height="string"
                   element-loading-spinner="el-loading1"
                   highlight-current-row
-                  style="width: 100%;height:calc(100% - 104px);"
+                  style="width: 100%;height:100%;"
                   border
                   fit
                   @selection-change="handleSelectionChange"
@@ -166,7 +166,7 @@ export default {
       ApiObj.userpage(params).then(res => {
         if (res.code === 0) {
           this.userTableData = res.data.result || res.data.data
-          this.total = res.data.recordCounts
+          this.total = res.data.recordCount
           const num1 = this.pageSize * (this.currentPage - 1) + 1
           const num2 = this.pageSize * this.currentPage > this.total ? this.total : this.pageSize * this.currentPage
           this.startRow = num1
@@ -248,5 +248,11 @@ export default {
       margin-left:0px;
     }
   }
+}
+/deep/section.layer+section.layer {
+    height: 100%;
+}
+/deep/.el-scrollbar__view {
+    height: 71% ;
 }
 </style>

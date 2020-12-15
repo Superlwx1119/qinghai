@@ -10,6 +10,7 @@
     <!--菜单新增功能 -->
     <el-dialog
       v-dialogDrag
+      v-loading="loading"
       :close-on-click-modal="false"
       :visible.sync="dataObj.isShow"
       :title="`${dataObj.isModify ? '修改' : '新增'}功能`"
@@ -77,6 +78,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       certTypeList: [{ label: '身份证', value: '99' }],
       userExtInfo: {},
       isPwdChanged: false, // 密码是否修改
@@ -131,6 +133,7 @@ export default {
     submitForm(foconstame) {
       this.$refs['searchForm'].validate((valid) => {
         if (valid) {
+          this.loading = true
           const menuInfo = {
             resuType: '4',
             prntResuId: this.resourceInfo.resuId,
@@ -140,6 +143,7 @@ export default {
 
           ApiObj.addSysResuD(params).then(res => {
             if (res.code === 0) {
+              this.loading = false
               this.$message({
                 type: 'success',
                 dangerouslyUseHTMLString: true,
@@ -148,6 +152,7 @@ export default {
               })
               this.cancelDialog(1)
             } else {
+              this.loading = false
               this.$alert(`<div class="myalert-header">操作失败</div>
                     <div class="myalert-content">${res.message}</div>`, {
                 dangerouslyUseHTMLString: true, confirmButtonText: '确定',
@@ -162,6 +167,7 @@ export default {
     modifyForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.loading = true
           const params = this.searchForm
           ApiObj.updateResu(params).then(res => {
             if (res.code === 0) {
@@ -171,8 +177,10 @@ export default {
                 message: `<strong>操作成功</strong><p>${res.message}</p>`,
                 duration: 1000
               })
+              this.loading = false
               this.cancelDialog(1)
             } else {
+              this.loading = false
               this.$alert(`<div class="myalert-header">操作失败</div>
                 <div class="myalert-content">${res.message}</div>`, {
                 dangerouslyUseHTMLString: true, confirmButtonText: '确定',

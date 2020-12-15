@@ -49,3 +49,13 @@ export function getUrl(params) {
     data: params
   })
 }
+/**
+ * 文件下载
+ */
+export function downLoadFile(data) {
+  return request({
+    url: api.downLoadFile,
+    method: 'post',
+    data
+  })
+}

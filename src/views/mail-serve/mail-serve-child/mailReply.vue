@@ -175,8 +175,9 @@ export default {
   watch: {
     isDialogVisible(v) {
       if (v) {
-        if (this.isForwardMail === true) this.queryForm.emailSbj = this.dialogTitle
-        if (this.isReplyMail === true) {
+        if (this.isForwardMail === true) {
+          this.queryForm.emailSbj = this.dialogTitle
+        } else if (this.isReplyMail === true) {
           this.queryForm.emailSbj = this.dialogTitle
           this.queryForm.recp = this.selectRow.senderName
         }

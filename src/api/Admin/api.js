@@ -9,7 +9,7 @@ export default {
     excel: ips + '/admin/export/excel', // 导出数据
     adminRoleId: ips + '/admin/web/secRole/units/adminRoleId', // 查询角色id
     beforeFact: ips + '/admin/web/beforeFact', // 请求接口之前的请求
-    user: ips + '/admin/web/user', // 新增用户名
+    user: ips + '/admin/web/user/', // 新增用户名
     updateUser: ips + '/admin/web/user/updateUser', // 修改用户
     uactStat: ips + '/admin/web/user/uactStat' // 启用禁用
   },

@@ -9,17 +9,17 @@
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
-    <div class="orgEmailContent">
+    <div v-for="item in tableData " :key="item.rid" class="orgEmailContent">
       <div style="margin:10px 0;height:300px">
         <div class="top">
-          <b>发件人：</b><span style="color:#0000FF">{{ tableData.senderName }}</span><br>
-          <b>发送时间：</b>{{ tableData.sendTime |renderTime }}<br>
-          <b>收件人：</b><span style="color:#0000FF">{{ tableData.receiverName }}</span><br>
-          <b>抄送人：</b><span style="color:#0000FF">{{ tableData.ccName |filterState }}</span><br>
-          <b>主题：</b>{{ tableData.title }}<br>
+          <b>发件人：</b><span style="color:#0000FF">{{ item.senderName }}</span><br>
+          <b>发送时间：</b>{{ item.sendTime |renderTime }}<br>
+          <b>收件人：</b><span style="color:#0000FF">{{ item.receiverName }}</span><br>
+          <b>抄送人：</b><span style="color:#0000FF">{{ item.ccName |filterState }}</span><br>
+          <b>主题：</b>{{ item.title }}<br>
         </div>
         <div class="content">
-          <p v-html="tableData.content">{{ tableData.content }}</p>
+          <p v-html="item.content">{{ item.content }}</p>
         </div>
       </div>
       <!-- <el-button type="primary" @click="submit">提交</el-button> -->
@@ -39,11 +39,14 @@
       </el-button>
       <my-button type="close" @click="closeDialog" />
     </span>
+    <mailReply v-model="isDialogVisible" :dialog-title="antDialogTitle" :select-row="selectRow" :is-reply-mail="isReplyMail" :is-forward-mail="isForwardMail" />
   </form-dialog>
 </template>
 <script>
 import { getEMail } from '@/api/Mail/index'
+import mailReply from '../mailReply'
 export default {
+  components: { mailReply },
   filters: {
     renderTime(date) {
       var dateee = new Date(date).toJSON()
@@ -77,7 +80,11 @@ export default {
   },
   data() {
     return {
-      tableData: {}
+      tableData: {},
+      isDialogVisible: false,
+      antDialogTitle: '',
+      isReplyMail: false,
+      isForwardMail: false
     }
   },
   computed: {
@@ -95,9 +102,30 @@ export default {
     getEmail() {
       getEMail({ rid: this.selectRow.rid }).then(res => {
         if (res.code === 0) {
-          this.tableData = res.data[0]
+          this.tableData = res.data
         }
       })
+    },
+    // 回复
+    reply() {
+      this.isDialogVisible = true
+      this.selectRow
+      this.isReplyMail = true
+      this.antDialogTitle = `回复：${this.selectRow.title}`
+    },
+    // 回复全部
+    replyAll() {
+      this.isDialogVisible = true
+      this.isReplyMail = true
+      this.selectRow
+      this.antDialogTitle = `回复全部：${this.selectRow.title}`
+    },
+    // 转发
+    forward() {
+      this.isDialogVisible = true
+      this.isForwardMail = true
+      this.selectRow
+      this.antDialogTitle = `转发：${this.selectRow.title}`
     },
     isShow(v) {
       this.$emit('closeAll', v)

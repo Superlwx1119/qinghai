@@ -94,6 +94,15 @@ export function formatTime(time, option) {
   }
 }
 
+// 获取随机数
+export function getSixRandom() {
+  let outTradeNo = '' // 订单号
+  for (let i = 0; i < 6; i++) {
+    outTradeNo += Math.floor(Math.random() * 10)
+  }// 6位随机数，用以加在时间戳后面。
+  // outTradeNo=new Date().getTime()+outTradeNo
+  return outTradeNo
+}
 /**
  * @param {string} url
  * @returns {Object}

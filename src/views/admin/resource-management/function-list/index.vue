@@ -251,8 +251,10 @@ export default {
     },
     // 获取功能列表
     getFunctionList(id) {
+      this.functionTableLoading = true
       sysr(id).then(res => {
         if (res.code === 0) {
+          this.functionTableLoading = false
           this.functionTableData = res.data
           if (res.data.length > 0) {
             this.handleCurrentChange(res.data[0])
@@ -260,6 +262,8 @@ export default {
             this.APITableData = []
           }
         }
+      }).catch(() => {
+        this.functionTableLoading = false
       })
     }
   }
@@ -274,6 +278,7 @@ export default {
     height: 50%;
   }
   .function-list{
+    height: 100%;
   }
 
 </style>
