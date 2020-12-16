@@ -252,7 +252,6 @@ export default {
       console.log(file)
     },
     handleClose(done) {
-      debugger
       this.$refs.ruleForm.elForm.resetFields()
     }
   }

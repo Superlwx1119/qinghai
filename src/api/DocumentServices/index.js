@@ -1,6 +1,7 @@
 /*
   公共Api
  */
+// import fileRequest from '@/utils/fileRequest'
 import request from '@/utils/request'
 import api from './Api.js'
 /**
@@ -49,6 +50,7 @@ export function getUrl(params) {
     data: params
   })
 }
+
 /**
  * 文件下载
  */
@@ -57,5 +59,61 @@ export function downLoadFile(data) {
     url: api.downLoadFile,
     method: 'post',
     data
+  })
+}
+
+/**
+ * 文件说明修改
+ */
+export function offFileD(data) {
+  return request({
+    url: api.offFileD,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 文件说明修改
+ */
+export function offFileDelete(query) {
+  return request({
+    url: api.offFileD,
+    method: 'delete',
+    params: query
+  })
+}
+
+/**
+ * 分享列表查询通讯录
+ */
+export function share(query) {
+  return request({
+    url: api.share,
+    method: 'get',
+    params: query
+  })
+}
+
+/**
+ * 分享列表查询通讯录
+ */
+export function getGrpByPage(query) {
+  return request({
+    url: api.getGrpByPage,
+    method: 'get',
+    params: query
+  })
+}
+
+/**
+ * 分享列表查询通讯录
+ */
+export function getGrpMsgPage(params) {
+  console.log(params)
+  return request({
+    url: api.getGrpMsgPage + '/' + params.addrbookGrpNo,
+    method: 'get',
+    params: params
   })
 }

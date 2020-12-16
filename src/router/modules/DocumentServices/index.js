@@ -19,16 +19,16 @@ export default {
         title: '文件管理',
         icon: 'spot'
       }
-    },
-    // 文件管理
-    {
-      path: '/shared-files',
-      name: 'SharedFiles',
-      component: () => import('@/views/document-services/shared-files/index'),
-      meta: {
-        title: '被分享文件',
-        icon: 'spot'
-      }
     }
+    // 文件管理
+    // {
+    //   path: '/shared-files',
+    //   name: 'SharedFiles',
+    //   component: () => import('@/views/document-services/shared-files/index'),
+    //   meta: {
+    //     title: '被分享文件',
+    //     icon: 'spot'
+    //   }
+    // }
   ]
 }

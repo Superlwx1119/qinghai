@@ -15,23 +15,31 @@
         <div slot="title-btns" class="box-tools">
           <el-button type="primary" @click="Editbutton('Edit')">写信</el-button>
           <el-button type="primary" @click="Editbutton('reply')">回复</el-button>
+          <el-button type="primary" @click="Editbutton('unreadLetter')">站内未读信</el-button>
           <el-button type="primary" @click="Editbutton('read')">标记已读</el-button>
           <el-button type="primary" @click="Editbutton('send')">发件箱</el-button>
         </div>
       </div>
       <template>
-        <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+        <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="handleCurrentChange">
+          <template slot="select" slot-scope="scope">
+            <el-radio v-model="rid" :label="scope.row.rid">{{ '' }}</el-radio>
+          </template>
+          <template slot="sendTime" slot-scope="scope">
+            {{ scope.row.sendTime | renderTime }}
+          </template>
+          <template slot="status" slot-scope="scope">
+            <state-tag :tag-type="scope.row.status | filterState" :title="scope.row.status === '1'?'已读':'未读'" />
+          </template>
           <template slot="operation" slot-scope="scope">
-            <el-button type="text" @click="showDialog('edit',scope.row)">编辑</el-button>
-            <el-button type="text" @click="showDialog('detail',scope.row)">查看</el-button>
-            <el-button type="text" @click="showDialog('apply',scope.row)">申报</el-button>
-            <el-button type="text" class="delete" @click="deleteRow(scope.row)">删除</el-button>
+            <my-button icon="detail" @click="showDialog('detail',scope.row)" />
+            <my-button icon="delete" @click="deleteRow(scope.row)" />
           </template>
         </my-table-view>
         <Pagination :data="paginationQuery" @refresh="pageChange" />
       </template>
     </normal-layer>
-    <Add v-model="isShowAdd" :daterow="daterow" />
+    <Add v-model="isShowAdd" :dialog-title="dialogTitle" :select-row="selectRow" :is-write-letters="isWriteLetters" :is-reply-letters="isReplyLetters" :daterow="daterow" />
     <OutBox v-model="isShowOutBox" :daterow="daterow" />
   </div>
 </template>
@@ -46,6 +54,19 @@ import { page, outBox, share } from '@/api/MessageServer'
 export default {
   name: 'StationMessageService',
   components: { FormItems, NormalLayer, Add, OutBox },
+  filters: {
+    renderTime(date) {
+      var dateee = new Date(date).toJSON()
+      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+    },
+    filterState(val) {
+      if (val === '0') {
+        return 'nopass'
+      } else if (val === '1') {
+        return 'pass'
+      }
+    }
+  },
   mixins: [pageHandle],
   data() {
     return {
@@ -53,22 +74,28 @@ export default {
         state: false,
         row: []
       },
+      dialogTitle: '',
       queryForm: {},
       isShowAdd: false,
       isShowOutBox: false,
+      isWriteLetters: false,
+      isReplyLetters: false,
       itemsDatas: [
         { label: '标题', prop: 'ttl', type: 'input', message: '请输入' }
       ],
       columns: [
+        { type: 'custom', prop: 'select', slotName: 'select', label: '选择', width: 55 },
         { type: 'index', label: '序号' },
-        { label: '已读标志', prop: 'sbmtStas' },
-        { label: '标题', prop: 'smsTtl' },
-        { label: '内容', prop: 'smsCont' },
-        { label: '发件人', prop: 'sender' },
-        { label: '收取时间', prop: 'sbmtTime' },
+        { label: '已读标志', prop: 'status', type: 'custom', slotName: 'status', minWidth: '100' },
+        { label: '标题', prop: 'title' },
+        { label: '内容', prop: 'content' },
+        { label: '发件人', prop: 'senderName' },
+        { label: '收取时间', prop: 'sendTime', type: 'custom', minWidth: '100', slotName: 'sendTime' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
-      tableData: []
+      tableData: [],
+      rid: '',
+      selectRow: {}
     }
   },
   computed: {},
@@ -88,10 +115,22 @@ export default {
       switch (value) {
         case 'Edit':
           this.isShowAdd = true
+          this.dialogTitle = '站内消息信息表'
+          this.isWriteLetters = true
           break
         case 'reply':
+          if (this.rid === '') {
+            this.$msgInfo('请选择邮件')
+          } else {
+            this.isShowAdd = true
+            this.dialogTitle = '站内消息信息表'
+            this.isReplyLetters = true
+            this.selectRow
+          }
+          break
+        case 'unreadLetter':
           this.$message({
-            message: '回复',
+            message: '站内未读信',
             type: 'warning'
           })
           break
@@ -127,6 +166,9 @@ export default {
         that.tableData = res.data.result
       }
       )
+    },
+    handleCurrentChange({ row, column, cell }) {
+      this.selectRow = row
     }
   }
 }

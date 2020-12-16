@@ -6,8 +6,6 @@
         v-model="value"
         style="text-align: left; display: inline-block"
         filterable
-        :left-default-checked="[2, 3]"
-        :right-default-checked="[1]"
         :render-content="renderFunc"
         :titles="['通讯录列表', '已选接收人列表']"
         :button-texts="['', '']"
@@ -15,7 +13,7 @@
           noChecked: '${total}',
           hasChecked: '${checked}/${total}'
         }"
-        :data="data"
+        :data="listData"
         @right-check-change="rightcheckchange"
         @change="handleChange()"
       />
@@ -48,31 +46,20 @@ export default {
     queCont: {
       type: String,
       default: ''
+    },
+    mailData: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
-    const generateData = _ => {
-      const data = []
-      this.addressBooklist = JSON.parse(sessionStorage.getItem('addressBooklist'))
-      console.log(this.addressBooklist)
-      for (let i = 0; i < this.addressBooklist.length; i++) {
-        data.push({
-          key: `${i}-${this.addressBooklist[i].uactId}-${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`,
-          label: `${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`
-          // disabled: i % 4 === 0
-        })
-      }
-      return data
-    }
     return {
-      data: generateData(),
-      value: [1],
-      value4: [1],
+      listData: [],
+      value: [],
       renderFunc(h, option) {
         return <span>{ option.label }</span>
       },
       addressBooklist: [],
-      loading: false,
       itemsDatas: [
         { label: '搜索', prop: 'addrbookGrpName', type: 'input', message: '请输入', span: 12 }
       ],
@@ -109,38 +96,48 @@ export default {
       tableData: []
     }
   },
-  computed: {
-  },
   watch: {
-    multipleSelection(val) {
-      this.$emit('changeSelection', val)
-    },
-    selection(val) {
-      this.multipleSelection = val
+    mailData: {
+      handler(v) {
+        if (v) {
+          this.generateData()
+        }
+      },
+      deep: true
     }
   },
-  created() {
-  },
-
   methods: {
+    resetValue() {
+      this.value = []
+    },
+    generateData() {
+      const data = []
+      this.addressBooklist = JSON.parse(JSON.stringify(this.mailData))
+      for (let i = 0; i < this.addressBooklist.length; i++) {
+        data.push({
+          key: `${i}-${this.addressBooklist[i].uactId}-${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`,
+          label: `${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`
+          // disabled: `${i}-${this.addressBooklist[i].uactId}-${this.addressBooklist[i].userName}<${this.addressBooklist[i].orgName}>`
+        })
+      }
+      this.listData = data
+    },
     rightcheckchange(value, direction, movedKeys) {
-      console.log(value)
+      console.log(value, 'value')
       const idlist = []; const userlist = []
       for (let i = 0; i < value.length; i++) {
         idlist.push(value[i].split('-')[1])
         userlist.push(value[i].split('-')[2])
       }
-      // eslint-disable-next-line no-unused-vars
       const param = {
         idlist,
         userlist
       }
-      this.$emit('rightcheckchange', param)
+      this.$emit('rightcheckchange', param, value)
     },
     handleChange(value, direction, movedKeys) {
-      // console.log(value, direction, movedKeys)
+      console.log(value, direction, movedKeys)
     },
-    reset() {},
     isShow(v) {
       this.$emit('closeAll', false)
     },

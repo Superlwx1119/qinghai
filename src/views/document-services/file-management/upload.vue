@@ -42,7 +42,7 @@
   </form-dialog>
 </template>
 <script>
-import upload from '@/api/DocumentServices/Api'
+// import upload from '@/api/DocumentServices/Api'
 export default {
   model: {
     prop: 'isDialogVisible',
@@ -84,7 +84,8 @@ export default {
     }
   },
   created() {
-    this.url = upload.upload
+    // this.url = process.env.VUE_APP_File_API + upload.upload
+    this.url = 'http://10.196.161.40:8080/ips/admin/web/admin/offFileD/upload'
   },
 
   methods: {

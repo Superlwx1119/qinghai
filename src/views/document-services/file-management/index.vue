@@ -25,7 +25,7 @@
             <el-radio v-model="fileInfoId" :label="scope.row">{{ '' }}</el-radio>
           </template>
           <template slot="operation" slot-scope="scope">
-            <my-button icon="edit" @click="showDialog('edit',scope.row)" />
+            <my-button icon="edit" @click="editRow(scope.row)" />
             <my-button icon="delete" @click="deleteRow(scope.row)" />
           </template>
           <template slot="upldTime" slot-scope="scope">
@@ -36,6 +36,8 @@
       </template>
     </normal-layer>
     <Upload v-model="isDialogVisible" @search="search" />
+    <Edit v-model="isEditDialog" :is-edit-title="isEditTitle" :row-data="rowData" @search="search" />
+    <Share v-model="isShareDialog" :is-share-title="isShareTitle" :row-data="rowData" @search="search" />
   </div>
 </template>
 
@@ -44,10 +46,12 @@ import FormItems from '@/views/components/PageLayers/form-items'
 import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import Upload from './upload'
-import { page, getFileCollocation, getUrl, downLoadFile } from '@/api/DocumentServices/index'
+import Edit from './edit'
+import Share from './share'
+import { page, getFileCollocation, getUrl, downLoadFile, offFileDelete } from '@/api/DocumentServices/index'
 export default {
   name: 'FileManagement',
-  components: { FormItems, NormalLayer, Upload },
+  components: { FormItems, NormalLayer, Upload, Edit, Share },
   filters: {
     renderTime(date) {
       var dateee = new Date(date).toJSON()
@@ -58,6 +62,11 @@ export default {
   data() {
     return {
       isDialogVisible: false,
+      isEditDialog: false,
+      isShareDialog: false,
+      loading: false,
+      isEditTitle: '',
+      isShareTitle: '',
       itemsDatas: [
         { label: '文件名称', prop: 'filename', type: 'input', message: '请输入' }
       ],
@@ -82,7 +91,8 @@ export default {
       tableData: [
       ],
       fileInfoId: '',
-      selectRow: {}
+      selectRow: {},
+      rowData: {}
     }
   },
   computed: {},
@@ -95,7 +105,6 @@ export default {
   mounted() {},
   methods: {
     downloadFile() {
-      debugger
       if (this.fileInfoId === '') {
         this.$msgInfo('请选择要下载的文件')
         return
@@ -124,26 +133,57 @@ export default {
         })
       }
     },
+    // 分享
+    shareFile() {
+      if (this.fileInfoId === '') {
+        this.$msgInfo('请选择要分享的文件')
+        return
+      } else {
+        this.isShareDialog = true
+        this.isShareTitle = '分享列表'
+      }
+    },
+    // 修改行
+    editRow(row) {
+      this.isEditDialog = true
+      this.rowData = row
+      this.isEditTitle = '文件说明'
+    },
+    // 删除行
+    deleteRow(row) {
+      this.$msgConfirm('删除文件会同步删除文件分享信息，是否删除文件?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        offFileDelete({ id: row.fileUserRltsId }).then(res => {
+          if (res.code === 0) {
+            this.$msgSuccess('删除成功！')
+            this.search()
+          }
+        })
+      }).catch(() => {
+        this.$msgInfo('已取消操作')
+      })
+    },
     pageChange(data) {
       this.paginationQuery.pageSize = data.pagination.pageSize
       this.paginationQuery.pageNumber = data.pagination.pageNum
       this.search()
     },
-    shareFile() {
-      if (this.multipleSelection.length === 0) {
-        this.$msgWarning('请选择要分享的文件')
-        return
-      }
-    },
     search() {
+      this.loading = true
       const params = {
         ...this.paginationQuery,
         filename: this.queryForm.filename
       }
       page(params).then(res => {
         if (res.code === 0) {
+          this.loading = false
           this.tableData = res.data.result
         }
+      }).catch(() => {
+        this.loading = false
       })
     },
     getFileCollocation() {

@@ -9,18 +9,23 @@
       </FormItems>
     </template>
     <template>
-      <my-table-view ref="myTable" v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="rowClick" />
+      <my-table-view ref="myTable" v-loading="loading" height="300px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="rowClick">
+        <template slot="operation" slot-scope="scope">
+          <my-button icon="detail" title="查看" @click="showDetail(scope.row)" />
+        </template>
+      </my-table-view>
       <Pagination :data="paginationQuery" @refresh="pageChange" />
     </template>
+    <AddressListDetail v-model="isShowDetail" :addrbook-grp-no="addrbookGrpNo" :addrbook-grp-name="addrbookGrpName" />
   </normal-layer>
-
 </template>
 <script>
-import { getAddrBookByPage } from '@/api/MessageServer/index'
 import FormItems from '@/views/components/PageLayers/form-items'
 import pageHandle from '@/mixins/pageHandle'
+import AddressListDetail from './addressListDetail'
+import { getGrpByPage } from '@/api/Mail'
 export default {
-  components: { FormItems },
+  components: { FormItems, AddressListDetail },
   mixins: [pageHandle],
   model: {
     prop: 'isDialogVisible',
@@ -46,22 +51,24 @@ export default {
   },
   data() {
     return {
+      addrbookGrpNo: '',
+      detailTitle: '',
+      isShowDetail: false,
       loading: false,
       itemsDatas: [
-        { label: '搜索', prop: 'userName', type: 'input', message: '请输入', span: 12 }
+        { label: '搜索', prop: 'addrbookGrpName', type: 'input', message: '请输入', span: 12 }
       ],
       queryForm: {
-        userName: '',
-        content: ''
+        addrbookGrpName: ''
       },
       multipleSelection: [],
       fileList: [],
       columns: [
         { type: 'selection' },
         { type: 'index', label: '序号' },
-        { label: '姓名', prop: 'userName' },
-        { label: '所属部门', prop: 'orgName' },
-        { label: '手机号码', prop: 'mob' }
+        { label: '个人通讯录组名', prop: 'addrbookGrpName' },
+        { label: '组内成员', prop: 'userNameList' },
+        { label: '操作', type: 'operation', fixed: 'right', width: '100px' }
       ],
       paginationQuery: {
         pageSize: 10,
@@ -70,7 +77,10 @@ export default {
         startRow: 0,
         endRow: 0
       },
-      tableData: []
+      tableData: [
+        { addrbookGrpName: '123123', userNameList: 'wrwefwf' }
+      ],
+      addrbookGrpName: ''
     }
   },
   computed: {
@@ -88,20 +98,26 @@ export default {
     }
   },
   created() {
-    this.search()
+    // this.search()
   },
 
   methods: {
+    showDetail(row) {
+      console.log(row, 'row')
+      this.addrbookGrpNo = row.addrbookGrpNo
+      this.addrbookGrpName = row.addrbookGrpName
+      this.isShowDetail = true
+    },
     rowClick(row) {
       this.$refs.myTable.$refs['pf-table'].toggleRowSelection(row.row)
     },
     search() {
       const form = {
         ...this.paginationQuery,
-        userName: this.queryForm.userName
+        ...this.queryForm
       }
       this.loading = true
-      getAddrBookByPage(form).then(res => {
+      getGrpByPage(form).then(res => {
         if (res.code === 0) {
           this.tableData = res.data.result
           const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1

@@ -54,7 +54,19 @@ export function offMsgD(params) {
   return request({
     url: api.offMsgD,
     method: 'post',
-    params: params
+    data: params
+  })
+}
+
+/**
+ * @param query
+ *  回复
+ */
+export function reply(params) {
+  return request({
+    url: api.reply,
+    method: 'post',
+    data: params
   })
 }
 

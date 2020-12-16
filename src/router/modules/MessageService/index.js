@@ -19,26 +19,26 @@ export default {
         title: '站内消息服务',
         icon: 'spot'
       }
-    },
-    // 短信消息服务
-    {
-      path: '/sms-service',
-      name: 'SmsService',
-      component: () => import('@/views/message-service/sms-service/index'),
-      meta: {
-        title: '短信消息服务',
-        icon: 'spot'
-      }
-    },
-    // 短信消息审批
-    {
-      path: '/sms-message-approval',
-      name: 'SmsMessageApproval',
-      component: () => import('@/views/message-service/sms-message-approval/index'),
-      meta: {
-        title: '短信消息审批',
-        icon: 'spot'
-      }
     }
+    // // 短信消息服务
+    // {
+    //   path: '/sms-service',
+    //   name: 'SmsService',
+    //   component: () => import('@/views/message-service/sms-service/index'),
+    //   meta: {
+    //     title: '短信消息服务',
+    //     icon: 'spot'
+    //   }
+    // },
+    // // 短信消息审批
+    // {
+    //   path: '/sms-message-approval',
+    //   name: 'SmsMessageApproval',
+    //   component: () => import('@/views/message-service/sms-message-approval/index'),
+    //   meta: {
+    //     title: '短信消息审批',
+    //     icon: 'spot'
+    //   }
+    // }
   ]
 }

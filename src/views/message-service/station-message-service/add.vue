@@ -13,16 +13,19 @@
         <div slot="table-title" class="box-header handle">
           <span class="box-title">短信信息表</span>
         </div>
-        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
-          <template slot="userIdList">
-            <el-input v-model="queryForm.userIdListname" placeholder="请选择联系人" class="input-with-select" disabled>
+        <form-items ref="queryForm" :key="indexKey" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
+          <template slot="ttl">
+            <el-input v-model="queryForm.ttl" class="input-with-select" :disabled="isReplyLetters" />
+          </template>
+          <template slot="userNameList">
+            <el-input v-model="queryForm.userNameList" placeholder="请选择联系人" class="input-with-select" :disabled="isReplyLetters">
               <el-button slot="append" icon="el-icon-search" @click="showAdditem()" />
             </el-input>
           </template>
-        </FormItems>
+        </form-items>
       </template>
     </normal-layer>
-    <select-btn v-model="isShowAdd" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
+    <select-btn v-model="isShowAdd" @rightcheckchange="rightcheckchange" />
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
       <el-button type="primary" @click="send()">发送</el-button>
@@ -34,7 +37,7 @@ import FormItems from '@/views/components/PageLayers/form-items'
 // eslint-disable-next-line no-unused-vars
 import object from 'element-resize-detector/src/detection-strategy/object'
 import { array } from 'jszip/lib/support'
-import { offMsgD } from '@/api/MessageServer'
+import { reply, offMsgD } from '@/api/MessageServer'
 import selectBtn from './select'
 export default {
   // eslint-disable-next-line vue/no-unused-components
@@ -54,7 +57,7 @@ export default {
     },
     dialogTitle: {
       type: String,
-      default: '新增'
+      default: ''
     },
     fixFlag: {
       type: String,
@@ -63,6 +66,20 @@ export default {
     queCont: {
       type: String,
       default: ''
+    },
+    selectRow: {
+      type: Object,
+      default: () => {}
+    },
+    // 写信
+    isWriteLetters: {
+      type: Boolean,
+      default: false
+    },
+    // 回复
+    isReplyLetters: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -71,15 +88,17 @@ export default {
       showAdd: false,
       loading: false,
       itemsDatas: [
-        { label: '标题', prop: 'title', type: 'input', message: '请输入', span: 24 },
-        { label: '接收人', prop: 'userIdList', type: 'custom', span: 24 },
-        { label: '内容', prop: 'content', type: 'textarea', message: '请输入', span: 24, rows: 3 }
+        { label: '标题', prop: 'ttl', type: 'custom', span: 24 },
+        { label: '接收人', prop: 'userNameList', type: 'custom', span: 24 },
+        { label: '内容', prop: 'cont', type: 'textarea', message: '请输入', span: 24, rows: 3 }
       ],
       queryForm: {
-        title: '',
-        content: '',
+        admdvs: '',
+        cont: '',
+        replyMsgId: '',
+        ttl: '',
         userIdList: [],
-        userIdListname: ''
+        userNameList: ''
       },
       multipleSelection: [],
       fileList: [],
@@ -98,24 +117,38 @@ export default {
         endRow: 0
       },
       rules: {
-        title: [
+        ttl: [
           { required: true, message: '请输入短信标题', trigger: 'blur' }
         ],
-        userIdList: [
+        userNameList: [
           { required: true, message: '请选择联系人', trigger: 'blur' }
         ],
-        content: [
+        cont: [
           { required: true, message: '请输入短信内容', trigger: 'blur' }
         ]
       },
-      tableData: []
+      tableData: [],
+      indexKey: 0
     }
   },
   computed: {
   },
   watch: {
-    isDialogVisible(newVal) {
-      console.log(newVal)
+    isDialogVisible: {
+      handler(v) {
+        if (v) {
+          if (this.isReplyLetters) {
+            this.queryForm.replyMsgId = this.selectRow.rid
+            this.queryForm.ttl = this.selectRow.title
+            this.queryForm.userIdList.push(this.selectRow.sender)
+            this.queryForm.userNameList = this.selectRow.senderName
+          } else {
+            // this.queryForm = {}
+            this.indexKey++
+          }
+        }
+      },
+      deep: true
     }
   },
   created() {
@@ -123,19 +156,26 @@ export default {
 
   methods: {
     send() {
-      console.log(this.queryForm)
-      this.$refs.ruleForm.elForm.validate((valid) => {
+      this.$refs.queryForm.$refs.elForm.validate((valid) => {
         if (valid) {
           const params = {
             ...this.queryForm
           }
-          for (let i = 0; i < this.queryForm.userIdList.length; i++) {
-            // eslint-disable-next-line eqeqeq
-            if (this.queryForm.userIdList[i].indexOf(',') != -1) {
-              params.userIdList.push(this.queryForm.userIdList[i].split(',')[0])
-            }
+          if (this.isWriteLetters) {
+            offMsgD(params).then(res => {
+              if (res.code === 0) {
+                this.$msgSuccess(res.message)
+                this.closeDialog()
+              }
+            })
+          } else if (this.isReplyLetters) {
+            reply(params).then(res => {
+              if (res.code === 0) {
+                this.$msgSuccess(res.message)
+                this.closeDialog()
+              }
+            })
           }
-          offMsgD(params).then(res => console.log(res))
         }
       })
     },
@@ -145,24 +185,17 @@ export default {
     deleteRow(row) {
       this.tableData.splice(row.rowIndex, 1)
     },
-    changeSelection(val) {
-      this.tableData = val
-      for (let i = 0; i < this.tableData.length; i++) {
-        this.queryForm.userIdList.push(this.tableData[i].userAcctIdList)
-        this.queryForm.userIdListname += this.tableData[i].userNameList
-      }
-      console.log(this.queryForm)
-    },
     rightcheckchange(val) {
+      this.queryForm.userIdList = JSON.parse(JSON.stringify(val.idlist))
       console.log(val)
-      this.queryForm.userIdList = val.idlist
       for (let i = 0; i < val.userlist.length; i++) {
-        this.queryForm.userIdListname += val.userlist[i]
+        this.queryForm.userNameList += val.userlist[i] + ','
       }
     },
     reset() {
     },
     closeDialog() {
+      this.$refs.queryForm.elForm.resetFields()
       this.$emit('closeAll', false)
     },
     pageChange(data) {

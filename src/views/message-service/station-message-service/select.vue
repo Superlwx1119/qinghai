@@ -3,7 +3,7 @@
   <form-dialog
     class="audit-dialog-wrapper"
     :title="dialogTitle"
-    :is-show="isDialogVisible"
+    :is-show="isSelectShow"
     size="big"
     @update:isShow="isShow"
     @resetForm="resetForm"
@@ -15,7 +15,7 @@
         </div>
         <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
           <el-tab-pane name="通讯录" label="通讯录">
-            <AddressList ref="AddressList" :selection="multipleSelection" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
+            <AddressList ref="AddressList" :selection="multipleSelection" :mail-data="tableData" @changeSelection="changeSelection" @rightcheckchange="rightcheckchange" />
           </el-tab-pane>
           <el-tab-pane name="通讯录组" label="通讯录组">
             <Address ref="Address" :selection="multipleSelection" @changeSelection="changeSelection" />
@@ -33,10 +33,11 @@
 import { array } from 'jszip/lib/support'
 import Address from './address'
 import AddressList from './addressList'
+import { recer } from '@/api/Mail'
 export default {
   components: { AddressList, Address },
   model: {
-    prop: 'isDialogVisible',
+    prop: 'isSelectShow',
     event: 'closeAll'
   },
   props: {
@@ -44,7 +45,7 @@ export default {
       type: array,
       default: () => []
     },
-    isDialogVisible: {
+    isSelectShow: {
       type: Boolean,
       default: false
     },
@@ -104,23 +105,36 @@ export default {
           { required: true, message: '请输入短信内容', trigger: 'blur' }
         ]
       },
-      tableData: []
+      tableData: [],
+      selectData: [],
+      valueForm: []
     }
-  },
-  computed: {
   },
   watch: {
-    isDialogVisible(newVal) {
-      console.log(newVal)
+    isSelectShow: {
+      handler(v) {
+        if (v) {
+          this.recer()
+        }
+      },
+      deep: true
     }
   },
-  created() {
-  },
-
   methods: {
+    recer() {
+      recer().then(res => {
+        this.tableData = res.data.result
+      })
+    },
     send() {
-      this.closeDialog()
-      this.$emit('changeSelection', this.tableData)
+      this.$refs.AddressList.resetValue()
+      if (this.selectData.length === 0 || this.selectData === undefined) {
+        this.$msgWarning('请先选择至少一条数据！')
+      } else {
+        this.$emit('rightcheckchange', this.selectData)
+
+        this.closeDialog()
+      }
     },
     handleClick() {
       if (this.activeName === '通讯录') {
@@ -133,8 +147,9 @@ export default {
         })
       }
     },
-    rightcheckchange(val) {
-      this.$emit('rightcheckchange', val)
+    rightcheckchange(param, value) {
+      this.selectData = param
+      this.valueForm = value
     },
     deleteRow(row) {
       this.tableData.splice(row.rowIndex, 1)
@@ -149,6 +164,7 @@ export default {
     reset() {
     },
     closeDialog() {
+      this.valueForm = []
       this.$emit('closeAll', false)
     },
     pageChange(data) {

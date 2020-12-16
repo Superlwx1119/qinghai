@@ -479,7 +479,6 @@ export default {
     },
     // 切换分页
     pageChange2(v) {
-      console.log(v)
       this.paginationQuery2.pageSize = v.pagination.pageSize
       this.paginationQuery2.pageNumber = v.pagination.pageNum
       this.chooseItem(parseInt(this.selectIndex))

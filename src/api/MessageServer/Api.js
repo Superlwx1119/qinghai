@@ -6,8 +6,9 @@ export default {
   getAddrBookByPage: ips + '/admin/web/admin/offSmsD/getAddrBookByPage', // 短信接收人信息表---通讯录
   getGrpMsgPage: ips + '/admin/offSmsD/getGrpMsgPage', // 短信接收人信息表---通讯录组详情
   getGrpByPage: ips + '/admin/web/admin/offSmsD/getGrpByPage', // 短信接收人信息表---通讯录组
-  page: ips + '/admin/web/admin/offSmsD/page',
-  offMsgD: ips + '/ips/admin/web/admin/offMsgD', // 发送消息
+  page: ips + '/admin/web/admin/offMsgD/page',
+  offMsgD: ips + '/admin/web/admin/offMsgD', // 发送消息
+  reply: ips + '/admin/web/admin/offMsgD/reply', // 回复
   outBox: ips + '/admin/web/admin/offMsgD/outBox', // 发件箱
   share: ips + '/admin/web/admin/offMsgD/share',
   addSms: ips + '/admin/web/admin/offSmsD/addSms', // 短信信息列表-保存

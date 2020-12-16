@@ -10,7 +10,7 @@
   >
     <normal-layer :search-number="2">
       <template slot="search-header">
-        <FormItems ref="ruleFrom" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm">
+        <FormItems ref="ruleForm" :model="queryForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm">
           <template>
             <my-button type="reset" title="关闭" @click="closeDialog" />
             <my-button type="search" @click="iniSearch" />
@@ -81,7 +81,7 @@ export default {
       itemsDatas: [
         { label: '标题', prop: 'ttl', type: 'input', message: '请输入', span: 15 }
       ],
-      queryForm: {},
+      queryForm: { ttl: '' },
       multipleSelection: [],
       fileList: [],
       columns: [
@@ -119,7 +119,7 @@ export default {
   },
   methods: {
     send() {
-      this.$refs.ruleFrom.validate((valid) => {
+      this.$refs.ruleForm.validate((valid) => {
         if (valid) {
           const params = {
             ...this.queryForm
