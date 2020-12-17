@@ -1,7 +1,7 @@
 <template>
   <!--  通讯录查询 -->
   <div class="Inquiry">
-    <normal-layer :search-number="4">
+    <normal-layer :search-number="itemsDatas.length" title-name="通讯录列表">
       <template slot="search-header">
         <FormItems :items-datas="itemsDatas" :form-datas="queryForm">
           <div>
@@ -10,19 +10,16 @@
           </div>
         </FormItems>
       </template>
-      <div slot="table-title" class="box-header">
-        <span class="box-title">通讯录列表</span>
-      </div>
       <template>
         <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
           <template slot="operation" slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" @click="showDialog(scope.row)" />
           </template>
         </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        <Pagination :data="paginationQuery1" @refresh="pageChange1" />
       </template>
     </normal-layer>
-    <Memo v-model="isShowAdd" :rowlin="rowlin" @search="search" />
+    <Memo v-model="isShowAdd" :dialog-title="dialogTitle" :rowlin="rowlin" @search="search" />
   </div>
 </template>
 
@@ -40,20 +37,21 @@ export default {
     return {
       rowlin: {},
       isShowAdd: false,
+      dialogTitle: '',
+      loading: false,
       queryForm: {
         userName: '',
         tel: '',
-        email: '',
         mob: ''
       },
       itemsDatas: [
         { label: '人员姓名', prop: 'userName', type: 'input', message: '请输入' },
         { label: '办公电话', prop: 'tel', type: 'input', message: '请输入' },
-        { label: '邮箱地址', prop: 'email', type: 'input', message: '请输入' },
         { label: '手机号码', prop: 'mob', type: 'input', message: '请输入' }
       ],
       columns: [
         { type: 'index', label: '序号' },
+        { label: '用户账号', prop: 'uact' },
         { label: '人员姓名', prop: 'uactName' },
         { label: '办公电话', prop: 'tel' },
         { label: '邮箱地址', prop: 'email' },
@@ -62,31 +60,49 @@ export default {
         { label: '备注信息', prop: 'memo' },
         { label: '操作', type: 'operation', fixed: 'right' }
       ],
-      tableData: []
+      tableData: [],
+      paginationQuery1: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 }
     }
   },
   computed: {},
   watch: {},
   created() {},
-  mounted() {},
+  mounted() {
+    this.search()
+  },
   methods: {
     search() {
+      this.loading = true
       const param = {
-        pageSize: 10,
-        pageNum: 1,
-        total: 0,
-        startRow: 0,
-        endRow: 0,
-        pageNumber: 1,
+        pageSize: this.paginationQuery1.pageSize,
+        pageNumber: this.paginationQuery1.pageNumber,
+        total: this.paginationQuery1.total,
         ...this.queryForm
       }
       bookpage(param).then(res => {
+        this.loading = false
         this.tableData = res.data.result
+        this.paginationQuery1 = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.total,
+          startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+          endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
+        }
+      }).catch(() => {
+        this.loading = false
       })
     },
-    showDialog(val) {
-      this.rowlin = val
+    showDialog(row) {
+      this.rowlin = row
       this.isShowAdd = true
+      this.dialogTitle = '备注信息'
+    },
+    // 切换分页
+    pageChange1(v) {
+      this.paginationQuery1.pageSize = v.pagination.pageSize
+      this.paginationQuery1.pageNumber = v.pagination.pageNum
+      this.search()
     }
   }
 }

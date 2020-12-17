@@ -50,7 +50,7 @@ module.exports = {
         }
       },
       '/file-api': {
-        target: 'http://172.16.43.40:8082/hsa-its',
+        target: 'http://10.196.161.40:8080',
         ws: true,
         changeOrigin: true,
         logLevel: 'debug',

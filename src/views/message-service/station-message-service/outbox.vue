@@ -4,7 +4,7 @@
     class="audit-dialog-wrapper"
     :title="dialogTitle"
     :is-show="isDialogVisible"
-    size="middle"
+    size="big"
     @update:isShow="isShow"
     @resetForm="resetForm"
   >
@@ -18,44 +18,43 @@
         </FormItems>
       </template>
       <template>
-        <my-table-view v-loading="loading" height="400px" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+        <my-table-view v-loading="loading" height="400px" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData">
+          <template slot="sendTime" slot-scope="scope">
+            {{ scope.row.sendTime | renderTime }}
+          </template>
           <template slot="operation" slot-scope="scope">
-            <MyButton
-              v-model="scope.row"
-              icon="detail"
-              title="详情"
-              @click="viewDetail(scope.row)"
-            />
+            <MyButton icon="detail" title="详情" @click="viewDetail(scope.row)" />
+            <MyButton icon="delete" title="删除" @click="deleteDetail(scope.row)" />
           </template>
         </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        <Pagination :data="paginationQuery1" @refresh="pageChange1" />
       </template>
     </normal-layer>
     <select-btn v-model="isShowAdd" />
+    <sendMailDetail v-model="isShowDetail" :dialog-title="isShowDetailTitle" :select-row="selectRow" />
   </form-dialog>
 </template>
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
-// eslint-disable-next-line no-unused-vars
-import object from 'element-resize-detector/src/detection-strategy/object'
-import { array } from 'jszip/lib/support'
-import { offMsgD } from '@/api/MessageServer'
+import { outBox, deleteInterMailBySender } from '@/api/MessageServer'
 import selectBtn from './select'
-import { page } from '@/api/MessageServer'
 import pageHandle from '@/mixins/pageHandle'
+import sendMailDetail from './sendMailDetail'
 export default {
   // eslint-disable-next-line vue/no-unused-components
-  components: { FormItems, selectBtn },
+  components: { FormItems, selectBtn, sendMailDetail },
+  filters: {
+    renderTime(date) {
+      var dateee = new Date(date).toJSON()
+      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+    }
+  },
   mixins: [pageHandle],
   model: {
     prop: 'isDialogVisible',
     event: 'closeAll'
   },
   props: {
-    daterow: {
-      type: array,
-      default: () => []
-    },
     isDialogVisible: {
       type: Boolean,
       default: false
@@ -63,20 +62,13 @@ export default {
     dialogTitle: {
       type: String,
       default: '发件箱'
-    },
-    fixFlag: {
-      type: String,
-      default: ''
-    },
-    queCont: {
-      type: String,
-      default: ''
     }
   },
   data() {
     return {
       isShowAdd: false,
-      showAdd: false,
+      isShowDetail: false,
+      isShowDetailTitle: '',
       loading: false,
       itemsDatas: [
         { label: '标题', prop: 'ttl', type: 'input', message: '请输入', span: 15 }
@@ -86,8 +78,8 @@ export default {
       fileList: [],
       columns: [
         { type: 'index', label: '序号' },
-        { label: '标题', prop: 'smsTtl' },
-        { label: '发送时间', prop: 'sbmtTime' },
+        { label: '标题', prop: 'title' },
+        { label: '发送时间', prop: 'sendTime', type: 'custom', minWidth: '100', slotName: 'sendTime' },
         { label: '操作', type: 'operation', fixed: 'right', width: '200px' }
       ],
       paginationQuery: {
@@ -102,30 +94,66 @@ export default {
           { required: true, message: '请输入短信标题', trigger: 'blur' }
         ]
       },
-      tableData: []
+      paginationQuery1: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 },
+      tableData: [],
+      selectRow: {}
     }
   },
   computed: {
   },
   watch: {
     isDialogVisible(newVal) {
-      console.log(newVal)
+      this.search()
     }
   },
-  created() {
-    this.send()
-  },
-  mounted() {
-  },
   methods: {
-    send() {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          const params = {
-            ...this.queryForm
+    search() {
+      this.loading = true
+      const params = {
+        pageSize: this.paginationQuery1.pageSize,
+        pageNumber: this.paginationQuery1.pageNumber,
+        total: this.paginationQuery1.total,
+        ttl: this.queryForm.ttl
+      }
+      outBox(params).then(res => {
+        if (res.code === 0) {
+          this.loading = false
+          this.tableData = res.data.result
+          this.paginationQuery1 = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.total,
+            startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+            endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
           }
-          offMsgD(params).then(res => console.log(res))
         }
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    // 查看详情
+    viewDetail(row) {
+      this.isShowDetail = true
+      this.isShowDetailTitle = '信息：'
+      this.selectRow = row
+    },
+    // 删除行
+    deleteDetail(row) {
+      this.$msgConfirm(`是否刪除站内信:【${row.title}】?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        deleteInterMailBySender(row.rid).then(res => {
+          if (res.code === 0) {
+            this.loading = false
+            this.$msgSuccess(this.message)
+            this.search()
+          }
+        }).catch(() => {
+          this.loading = false
+        })
       })
     },
     showAdditem(value) {
@@ -156,30 +184,11 @@ export default {
         // this.$refs.tableRef.reset()
       })
     },
-    search() {
-      const that = this
-      const param = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 0,
-        ttl: that.queryForm.ttl
-      }
-      // eslint-disable-next-line no-undef
-      page(param).then(res => {
-        if (res.code === 0) {
-          this.tableData = res.data.result
-          const num1 = res.data.pageSize * (res.data.pageNumber - 1) + 1
-          const num2 = res.data.pageSize * res.data.pageNumber > res.data.recordCount ? res.data.recordCount : res.data.pageSize * res.data.pageNumber
-          this.paginationQuery = {
-            pageSize: res.data.pageSize,
-            pageNumber: res.data.pageNumber,
-            total: res.data.recordCount,
-            startRow: num1,
-            endRow: num2
-          }
-        }
-      }
-      )
+    // 切换分页
+    pageChange1(v) {
+      this.paginationQuery1.pageSize = v.pagination.pageSize
+      this.paginationQuery1.pageNumber = v.pagination.pageNum
+      this.search()
     }
   }
 }

@@ -112,7 +112,10 @@ export default {
       this.isShowAddList = true
     },
     stagingData(val) {
-      this.tableData = val
+      val.forEach(item => {
+        this.tableData.push(item)
+      })
+      console.log(this.tableData)
     },
     deleteRow(rows) {
       this.tableData.splice(rows.rowIndex, 1)
@@ -129,15 +132,12 @@ export default {
             offAddrbookGrpDDTO: addrbookGrpName
           }
           offAddrbookGrpD(params).then(res => {
-            this.$message({
-              message: '发送成功',
-              type: 'success'
-            })
+            this.$msgSuccess(res.message)
+            this.closeDialog()
             this.$emit('search')
           })
         }
       })
-      this.$emit('closeAll', false)
     }
   }
 }

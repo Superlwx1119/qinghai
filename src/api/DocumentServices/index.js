@@ -1,7 +1,7 @@
 /*
   公共Api
  */
-// import fileRequest from '@/utils/fileRequest'
+import fileRequest from '@/utils/fileRequest'
 import request from '@/utils/request'
 import api from './Api.js'
 /**
@@ -50,13 +50,13 @@ export function getUrl(params) {
     data: params
   })
 }
-
 /**
  * 文件下载
  */
 export function downLoadFile(data) {
-  return request({
+  return fileRequest({
     url: api.downLoadFile,
+    responseType: 'blob',
     method: 'post',
     data
   })
@@ -109,11 +109,21 @@ export function getGrpByPage(query) {
 /**
  * 分享列表查询通讯录
  */
-export function getGrpMsgPage(params) {
-  console.log(params)
+export function upload(params) {
   return request({
-    url: api.getGrpMsgPage + '/' + params.addrbookGrpNo,
-    method: 'get',
-    params: params
+    url: api.upload,
+    method: 'post',
+    data: params
+  })
+}
+
+/**
+ * 分享列表查询通讯录
+ */
+export function offFileAttr(params) {
+  return request({
+    url: api.offFileAttr,
+    method: 'post',
+    data: params
   })
 }

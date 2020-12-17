@@ -116,3 +116,60 @@ export function getSmsApprByPage(params) {
     params: params
   })
 }
+
+/**
+ * 站内未读信
+ * @param query
+ */
+export function getUnReadMsg(params) {
+  return request({
+    url: api.getUnReadMsg,
+    method: 'get',
+    params: params
+  })
+}
+
+/**
+ * 站内未读信
+ * @param query
+ */
+export function mkread(params) {
+  return request({
+    url: api.mkread + '/' + params,
+    method: 'get',
+    data: params
+  })
+}
+/**
+ * 发件箱详情的收件人
+ * @param query
+ */
+export function queryRecerName(params) {
+  return request({
+    url: api.queryRecerName + '/' + params,
+    method: 'get',
+    data: params
+  })
+}
+/**
+ * 删除发件箱详情的数据
+ * @param query
+ */
+export function deleteInterMailBySender(params) {
+  return request({
+    url: api.deleteInterMailBySender + '/' + params,
+    method: 'delete',
+    data: params
+  })
+}
+/**
+ * 删除收件箱数据
+ * @param query
+ */
+export function deleteInterMailByReceiver(params) {
+  return request({
+    url: api.deleteInterMailByReceiver + '/' + params,
+    method: 'delete',
+    data: params
+  })
+}

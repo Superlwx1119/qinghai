@@ -10,7 +10,7 @@
   >
     <normal-layer :search-number="2">
       <template slot="search-header">
-        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
+        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :form-datas="queryForm" :model="queryForm">
           <template slot="userName">
             <el-input v-model="queryForm.userName" placeholder="请选择联系人" class="input-with-select">
               <el-button slot="append" icon="el-icon-search" @click="search()" />
@@ -23,12 +23,13 @@
               <el-button type="primary" icon="el-icon-edit" @click="showDialog(scope.row)" />
             </template>
           </my-table-view>
+          <Pagination :data="paginationQuery1" @refresh="pageChange1" />
         </template>
       </template>
     </normal-layer>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
-      <el-button type="primary" @click="send()">暂存</el-button>
+      <el-button type="primary" @click="send()">保存</el-button>
     </span>
   </form-dialog>
 </template>
@@ -78,33 +79,41 @@ export default {
         { label: '邮件', prop: 'email' }
       ],
       tableData: [],
-      rules: {
-        // title: [
-        //   { required: true, message: '请输入短信标题', trigger: 'blur' }
-        // ]
-      }
+      paginationQuery1: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 }
     }
   },
   computed: {
   },
   watch: {
-    isDialogVisible(newVal) {
-      console.log(newVal)
+    isDialogVisible: {
+      handler(v) {
+        this.search()
+      },
+      deep: true
     }
   },
-  created() {
-  },
-
   methods: {
     search() {
+      this.loading = true
       const param = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 259,
+        pageSize: this.paginationQuery1.pageSize,
+        pageNumber: this.paginationQuery1.pageNumber,
+        total: this.paginationQuery1.total,
         ...this.queryForm
       }
       addrBookpage(param).then(res => {
+        this.loading = false
         this.tableData = res.data.result
+        this.paginationQuery1 = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.total,
+          startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+          endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
+        }
+      }).catch((err) => {
+        this.loading = false
+        console.log(err)
       })
     },
     isShow(v) {
@@ -128,6 +137,12 @@ export default {
         that.$emit('search')
         that.$emit('closeAll', false)
       })
+    },
+    // 切换分页
+    pageChange1(v) {
+      this.paginationQuery1.pageSize = v.pagination.pageSize
+      this.paginationQuery1.pageNumber = v.pagination.pageNum
+      this.search()
     }
   }
 }

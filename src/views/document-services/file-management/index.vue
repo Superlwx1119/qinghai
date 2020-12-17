@@ -32,7 +32,7 @@
             {{ scope.row.upldTime | renderTime }}
           </template>
         </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        <Pagination :data="paginationQuery1" @refresh="pageChange1" />
       </template>
     </normal-layer>
     <Upload v-model="isDialogVisible" @search="search" />
@@ -48,7 +48,7 @@ import pageHandle from '@/mixins/pageHandle'
 import Upload from './upload'
 import Edit from './edit'
 import Share from './share'
-import { page, getFileCollocation, getUrl, downLoadFile, offFileDelete } from '@/api/DocumentServices/index'
+import { page, downLoadFile, offFileDelete } from '@/api/DocumentServices/index'
 export default {
   name: 'FileManagement',
   components: { FormItems, NormalLayer, Upload, Edit, Share },
@@ -92,15 +92,14 @@ export default {
       ],
       fileInfoId: '',
       selectRow: {},
-      rowData: {}
+      rowData: {},
+      paginationQuery1: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 }
     }
   },
   computed: {},
   watch: {},
   created() {
     this.search()
-    this.getFileCollocation()
-    this.getUrl()
   },
   mounted() {},
   methods: {
@@ -113,21 +112,22 @@ export default {
         const preset = { hidden }
         const params = Object.assign(this.selectRow, { preset: preset })
         downLoadFile(params).then(res => {
-          const disposition = res.headers['content-disposition']
-          var blob = new Blob([res.data], { type: 'application/octet-stream' })
-          const fileType = disposition ? disposition.substr(disposition.lastIndexOf('.') + 1) : ''
-          if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, params.fileName + '.' + fileType)
-          } else {
-            var downloadElement = document.createElement('a')
-            var href = window.URL.createObjectURL(blob) // 创建下载的链接
-            downloadElement.href = href
-            downloadElement.download = params.fileName // 下载后文件名
-            document.body.appendChild(downloadElement)
-            downloadElement.click() // 点击下载
-            document.body.removeChild(downloadElement) // 下载完成移除元素
-            window.URL.revokeObjectURL(href) // 释放掉blob对象
-          }
+          console.log(res.config.data)
+          // const disposition = res.headers['content-disposition']
+          // var blob = new Blob([res.data], { type: 'application/octet-stream' })
+          // const fileType = disposition ? disposition.substr(disposition.lastIndexOf('.') + 1) : ''
+          // if (window.navigator.msSaveOrOpenBlob) {
+          //   window.navigator.msSaveOrOpenBlob(blob, res.data.fileName + '.' + fileType)
+          // } else {
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(res.data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = JSON.parse(res.config.data).filename // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          // }
         }).catch(err => {
           console.log(err)
         })
@@ -174,36 +174,35 @@ export default {
     search() {
       this.loading = true
       const params = {
-        ...this.paginationQuery,
+        pageNumber: this.paginationQuery1.pageNumber,
+        pageSize: this.paginationQuery1.pageSize,
+        total: this.paginationQuery1.total,
         filename: this.queryForm.filename
       }
       page(params).then(res => {
         if (res.code === 0) {
           this.loading = false
           this.tableData = res.data.result
+          this.paginationQuery1 = {
+            pageSize: res.data.pageSize,
+            pageNumber: res.data.pageNumber,
+            total: res.data.total,
+            startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+            endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
+          }
         }
       }).catch(() => {
         this.loading = false
       })
     },
-    getFileCollocation() {
-      const params = ''
-      getFileCollocation(params).then(res => {
-        if (res.code === 0) {
-          console.log(res.data)
-        }
-      })
-    },
-    getUrl() {
-      const params = ''
-      getUrl(params).then(res => {
-        if (res.code === 0) {
-          console.log(res.data)
-        }
-      })
-    },
     handleCurrentChange({ row, column, cell }) {
       this.selectRow = row
+    },
+    // 切换分页
+    pageChange1(v) {
+      this.paginationQuery1.pageSize = v.pagination.pageSize
+      this.paginationQuery1.pageNumber = v.pagination.pageNum
+      this.search()
     }
   }
 }

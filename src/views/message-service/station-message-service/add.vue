@@ -34,9 +34,6 @@
 </template>
 <script>
 import FormItems from '@/views/components/PageLayers/form-items'
-// eslint-disable-next-line no-unused-vars
-import object from 'element-resize-detector/src/detection-strategy/object'
-import { array } from 'jszip/lib/support'
 import { reply, offMsgD } from '@/api/MessageServer'
 import selectBtn from './select'
 export default {
@@ -47,10 +44,6 @@ export default {
     event: 'closeAll'
   },
   props: {
-    daterow: {
-      type: array,
-      default: () => []
-    },
     isDialogVisible: {
       type: Boolean,
       default: false
@@ -156,19 +149,21 @@ export default {
 
   methods: {
     send() {
-      this.$refs.queryForm.$refs.elForm.validate((valid) => {
+      console.log(this.$refs.queryForm.elForm)
+      this.$refs.queryForm.elForm.validate((valid) => {
         if (valid) {
           const params = {
             ...this.queryForm
           }
-          if (this.isWriteLetters) {
+          if (this.isWriteLetters === true) {
             offMsgD(params).then(res => {
               if (res.code === 0) {
                 this.$msgSuccess(res.message)
                 this.closeDialog()
+                this.$emit('search')
               }
             })
-          } else if (this.isReplyLetters) {
+          } else if (this.isReplyLetters === true) {
             reply(params).then(res => {
               if (res.code === 0) {
                 this.$msgSuccess(res.message)
@@ -197,6 +192,7 @@ export default {
     closeDialog() {
       this.$refs.queryForm.elForm.resetFields()
       this.$emit('closeAll', false)
+      this.$emit('closeInbox')
     },
     pageChange(data) {
       this.paginationQuery.pageSize = data.pagination.pageSize

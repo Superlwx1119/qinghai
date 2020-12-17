@@ -10,13 +10,7 @@
   >
     <normal-layer :search-number="2">
       <template slot="search-header">
-        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :rules="rules" :form-datas="queryForm" :model="queryForm">
-          <template slot="userIdList">
-            <el-input v-model="queryForm.userIdListname" placeholder="请选择联系人" class="input-with-select" disabled>
-              <el-button slot="append" icon="el-icon-search" @click="showAdditem()" />
-            </el-input>
-          </template>
-        </FormItems>
+        <FormItems ref="ruleForm" :items-datas="itemsDatas" :is-grid="false" :form-datas="queryForm" :model="queryForm" />
       </template>
     </normal-layer>
     <span slot="footer" class="dialog-footer">
@@ -61,11 +55,6 @@ export default {
       ],
       queryForm: {
         memo: ''
-      },
-      rules: {
-        // title: [
-        //   { required: true, message: '请输入短信标题', trigger: 'blur' }
-        // ]
       }
     }
   },
@@ -89,23 +78,19 @@ export default {
     resetForm() {
       this.$nextTick(() => {
         this.reset()
-        // this.$refs.tableRef.reset()
       })
     },
+    reset() {},
     send() {
       const that = this
       const param = {
-        content: this.content,
         ...that.rowlin
       }
       param.memo = that.queryForm.memo
       offAddrbookB(param).then(res => {
-        that.$message({
-          message: '操作成功',
-          type: 'success'
-        })
-        that.queryForm.memo = ''
-        that.isDialogVisible = false
+        that.$msgSuccess(res.message)
+        that.$refs.ruleForm.elForm.resetFields()
+        that.$emit('closeAll', false)
         that.$emit('search')
       })
     }

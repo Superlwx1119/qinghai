@@ -21,7 +21,7 @@
         </div>
       </div>
       <template>
-        <my-table-view v-loading="loading" :border="true" :multiple-selection.sync="multipleSelection" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="handleCurrentChange">
+        <my-table-view v-loading="loading" :border="true" :is-configheader="true" :max-cloumns="40" :columns="columns" :data="tableData" @rowClick="handleCurrentChange">
           <template slot="select" slot-scope="scope">
             <el-radio v-model="rid" :label="scope.row.rid">{{ '' }}</el-radio>
           </template>
@@ -32,15 +32,16 @@
             <state-tag :tag-type="scope.row.status | filterState" :title="scope.row.status === '1'?'已读':'未读'" />
           </template>
           <template slot="operation" slot-scope="scope">
-            <my-button icon="detail" @click="showDialog('detail',scope.row)" />
+            <my-button icon="detail" @click="showDialog(scope.row)" />
             <my-button icon="delete" @click="deleteRow(scope.row)" />
           </template>
         </my-table-view>
-        <Pagination :data="paginationQuery" @refresh="pageChange" />
+        <Pagination :data="paginationQuery1" @refresh="pageChange1" />
       </template>
     </normal-layer>
-    <Add v-model="isShowAdd" :dialog-title="dialogTitle" :select-row="selectRow" :is-write-letters="isWriteLetters" :is-reply-letters="isReplyLetters" :daterow="daterow" />
-    <OutBox v-model="isShowOutBox" :daterow="daterow" />
+    <Add v-model="isShowAdd" :dialog-title="dialogTitle" :select-row="selectRow" :is-write-letters="isWriteLetters" :is-reply-letters="isReplyLetters" @search="search" />
+    <OutBox v-model="isShowOutBox" />
+    <Inbox v-model="isShowInbox" :inbox-data="inboxData" @Editbutton="Editbutton" @search="search" />
   </div>
 </template>
 
@@ -50,10 +51,11 @@ import NormalLayer from '@/views/components/PageLayers/normalLayer'
 import pageHandle from '@/mixins/pageHandle'
 import Add from './add'
 import OutBox from './outbox'
-import { page, outBox, share } from '@/api/MessageServer'
+import { page, share, getUnReadMsg, mkread, deleteInterMailByReceiver } from '@/api/MessageServer'
+import Inbox from './inbox.vue'
 export default {
   name: 'StationMessageService',
-  components: { FormItems, NormalLayer, Add, OutBox },
+  components: { FormItems, NormalLayer, Add, OutBox, Inbox },
   filters: {
     renderTime(date) {
       var dateee = new Date(date).toJSON()
@@ -70,14 +72,13 @@ export default {
   mixins: [pageHandle],
   data() {
     return {
-      daterow: {
-        state: false,
-        row: []
-      },
+      loading: false,
       dialogTitle: '',
       queryForm: {},
       isShowAdd: false,
       isShowOutBox: false,
+      isShowInbox: false,
+      isInboxTitle: '',
       isWriteLetters: false,
       isReplyLetters: false,
       itemsDatas: [
@@ -95,7 +96,9 @@ export default {
       ],
       tableData: [],
       rid: '',
-      selectRow: {}
+      selectRow: {},
+      inboxData: {},
+      paginationQuery1: { pageSize: 10, pageNumber: 1, total: 0, startRow: 0, endRow: 0 }
     }
   },
   computed: {},
@@ -108,10 +111,31 @@ export default {
   },
   mounted() {},
   methods: {
-    showDialog(value) {
-      console.log(value)
+    search() {
+      const that = this
+      that.loading = true
+      const param = {
+        pageSize: 10,
+        pageNumber: 1,
+        total: 0,
+        ...that.queryForm
+      }
+      page(param).then(res => {
+        that.loading = false
+        that.tableData = res.data.result
+        this.paginationQuery1 = {
+          pageSize: res.data.pageSize,
+          pageNumber: res.data.pageNumber,
+          total: res.data.total,
+          startRow: (res.data.pageNumber - 1) * res.data.pageSize + 1 ? (res.data.pageNumber - 1) * res.data.pageSize + 1 : 0,
+          endRow: res.data.total > res.data.pageSize * res.data.pageNumber ? res.data.pageNumber * res.data.pageSize : res.data.total
+        }
+      }).catch(() => {
+        that.loading = false
+      })
     },
-    Editbutton(value) {
+    Editbutton(value, rid) {
+      debugger
       switch (value) {
         case 'Edit':
           this.isShowAdd = true
@@ -129,43 +153,74 @@ export default {
           }
           break
         case 'unreadLetter':
-          this.$message({
-            message: '站内未读信',
-            type: 'warning'
+          this.loading = true
+          getUnReadMsg({ pageSize: this.paginationQuery1.pageSize, pageNumber: this.paginationQuery1.pageNumber, total: 0 }).then(res => {
+            if (res.code === 0) {
+              this.loading = false
+              this.tableData = res.data.data
+              this.paginationQuery1 = {
+                pageSize: res.data.pageSize,
+                pageNumber: res.data.pageNumber,
+                total: res.data.recordCounts,
+                startRow: res.data.startRow,
+                endRow: res.data.endRow
+              }
+            }
+          }).catch(() => {
+            this.loading = false
           })
-          break
-        case 'send':
-          // eslint-disable-next-line no-case-declarations
-          const param = {
-            pageSize: 10,
-            pageNumber: 1,
-            total: 0
-          }
-          outBox(param).then(res => { console.log(res) }).catch(err => { console.log(err) })
-          this.isShowOutBox = true
           break
         case 'read':
-          this.$message({
-            message: '请选择需要标记的站内信',
-            type: 'warning'
-          })
+          if (this.rid === '') {
+            this.$msgInfo('请选择邮件')
+          } else {
+            this.loading = true
+            mkread(this.selectRow.rid).then(res => {
+              if (res.code === 0) {
+                this.loading = false
+                this.$msgSuccess(res.message)
+                this.search()
+              }
+            }).catch(() => {
+              this.loading = false
+            })
+          }
           break
-        default:
+        case 'send':
+          this.isShowOutBox = true
           break
       }
     },
-    search() {
-      const that = this
-      const param = {
-        pageSize: 10,
-        pageNumber: 1,
-        total: 0,
-        ...that.queryForm
-      }
-      page(param).then(res => {
-        that.tableData = res.data.result
-      }
-      )
+    // 查看详情
+    showDialog(row) {
+      this.isShowInbox = true
+      this.isInboxTitle = '信息：'
+      this.inboxData = row
+    },
+    // 删除行
+    deleteRow(row) {
+      this.$msgConfirm(`是否刪除站内信:【${row.title}】?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        deleteInterMailByReceiver(row.rid).then(res => {
+          if (res.code === 0) {
+            this.loading = false
+            this.$msgSuccess(this.message)
+            this.search()
+          }
+        }).catch(() => {
+          this.loading = false
+        })
+      })
+    },
+    // 切换分页
+    pageChange1(v) {
+      this.paginationQuery1.pageSize = v.pagination.pageSize
+      this.paginationQuery1.pageNumber = v.pagination.pageNum
+      this.search()
     },
     handleCurrentChange({ row, column, cell }) {
       this.selectRow = row
