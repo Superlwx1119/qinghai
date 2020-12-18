@@ -8,7 +8,7 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import Admin from './modules/Admin/index'
-import Cms from './modules/Cms/index'
+// import Cms from './modules/Cms/index'
 import DocumentServices from './modules/DocumentServices/index'
 import MessageService from './modules/MessageService/index'
 import MailServe from './modules/MailServe/index'
@@ -88,11 +88,11 @@ export const constantRoutes = [
     ]
   },
   Admin,
+  AddressBookManagement,
   DocumentServices,
   MessageService,
-  MailServe,
-  AddressBookManagement,
-  Cms
+  MailServe
+  // Cms
 ]
 /**
  * asyncRoutes

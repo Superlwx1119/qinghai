@@ -27,7 +27,7 @@
             </el-row>
             <el-row :gutter="12">
               <el-col :span="24">
-                <el-form-item label="说明" prop="dscr">
+                <el-form-item label="描述信息" prop="dscr">
                   <el-input v-model="searchForm.dscr" :rows="5" resize="none" clearable placeholder="请输入" type="textarea" />
                 </el-form-item>
               </el-col>

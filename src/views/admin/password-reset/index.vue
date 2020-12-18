@@ -10,6 +10,11 @@
   <normal-layer :search-number="itemsDatas.length" title-name="密码重置列表">
     <template slot="search-header">
       <FormItems ref="queryForm" :model="queryForm" :items-datas="itemsDatas" :form-datas="queryForm">
+        <template slot="uactStas">
+          <el-select v-model="queryForm.uactStas" placeholder="请选择">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </template>
         <div>
           <MyButton type="reset" @click="reset" />
           <MyButton type="search" @click="iniSearch" />
@@ -95,12 +100,17 @@ export default {
         { label: '用户账号', prop: 'uact', type: 'input' },
         { label: '姓名', prop: 'userName', type: 'input' },
         { label: '证件号码', prop: 'certNO', type: 'input' },
-        { label: '账号状态', prop: 'uactStas', type: 'input' },
+        { label: '账号状态', prop: 'uactStas', type: 'custom' },
         { label: '组织机构名称', prop: 'stdName', type: 'input' }
       ],
       columns: tableColumns,
       tableData: [],
-      loading: false
+      loading: false,
+      options: [
+        { label: '正常', value: '1' },
+        { label: '已锁定', value: '2' },
+        { label: '已停用', value: '3' }
+      ]
     }
   },
   computed: {

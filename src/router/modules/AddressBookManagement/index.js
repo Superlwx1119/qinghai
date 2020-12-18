@@ -12,9 +12,9 @@ export default {
   children: [
     // 通讯录查询
     {
-      path: '/inquiry',
-      name: 'Inquiry',
-      component: () => import('@/views/address-book-management/inquiry/index'),
+      path: '/off-addrbook-b',
+      name: 'OffAddrbookB',
+      component: () => import('@/views/address-book-management/off-addrbook-b/index'),
       meta: {
         title: '通讯录查询',
         icon: 'spot'
@@ -22,9 +22,9 @@ export default {
     },
     // 通讯录组维护
     {
-      path: '/maintenance',
-      name: 'Maintenance',
-      component: () => import('@/views/address-book-management/maintenance/index'),
+      path: '/off-addrbook-grp-d',
+      name: 'OffAddrbookGrpB',
+      component: () => import('@/views/address-book-management/off-addrbook-grp-d/index'),
       meta: {
         title: '通讯录组维护',
         icon: 'spot'

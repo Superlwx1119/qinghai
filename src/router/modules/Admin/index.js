@@ -13,7 +13,7 @@ export default {
   children: [
     {
       path: '/organiz/sys-orgunt-d',
-      name: 'sysOrguntD',
+      name: 'OrganizSysOrguntD',
       component: () => import('@/views/admin/sys-orgunt-d/index'),
       meta: {
         title: '组织机构管理',
@@ -30,33 +30,23 @@ export default {
         icon: 'spot'
       }
     },
-    // 子系统管理
-    {
-      path: '/subsys/sys-subsys-d',
-      name: 'SubsysManagement',
-      component: () => import('@/views/admin/subsystem-management/index'),
-      meta: {
-        title: '子系统管理',
-        icon: 'spot'
-      }
-    },
     // 资源管理
     {
       path: '/moulds-mangement/sys-resu-d',
-      name: 'ResourceManagement',
+      name: 'MouldsManagementSysResuD',
       component: () => import('@/views/admin/resource-management/index'),
       meta: {
         title: '资源管理',
         icon: 'spot'
       }
     },
-    // 安全角色管理
+    // 子系统管理
     {
-      path: '/security-role-management',
-      name: 'SecurityRoleManagement',
-      component: () => import('@/views/admin/security-role-management/index'),
+      path: '/subsys/sys-subsys-d',
+      name: 'SubsysSysSubsysD',
+      component: () => import('@/views/admin/subsystem-management/index'),
       meta: {
-        title: '安全角色管理',
+        title: '子系统管理',
         icon: 'spot'
       }
     },
@@ -70,32 +60,13 @@ export default {
         icon: 'spot'
       }
     },
-    // 用户解锁
+    // 安全角色管理
     {
-      path: '/user-lock-mngr',
-      name: 'userLockMngr',
-      component: () => import('@/views/admin/user-lock-mngr/index'),
+      path: '/security-role-management',
+      name: 'SecurityRoleManagement',
+      component: () => import('@/views/admin/security-role-management/index'),
       meta: {
-        title: '用户解锁',
-        icon: 'spot'
-      }
-    },
-    // 密码重置
-    {
-      path: '/password-reset',
-      name: 'PasswordReset',
-      component: () => import('@/views/admin/password-reset/index'),
-      meta: {
-        title: '密码重置',
-        icon: 'spot'
-      }
-    },
-    {
-      path: '/password-change',
-      name: 'SysPassworMan',
-      component: () => import('@/views/admin/system-password/index'),
-      meta: {
-        title: '密码修改',
+        title: '安全角色管理',
         icon: 'spot'
       }
     },
@@ -109,13 +80,33 @@ export default {
         icon: 'spot'
       }
     },
-    // 用户授权日志
+    // 密码修改
     {
-      path: '/role-perm-chg-evt',
-      name: 'RolePermChgEvt',
-      component: () => import('@/views/admin/role-perm-chg-evt/index'),
+      path: '/password-change',
+      name: 'PasswordChange',
+      component: () => import('@/views/admin/password-change/index'),
       meta: {
-        title: '用户授权日志',
+        title: '密码修改',
+        icon: 'spot'
+      }
+    },
+    // 个人信息修改
+    {
+      path: '/user-information-change',
+      name: 'UserInformationChange',
+      component: () => import('@/views/admin/user-information-change/index'),
+      meta: {
+        title: '个人信息修改',
+        icon: 'spot'
+      }
+    },
+    // 密码重置
+    {
+      path: '/password-reset',
+      name: 'PasswordReset',
+      component: () => import('@/views/admin/password-reset/index'),
+      meta: {
+        title: '密码重置',
         icon: 'spot'
       }
     },
@@ -126,6 +117,26 @@ export default {
       component: () => import('@/views/admin/securityLog-mngr/index'),
       meta: {
         title: '系统安全日志',
+        icon: 'spot'
+      }
+    },
+    // 用户授权日志
+    {
+      path: '/role-perm-chg-evt',
+      name: 'RolePermChgEvt',
+      component: () => import('@/views/admin/role-perm-chg-evt/index'),
+      meta: {
+        title: '用户授权日志',
+        icon: 'spot'
+      }
+    },
+    // 用户状态管理
+    {
+      path: '/user-lock-mngr',
+      name: 'userLockMngr',
+      component: () => import('@/views/admin/user-lock-mngr/index'),
+      meta: {
+        title: '用户状态管理',
         icon: 'spot'
       }
     },
@@ -149,6 +160,5 @@ export default {
         icon: 'spot'
       }
     }
-
   ]
 }

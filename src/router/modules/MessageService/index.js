@@ -12,9 +12,9 @@ export default {
   children: [
     // 站内消息服务
     {
-      path: '/station-message-service',
-      name: 'StationMessageService',
-      component: () => import('@/views/message-service/station-message-service/index'),
+      path: '/off-msg-d',
+      name: 'OffMsgD',
+      component: () => import('@/views/message-service/off-msg-d/index'),
       meta: {
         title: '站内消息服务',
         icon: 'spot'

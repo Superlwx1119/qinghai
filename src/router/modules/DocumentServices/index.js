@@ -12,9 +12,9 @@ export default {
   children: [
     // 文件管理
     {
-      path: '/file-management',
-      name: 'FileManagement',
-      component: () => import('@/views/document-services/file-management/index'),
+      path: '/off-file-d',
+      name: 'OffFileD',
+      component: () => import('@/views/document-services/off-file-d/index'),
       meta: {
         title: '文件管理',
         icon: 'spot'

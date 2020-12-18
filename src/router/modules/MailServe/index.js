@@ -12,9 +12,9 @@ export default {
   children: [
     // 邮件服务
     {
-      path: '/mail-serve-child',
-      name: 'MailServeChild',
-      component: () => import('@/views/mail-serve/mail-serve-child/index'),
+      path: '/off-email-send-c',
+      name: 'OffEmailSendC',
+      component: () => import('@/views/mail-serve/off-email-send-c/index'),
       meta: {
         title: '邮件服务',
         icon: 'spot'
