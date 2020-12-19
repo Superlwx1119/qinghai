@@ -6,7 +6,7 @@ export const listitem1 = [
   { label: '邮件主题', prop: 'title', minWidth: '100' },
   { label: '发件人', prop: 'senderName', minWidth: '120' },
   { label: '发送时间', prop: 'sendTime', type: 'custom', minWidth: '100', slotName: 'sendTime' },
-  { type: 'operation', label: '操作', width: '100px' }
+  { type: 'operation', label: '操作', width: '140' }
 ]
 export const listitem2 = [
   { type: 'custom', prop: 'select', slotName: 'select', label: '选择', width: 55 },

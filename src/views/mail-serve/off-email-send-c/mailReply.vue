@@ -180,6 +180,7 @@ export default {
         } else if (this.isReplyMail === true) {
           this.queryForm.emailSbj = this.dialogTitle
           this.queryForm.recp = this.selectRow.senderName
+          this.queryForm.recpIdList.push(this.selectRow.sender)
         }
       }
     }
@@ -188,14 +189,14 @@ export default {
     sendMail(val) {
       this.$refs.ruleForm.elForm.validate((valid) => {
         if (valid) {
-          const param = {
+          const params = {
             offEmailDetlCDTO: this.queryForm,
             emailCont: this.queryForm.emailCont,
             ccIdList: this.queryForm.ccIdList,
             recpIdList: this.queryForm.recpIdList
           }
           if (val === 1) {
-            offEmailD(param).then(res => {
+            offEmailD(params).then(res => {
               if (res.code === 0) {
                 this.$msgSuccess('发送成功！')
                 this.resetForm()
@@ -205,7 +206,7 @@ export default {
               this.resetForm()
             })
           } else {
-            saveDraft(param).then(res => {
+            saveDraft(params).then(res => {
               console.log(res)
             })
           }

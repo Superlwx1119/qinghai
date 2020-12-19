@@ -106,6 +106,7 @@
                 <state-tag :tag-type="scope.row.status | filterState" :title="scope.row.status === '1'?'已读':'未读'" />
               </template>
               <template slot="operation" slot-scope="scope">
+                <my-button icon="send" title="快速回复" @click="quickResponse(scope.row)" />
                 <my-button icon="detail" title="详情" @click="details(scope.row)" />
                 <my-button icon="delete" title="删除" @click="deleteRow(scope.row)" />
               </template>
@@ -123,7 +124,7 @@
 
 <script>
 // import { getCurrentUser } from '@/api/Common/Request'
-import { getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList, deleteEMailByReceiver, updateArchiveStatus, readFlag, getEMailGroups, getEMailsFromGroup } from '@/api/Mail'
+import { offEmailD, getUnReadCount, getStarEMailList, getEMailInbox, getDraft, getEMailOutbox, getEMailBin, getArchiveEMailList, deleteEMailByReceiver, updateArchiveStatus, readFlag, getEMailGroups, getEMailsFromGroup } from '@/api/Mail'
 import pageHandle from '@/mixins/pageHandle'
 import { listitem1, listitem2, listitem3, listitem4 } from './listitem'
 import MailReply from './mailReply'
@@ -431,6 +432,43 @@ export default {
       this.detailTitle = `主题：${row.title}`
       this.selectRow = row
       row.status === '1'
+    },
+    // 快速回复
+    quickResponse(row) {
+      this.$msgConfirm(`是否快速回复${row.senderName}的【${row.title}】?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = true
+        const senders = []
+        senders.push(row.sender)
+        const params = {
+          ccIdList: [],
+          emailCont: '已读',
+          recpIdList: senders,
+          offEmailDetlCDTO: {
+            attId: [],
+            cc: '',
+            draftAttOssIdList: [],
+            emailRid: row.rid,
+            emailSbj: `回复：${row.title}`,
+            recp: row.senderName
+          }
+        }
+        offEmailD(params).then(res => {
+          if (res.code === 0) {
+            this.getUnReadCounts()
+            this.readFlag(row.rid)
+            this.$msgSuccess('操作成功！')
+            this.loading = false
+          }
+        }).catch(() => {
+          this.loading = false
+        })
+      }).catch(() => {
+        this.$msgInfo('')
+      })
     },
     // 删除行
     deleteRow(row) {
