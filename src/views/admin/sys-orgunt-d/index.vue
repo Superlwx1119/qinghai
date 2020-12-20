@@ -2,19 +2,19 @@
   <div class="sys-orgunt-d">
     <!-- 组织机构管理 -->
     <section class="layer">
-      <el-row :gutter="12" style="margin-left:0px;mar">
+      <el-row :gutter="12" style="margin-left:0px;">
         <el-col :span="6">
           <div class="box">
             <div class="box-header">
               <span class="box-title">组织机构树</span>
             </div>
-            <el-input v-model="filterText" placeholder="输入关键字进行过滤" />
             <div
               v-loading="treeLoading"
               class="box-body"
-              style="height:calc(100% - 58px)"
+              style="height:calc(100% - 42px)"
               element-loading-spinner="el-loading1"
             >
+              <el-input v-model="filterText" placeholder="输入关键字进行过滤" />
               <el-tree
                 ref="tree"
                 :props="defaultProps"
@@ -24,6 +24,7 @@
                 highlight-current
                 node-key="id"
                 lazy
+                style="height:calc(100% - 32px);"
                 @node-contextmenu="newMenu"
                 @node-click="handleNodeClick"
               >
@@ -51,7 +52,7 @@
         </el-col>
         <el-col :span="18">
           <div class="box handle-resoure">
-            <div class="box-body height100b">
+            <div class="box-body height100b pd0">
               <el-tabs class="height100b" type="border-card">
                 <el-tab-pane label="机构维护" class="height100b">
                   <InstitutionalMaintenance ref="institutionalMaintenance" class="height100b" @reloadNode="reloadNode" @clearAdding="clearAdding" />
@@ -349,17 +350,19 @@ export default {
     }
 
     .handle-resoure {
-      .box-body {
-        height: 100;
-      }
 
       /deep/.el-tabs__content {
-        height: calc(100% - 67px);
+        padding: 0;
+        height: calc(100% - 43px);
       }
     }
 
     .height100b {
       height: 100%;
+    }
+
+    .el-tabs--border-card {
+      border: 0;
     }
   }
 

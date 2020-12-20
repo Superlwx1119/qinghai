@@ -1,73 +1,67 @@
 <template>
   <div class="menu-maintenance">
     <!-- 机构维护 -->
-    <section class="layer height100b">
-      <div class="box">
-        <div class="box-header handle">
-          <span class="box-title">机构维护</span>
-          <div class="box-tools">
-            <el-button @click="restSearch">重置</el-button>
-            <el-button type="success" @click="organizManageSave">保存</el-button>
-          </div>
+    <div class="box noshadow">
+      <div class="box-header handle">
+        <span class="box-title">机构维护</span>
+        <div class="box-tools">
+          <el-button @click="restSearch">重置</el-button>
+          <el-button type="success" @click="organizManageSave">保存</el-button>
         </div>
-
-        <div class="box-body">
-          <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="125px">
-            <el-row>
-              <el-col :span="8" class="h48">
-                <el-form-item label="组织机构类型" prop="orgTypeCode">
-                  <el-select v-model="searchForm.orgTypeCode" placeholder="请选择" style="width:100%" clearable>
-                    <el-option
-                      v-for="item in ORGTypeList"
-                      :key="item.value"
-                      :label="item.name"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="16" prop="uscc" class="h48">
-                <el-form-item label="统一社会信用代码">
-                  <el-input v-model="searchForm.uscc" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-
-              <el-col :span="24" class="h48">
-                <el-form-item label="组织机构名称" prop="orgName">
-                  <el-input v-model="searchForm.orgName" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <!-- <el-col :span="24" class="h48">
+      </div>
+      <div class="box-body">
+        <el-form ref="searchForm" :model="searchForm" :rules="rules" label-width="105px">
+          <el-row>
+            <el-col :span="8" class="h48">
+              <el-form-item label="组织机构类型" prop="orgTypeCode">
+                <el-select v-model="searchForm.orgTypeCode" placeholder="请选择" style="width:100%" clearable>
+                  <el-option
+                    v-for="item in ORGTypeList"
+                    :key="item.value"
+                    :label="item.name"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="16" prop="uscc" class="h48">
+              <el-form-item label="统一社会信用代码">
+                <el-input v-model="searchForm.uscc" clearable placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24" class="h48">
+              <el-form-item label="组织机构名称" prop="orgName">
+                <el-input v-model="searchForm.orgName" clearable placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+            <!-- <el-col :span="24" class="h48">
                 <el-form-item label="上级组织机构" prop="prntOrgId">
                 <SelectLoadTree :props="defaultProps" v-model="searchForm.prntOrgId"/></el-form-item>
               </el-col> -->
-              <el-col :md="12" :lg="8" :xl="8" class="h48">
-                <el-form-item label="简称" prop="abbr">
-                  <el-input v-model="searchForm.abbr" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="8" class="h48">
-                <el-form-item label="医保单位编码" prop="orgCodg">
-                  <el-input v-model="searchForm.orgCodg" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :md="12" :lg="8" :xl="8" class="h48">
-                <el-form-item label="医保区划" prop="admdvs">
-                  <el-input v-model="searchForm.admdvs" clearable placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row :gutter="12">
-              <el-col :span="24">
-                <el-form-item label="说明" prop="dscr">
-                  <el-input v-model="searchForm.dscr" :rows="5" resize="none" clearable placeholder="请输入" type="textarea" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-        </div>
+            <el-col :md="12" :lg="8" :xl="8" class="h48">
+              <el-form-item label="简称" prop="abbr">
+                <el-input v-model="searchForm.abbr" clearable placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+            <el-col :md="12" :lg="8" :xl="8" class="h48">
+              <el-form-item label="医保单位编码" prop="orgCodg">
+                <el-input v-model="searchForm.orgCodg" clearable placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+            <el-col :md="12" :lg="8" :xl="8" class="h48">
+              <el-form-item label="医保区划" prop="admdvs">
+                <el-input v-model="searchForm.admdvs" clearable placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="说明" prop="dscr">
+                <el-input v-model="searchForm.dscr" :rows="5" resize="none" clearable placeholder="请输入" type="textarea" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 <script>

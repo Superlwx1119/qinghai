@@ -123,6 +123,7 @@ section.layer + section.layer {
   background-color: $white;
   border-radius: 4px;
   font-size: $const;
+  box-shadow: 0 0 13px 0 rgba(82,63,105,.05);
 
   &.height-auto {
     height: auto;
@@ -130,23 +131,25 @@ section.layer + section.layer {
 
   .box-header {
     position: relative;
-    padding: 10px;
+    padding: 10px 10px 16px;
+    line-height: 1;
 
     span.box-title {
       position: relative;
       display: inline-block;
-      padding-left: 14px;
+      padding-left: 10px;
       font-weight: bold;
       color: $title;
-      font-size: $const;
+      font-size: $const + 2;
+      line-height: 1;
 
       &::after {
         content: '';
         position: absolute;
         width: 6px;
-        height: 14px;
+        height: 16px;
         left: 0;
-        top: 1px;
+        top: 0;
       }
     }
 
@@ -164,9 +167,9 @@ section.layer + section.layer {
     }
 
     &.handle {
-      height: 52px;
-      line-height: 52px;
-      padding: 0 10px;
+      height: 50px;
+      line-height: 50px;
+      padding: 0 9px;
 
       span.box-title::after {
         top: 9px;
@@ -185,6 +188,10 @@ section.layer + section.layer {
         }
       }
     }
+
+    & + .box-body {
+      padding-top: 0;
+    }
   }
 
   .box-body {
@@ -200,7 +207,7 @@ section.layer + section.layer {
   }
 
   .handle + .box-body {
-    height: calc(100% - 52px);
+    height: calc(100% - 50px);
 
   }
 
@@ -482,15 +489,12 @@ section.layer + section.layer {
   padding-top: 0 !important;
 }
 
-
-.no-margin {
-  margin: 0 !important;
+.pd0 {
+  padding: 0 !important;
 }
 
-.no-padding-top {
-  padding-top: 0 !important;
+.noshadow {
+  box-shadow: none;
 }
-
-
 
 @import './new.scss';

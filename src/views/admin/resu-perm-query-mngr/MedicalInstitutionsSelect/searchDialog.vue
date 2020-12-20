@@ -21,7 +21,7 @@
       :filter-node-method="filterNode"
       @node-click="handleNodeClick"
     >
-      <template slot-scope="{data}">
+      <template>
         <span>{{ data.name }}</span>
       </template>
     </el-tree>

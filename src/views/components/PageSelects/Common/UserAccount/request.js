@@ -2,7 +2,7 @@
 //   hsaMbaMdt // 医疗待遇
 // } from '@/api/severs'
 // 接口
-import request from '@/utils/request'
+// import request from '@/utils/request'
 /**
  * 表格查询
  * @param query

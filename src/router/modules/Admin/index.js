@@ -1,5 +1,4 @@
 import Layout from '@/layout'
-// import SystemManage from './SystemManage/index' // 单位托管
 
 export default {
   path: '/system',

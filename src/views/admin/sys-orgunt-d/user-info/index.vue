@@ -10,14 +10,14 @@
           </div>
         </div>
 
-        <div class="box-body" style="height:calc(100% - 34px)">
+        <div class="box-body" style="height:calc(100% - 50px)">
           <el-table
             v-loading="userTableLoading"
             :data="userTableData"
             height="string"
             element-loading-spinner="el-loading1"
             highlight-current-row
-            style="width: 100%;height:98%;"
+            style="width: 100%;height:100%;"
             border
             fit
             @current-change="handleCurrentChange"

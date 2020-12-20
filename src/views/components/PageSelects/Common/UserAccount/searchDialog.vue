@@ -42,7 +42,7 @@
 import FormItems from '@/views/components/PageLayers/form-items'
 import Table from './table'
 // import { getCodeTableDetailConvergence } from '@/api/Common/CodeTableRequest'
-import { MEDINSLV } from '@/utils/constant'
+// import { MEDINSLV } from '@/utils/constant'
 export default {
   components: {
     FormItems,
@@ -100,9 +100,9 @@ export default {
   },
   methods: {
     getInstisLvDatas() {
-      const params = {
-        codeType: MEDINSLV
-      }
+      // const params = {
+      //   codeType: MEDINSLV
+      // }
       // getCodeTableDetailConvergence(params).then(res => {
       //   this.$set(this.formItemsDatas[2].params, 'options', res.data[MEDINSLV])
       // })

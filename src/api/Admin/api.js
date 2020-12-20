@@ -27,7 +27,7 @@ export default {
     sysr: ips + '/admin/web/sysResuD/sysr', // 查询功能列表，功能详情
     updateResu: ips + '/admin/web/sysResuD/updateResu', // 修改菜单
     del: ips + '/admin/web/sysResuD/del', // 删除菜单
-    sysAll: ips + '//admin/web/subsys/sysSubsysD/sysAll', // 查询所有子系统
+    sysAll: ips + '/admin/web/subsys/sysSubsysD/sysAll', // 查询所有子系统
     moveNode: ips + '/admin/web/sysResuD/moveNode' // 移动菜单
   },
   // 安全角色管理
@@ -35,8 +35,8 @@ export default {
     currentUser: ips + '/admin/web/secRole/tree/currentUser', // 查询根角色（用户的角色信息）
     adminRoles: ips + '/admin/web/secRole/tree/adminRoles', // 查询角色
     secRole: ips + '/admin/web/secRole', // 查询角色信息
-    saveSecRole: ips + '//admin/web/secRole/', // 保存角色信息
-    updateSecRole: ips + '//admin/web/secRole/updateSecRole',
+    saveSecRole: ips + '/admin/web/secRole/', // 保存角色信息
+    updateSecRole: ips + '/admin/web/secRole/updateSecRole',
     units: ips + '/admin/web/secRole/units', // 查询机构
     resource: ips + '/admin/web/secRole/tree/resource', // 查询菜单
     shareResources: ips + '/admin/web/secRole/resources', // 可分配菜单
